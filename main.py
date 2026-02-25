@@ -1,5 +1,5 @@
 # main.py
-from functies import inlezen_json, toon_structuur, pretty_print_json, flatten_hierarchy, flatten_indicators
+from functies import inlezen_json, toon_structuur, print_json, flatten_hierarchy, depth_type_kolommen, flatten_indicators
 import pandas as pd
 
 def main():
@@ -12,39 +12,19 @@ def main():
         print("=== STRUCTUUR (hiërarchie) ===")
         toon_structuur(data)
 
-        print("\n=== VOLLEDIGE JSON (netjes) ===")
-        pretty_print_json(data)
+        print("\n=== VOLLEDIGE JSON ===")
+        print_json(data)
 
         print("\n=== Platte data ===")
-        root = data["hierarchie"]      # <-- JUISTE ingang
+        # Haalt de hierarchie uit de JSON
+        root = data["hierarchie"]   
         df_nodes = flatten_hierarchy(root, extra_keys=["uuid", "value"])
         print(df_nodes.head())
 
-        print("\n=== Kolommen per type (indicator/laag) ===")
-        kolommen_per_type = (
-            df_nodes
-            .groupby("type", dropna=False)
-            .apply(lambda g: g.columns[g.notna().any()].tolist())
-            .rename("kolommen")
-            .reset_index()
-        )
-        print(kolommen_per_type)
-
-        print("\n=== Kolommen per depth (laagnummer) ===")
-        kolommen_per_depth = (
-            df_nodes
-            .groupby("depth")
-            .apply(lambda g: g.columns[g.notna().any()].tolist())
-            .rename("kolommen")
-            .reset_index()
-        )
-        print(kolommen_per_depth)
-
-        print("\n=== Indicator-kolommen ===")
-        df_ind = flatten_indicators(root)
-        print("Indicator-kolommen:", df_ind.columns.tolist())
-        print(df_ind.head())
-
+        print("\n=== Kolommen per depth en type ===")
+        df_overzicht = depth_type_kolommen(df_nodes)
+        print(df_overzicht.to_string(index=False))
+  
     except Exception as e:
         print(f"Er ging iets mis bij het inlezen: {e}")
 

@@ -5,6 +5,9 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 
 def inlezen_json(pad: str | Path) -> Any:
+    """
+    Inlezen van een JSON-bestand en teruggeven als Python-object.
+    """
     p = Path(pad)
     if not p.exists():
         raise FileNotFoundError(f"Bestand bestaat niet: {p}")
@@ -13,30 +16,39 @@ def inlezen_json(pad: str | Path) -> Any:
 
 def toon_structuur(data, indent: int = 0) -> None:
     """
-    Print de hiërarchie van een JSON-structuur (dict of list) met types per niveau.
+    Deze functie print in één oogopslag de structuur van een JSON‑achtige datastructuur 
+    door per niveau te tonen welk type waarde er staat.    
     """
     sp = "  " * indent  # twee spaties per niveau
+    """
+    data = dictionary: Deze code doorloopt alle key‑value‑paren in een dictionary, print per key het type van de bijbehorende waarde en roept daarna recursief dezelfde functie aan om de onderliggende structuur verder te tonen.
+    data = list: Deze code doorloopt alle elementen in een lijst, print per element het type en roept daarna recursief dezelfde functie aan om de onderliggende structuur verder te tonen.
 
+    """    
     if isinstance(data, dict):
         for key, value in data.items():
             print(f"{sp}- {key}: {type(value).__name__}")
             toon_structuur(value, indent + 1)
 
+
     elif isinstance(data, list):
-        print(f"{sp}- list ({len(data)} items)")
-        if len(data) > 0:
-            # Toon structuur van het eerste element als voorbeeld
-            toon_structuur(data[0], indent + 1)
+            print(f"{sp}- list ({len(data)} items)")
+            if len(data) > 0:
+                # Toon structuur van het eerste element als voorbeeld
+                toon_structuur(data[0], indent + 1)
 
     else:
-        print(f"{sp}- value ({type(data).__name__})")
+        print(f"{sp}- {type(data).__name__}")
 
-def pretty_print_json(data) -> None:
+def print_json(data) -> None:
     """
     Print de volledige JSON netjes met inspringing en Unicode.
     """
-    print(json.dumps(data, indent=2, ensure_ascii=False))
-
+    try:        
+        print(json.dumps(data, indent=2, ensure_ascii=False))    
+    except TypeError as e:        
+        print(f"Kan data niet serialiseren naar JSON: {e}")
+        
 def flatten_hierarchy(data: Any,
                       name_key: str = "name",
                       type_key: str = "type",
@@ -53,6 +65,11 @@ def flatten_hierarchy(data: Any,
     rows: List[Dict[str, Any]] = []
 
     def walk(node: Any, path: List[str], parent: Optional[str], depth: int):
+        """
+        walk is een recursieve functie die een boom van dict‑nodes doorloopt, 
+        per node het pad en metadata (naam, type, kleur, diepte, ouder en extra velden) samenstelt, 
+        deze als rij aan rows toevoegt en vervolgens alle kinderen bezoekt met een geüpdatet pad en verhoogde diepte.
+        """
         if isinstance(node, dict):
             name  = node.get(name_key, "(zonder naam)")
             ntype = node.get(type_key)
@@ -98,41 +115,33 @@ def flatten_hierarchy(data: Any,
     walk(data, [], parent=None, depth=0)
     return pd.DataFrame(rows)
 
+def depth_type_kolommen(df_nodes):
+    """
+    Maak een tabel met per depth:
+      - het type dat op die depth voorkomt
+      - de kolommen die ergens NIET-NaN zijn binnen die depth
+    """
+    # Bepaal per depth welke kolommen ergens niet-NaN zijn
+    kol_per_depth = (
+        df_nodes
+        .groupby("depth")
+        .apply(lambda g: g.columns[g.notna().any()].tolist())
+        .rename("kolommen")
+        .reset_index()
+    )
 
-import pandas as pd
+    # Bepaal per depth het type dat daar voorkomt
+    type_per_depth = (
+        df_nodes
+        .groupby("depth")["type"]
+        .apply(lambda s: sorted(s.dropna().unique().tolist()))
+        .reset_index()
+    )
 
-from typing import Any, Dict, List
+    # merge depth → kolommen + type
+    df = kol_per_depth.merge(type_per_depth, on="depth", how="left")
 
-def flatten_indicators(root: Any) -> pd.DataFrame:
-    rows: List[Dict[str, Any]] = []
+    # Omdat per depth precies 1 type hoort, nemen we de eerste (string ipv lijst)
+    df["type"] = df["type"].apply(lambda lst: lst[0] if lst else None)
 
-    def flatten_dict(d: Dict[str, Any], prefix: str = "") -> Dict[str, Any]:
-        """Maak nested dicts plat met key.pad (bv. metadata.bron)."""
-        out = {}
-        for k, v in d.items():
-            if k == "children":            # children niet in dezelfde rij stoppen
-                continue
-            kk = f"{prefix}{k}" if not prefix else f"{prefix}.{k}"
-            if isinstance(v, dict):
-                out.update(flatten_dict(v, kk))
-            else:
-                out[kk] = v
-        return out
-
-    def walk(node: Any, path: List[str]):
-        if isinstance(node, dict):
-            name = node.get("name", "(zonder naam)")
-            if node.get("type") == "indicator":
-                row = {"path": "/".join(path + [name])}
-                row.update(flatten_dict(node))  # alle velden van de indicator
-                rows.append(row)
-            # verder dalen
-            for ch in (node.get("children") or []):
-                walk(ch, path + [name])
-        elif isinstance(node, list):
-            for it in node:
-                walk(it, path)
-
-    walk(root, [])
-    return pd.DataFrame(rows)
-
+    return df[["depth", "type", "kolommen"]]
