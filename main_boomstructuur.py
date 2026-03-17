@@ -1,5 +1,5 @@
 # main.py
-from functies import inlezen_json, toon_structuur, print_json, flatten_hierarchy, depth_type_kolommen, flatten_indicators
+from functies_boomstructuur import inlezen_json, toon_structuur, print_json, flatten_hierarchy, depth_type_kolommen, flatten_indicators
 import pandas as pd
 
 def main():
