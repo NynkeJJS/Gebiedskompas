@@ -12,3 +12,4 @@ factor-analyzer @ git+https://gitlab.com/ets-opensource/factor_analyzer.git@main
 # overige die je gebruikt:
 pyarrow==23.0.0
 requests==2.32.5
+OWSLib>=0.30.0

@@ -1,7 +1,8 @@
 
+from numpy import rint
 import pandas as pd
 import os
-from config_experiment import OUTPUT_DIR, OUTPUT_DATA, OUTPUT_META
+from config_experiment import INPUT_DIR, DATA_CSV, META_CSV, OUTPUT_DIR, OUTPUT_DATA, OUTPUT_META
 
 from functies_experiment import (
     get_metadata,
@@ -10,15 +11,19 @@ from functies_experiment import (
     koppel_metadata,
     koppel_geo_info,
     sla_op, 
-    lees_opgeslagen_data
+    lees_opgeslagen_data,
+    read_and_join_with_metadata,
+    join_cbs_with_klimaat
 )
 
 from analyse_experiment import (
-    preflight_check,
+    normalize_factor_labels,
+    pca_check,
     run_pca,
     run_factor_analysis,
     factor_theme_map,
     build_factor_tree,
+    normalize_factor_labels,
     print_factor_tree
 )
 
@@ -26,7 +31,7 @@ from analyse_experiment import (
 def main():
 
     # ------------------------------------------------------
-    # Data en metadata ophalen en voorbereiden
+    # Data en metadata kerncijfers buurt ophalen en voorbereiden
     # ------------------------------------------------------
     # print("Data inlezen...")
     # df_meta = get_metadata()
@@ -40,11 +45,8 @@ def main():
     # print(df_data.head())
 
     # ------------------------------------------------------
-    # Data inlezen vanaf schijf (CSV)
+    # Data inlezen vanaf schijf (CSV uit data/output)
     # ------------------------------------------------------
-# ------------------------------------------------------
-# Data inlezen vanaf schijf (CSV uit data/output)
-# ------------------------------------------------------
 
     # Bouw paden op
     data_path = os.path.join(OUTPUT_DIR, OUTPUT_DATA)
@@ -66,23 +68,90 @@ def main():
     print(f"Klaar! df_data shape: {df_data.shape}")
     print(df_data.head(3))
 
+
+    # ------------------------------------------------------
+    # Klimaatatlasdata en metadata inlezen en koppelen
+    # ------------------------------------------------------
+
+    data_path = os.path.join(INPUT_DIR, DATA_CSV)
+    metadata_path = os.path.join(INPUT_DIR, META_CSV)
+
+    print(f"Data-bestand:      {data_path}")
+    print(f"Metadata-bestand:  {metadata_path}")
+
+    # Inlezen + koppelen
+    df_klimaat, meta_tidy, col_meta = read_and_join_with_metadata(
+        data_path,
+        metadata_path,
+        sep=";",          # pas aan naar "\t" indien tab-separated
+        decimal=",",
+        encoding="utf-8-sig",
+        auto_rename=False # zet True om kolomnamen te vervangen door Indicator/Label
+    )
+
+    # Voorbeeld checks
+    print("\n Overzicht metadata")
+    print(meta_tidy.head(10))
+
+    print("\n Voorbeeld metadata van F18ErnstigZ:")
+    print(col_meta.get("F18ErnstigZ", {}))
+
+    print("\n Dtype-overzicht (eerste 10 kolommen):")
+    print(df_klimaat.dtypes.head(10))
+
+    print("\n Data ingelezen en gekoppeld. Eerste 5 rijen:")
+    print(df_klimaat.head())
+
+    # Aantal kolommen met metadata vs. totaal
+    meta_dict = df_klimaat.attrs.get("metadata", {})
+    covered = len(set(df_klimaat.columns) & set(meta_dict.keys()))
+    print(f"Kolommen met metadata: {covered}/{df_klimaat.shape[1]}")
+
+    print("\n---- df_data columns ----")
+    print(df_data.columns.tolist())
+
+    print("\n---- df_data metadata columns ----")
+    print(df_meta.columns.tolist())
+
+    print("\n---- df_klimaat columns ----")
+    print(df_klimaat.columns.tolist())
+
+   
+    # ------------------------------------------------------
+    # Kerncijfers en Klimaatatlasdata koppelen
+    # ------------------------------------------------------
+    # Stel: df_data heeft 'Codering', df_meta heeft 'buurtcode2024' (en/of andere jaren)
+    df_join = join_cbs_with_klimaat(
+        df_data=df_data,
+        df_klimaat=df_klimaat,
+        strict_unique=False,   # duplicaten toestaan + dedupe
+        verbose=True
+    )
+
+    print(df_join.shape)
+    df_join.head()
+
+
+
     # ------------------------------------------------------
     # PRECHECK EERST — alleen inspectie en keuzes bepalen
     # ------------------------------------------------------
     
-    print("\n[Stap 0] Preflight check (imputeren + schalen + shape):")
-    df_num, df_scaled = preflight_check(df_data, min_rows_warning=10)
+    print("\n Check (imputeren + schalen + shape):")
+    df_num, df_scaled = pca_check(df_join, min_rows_warning=10)
 
     # → Op basis van deze output kies je bewust je aantallen:
     #    - Voor PCA laten we in deze main sklearn zelf bepalen (alle componenten) en kijken we naar cumulatieve variantie.
     #    - Voor FA kun je hier je n_factors kiezen. Start bijvoorbeeld met 4.
-    n_factors = 4  # pas aan na je preflight-inzicht
+    n_factors = 10  # pas aan na je preflight-inzicht
+
+
 
     # ------------------------------------------------------
     # PCA
     # ------------------------------------------------------
     print("\n[Running PCA...")
-    pca, pca_loadings, explained = run_pca(df_data)
+    pca, pca_loadings, explained = run_pca(df_num, df_scaled)
 
     print("\nEerste PCA loadings:")
     print(pca_loadings.head())
@@ -90,18 +159,11 @@ def main():
     print("\nVerklaarde variantie (eerste 10 componenten):")
     print(explained[:10])
 
-    # (optioneel) PCA-scores berekenen en opslaan/terugkoppelen:
-    # from sklearn.preprocessing import StandardScaler
-    # scores = pca.transform(df_scaled.values)
-    # scores_df = pd.DataFrame(scores, index=df_scaled.index,
-    #                          columns=[f"PC{i+1}" for i in range(scores.shape[1])])
-    # scores_df.to_csv("data/output/pca_scores.csv", index=True)
-
     # ------------------------------------------------------
     # FACTORANALYSE
     # ------------------------------------------------------
     print("\nRunning Factor Analysis...")
-    fa, fa_loadings = run_factor_analysis(df_data, n_factors=n_factors)
+    fa, fa_loadings = run_factor_analysis(df_scaled, n_factors=n_factors)
 
     print("\nFactor loadings (eerste variabelen):")
     print(fa_loadings.head())
@@ -140,6 +202,7 @@ def main():
 
     print("\nBoomstructuur van factoren:")
     factor_tree = build_factor_tree(fa_loadings, threshold=0.40)
+    factor_tree = normalize_factor_labels(factor_tree)
     print_factor_tree(factor_tree)
 
 # ------------------------------------------------------

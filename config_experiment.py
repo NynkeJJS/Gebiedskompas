@@ -22,6 +22,11 @@ FRIESE_GEMEENTEN = [
     'GM0098',  # Weststellingwerf
 ]
 
+# Input paden
+INPUT_DIR = "data/raw"
+DATA_CSV = "Klimaateffectatlas_data.csv"       
+META_CSV = "Klimaateffectatlas_metadata.csv"
+
 # Output paden
 OUTPUT_DIR = "data/output"
 OUTPUT_DATA = "friesland_data.csv"

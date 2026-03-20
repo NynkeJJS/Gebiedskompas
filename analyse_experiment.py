@@ -15,7 +15,7 @@ from factor_analyzer import FactorAnalyzer
 # Controle toevoegen om te waarschuwen als er weinig observaties zijn of als er meer variabelen dan observaties zijn
 # ------------------------------------------------------
 
-def preflight_check(df_data, min_rows_warning=10):
+def pca_check(df_data, min_rows_warning=10):
     """Imputeer + schaal één keer, print shapes, en geef zowel df_num als X terug."""
     df_num = df_data.select_dtypes(include='number')
     from sklearn.impute import SimpleImputer
@@ -28,13 +28,13 @@ def preflight_check(df_data, min_rows_warning=10):
     X = scaler.fit_transform(X_imputed)
 
     n_samples, n_features = X.shape
-    print(f"[Preflight] n_samples={n_samples}, n_features={n_features}")
+    print(f"[Check] n_samples={n_samples}, n_features={n_features}")
 
     if n_samples < min_rows_warning:
-        print(f"[Preflight] Waarschuwing: weinig observaties (n={n_samples})."
+        print(f"[Check] Waarschuwing: weinig observaties (n={n_samples})."
               " Overweeg agressiever imputeren/aggregatie.")
     if n_samples < n_features:
-        print(f"[Preflight] Let op: meer variabelen ({n_features}) dan observaties ({n_samples}). "
+        print(f"[Check] Let op: meer variabelen ({n_features}) dan observaties ({n_samples}). "
               f"Maximaal aantal PCA‑componenten = {n_samples} en voor FA moet n_factors ≤ {max(1, n_samples-1)}.")
 
     # Handig: ook een geschaalde DataFrame teruggeven voor FA
@@ -46,16 +46,9 @@ def preflight_check(df_data, min_rows_warning=10):
 # PCA
 # ------------------------------------------------------
 
-def run_pca(df_data, output_dir="data/output"):
-    # Gebruik preflight zodat checks al geprint zijn
-    df_num, df_scaled = preflight_check(df_data)
-
-    from sklearn.decomposition import PCA
-    import matplotlib.pyplot as plt
-    import os
+def run_pca(df_num, df_scaled, output_dir="data/output"):
 
     X = df_scaled.values
-    n_samples, n_features = X.shape
 
     pca = PCA()  # laat sklearn zelf het aantal componenten bepalen
     pca.fit(X)
@@ -89,12 +82,7 @@ def run_pca(df_data, output_dir="data/output"):
 # Factoranalyse (EFA)
 # ------------------------------------------------------
 
-def run_factor_analysis(df_data, n_factors=4, output_dir="data/output"):
-    # Gebruik dezelfde preflight (zelfde imputatie/schaling als PCA)
-    df_num, df_scaled = preflight_check(df_data)
-
-    from factor_analyzer import FactorAnalyzer
-    import os
+def run_factor_analysis(df_scaled, n_factors=4, output_dir="data/output"):
 
     n_samples, n_features = df_scaled.shape
     max_factors = max(1, min(n_features, n_samples - 1))
@@ -140,6 +128,13 @@ def build_factor_tree(loadings, threshold=0.4):
             continue
         tree.setdefault(factor, []).append(indicator)
     return tree
+
+
+def normalize_factor_labels(tree):
+    new_tree = {}
+    for i, key in enumerate(sorted(tree.keys()), start=1):
+        new_tree[f"Factor {i}"] = tree[key]
+    return new_tree
 
 
 def print_factor_tree(tree):
