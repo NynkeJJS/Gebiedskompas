@@ -1,144 +1,110 @@
-# analyse.py
-
+# analysis.py
 import os
-import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.impute import SimpleImputer
+import pandas as pd
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 from factor_analyzer import FactorAnalyzer
+import plotly.express as px
 
 
-# ------------------------------------------------------
-# Data voorbereiden door missende waardes te imputeren en de variabelen te schalen
-# Controle toevoegen om te waarschuwen als er weinig observaties zijn of als er meer variabelen dan observaties zijn
-# ------------------------------------------------------
+# -----------------------------------------------------
+# Thema-boomstructuur functies
+# -----------------------------------------------------
 
-def pca_check(df_data, min_rows_warning=10):
-    """Imputeer + schaal één keer, print shapes, en geef zowel df_num als X terug."""
-    df_num = df_data.select_dtypes(include='number')
-    from sklearn.impute import SimpleImputer
-    from sklearn.preprocessing import StandardScaler
-
-    imputer = SimpleImputer(strategy='median')
-    X_imputed = imputer.fit_transform(df_num)
-
-    scaler = StandardScaler()
-    X = scaler.fit_transform(X_imputed)
-
-    n_samples, n_features = X.shape
-    print(f"[Check] n_samples={n_samples}, n_features={n_features}")
-
-    if n_samples < min_rows_warning:
-        print(f"[Check] Waarschuwing: weinig observaties (n={n_samples})."
-              " Overweeg agressiever imputeren/aggregatie.")
-    if n_samples < n_features:
-        print(f"[Check] Let op: meer variabelen ({n_features}) dan observaties ({n_samples}). "
-              f"Maximaal aantal PCA‑componenten = {n_samples} en voor FA moet n_factors ≤ {max(1, n_samples-1)}.")
-
-    # Handig: ook een geschaalde DataFrame teruggeven voor FA
-    df_scaled = pd.DataFrame(X, columns=df_num.columns, index=df_num.index)
-    return df_num, df_scaled
-
-
-# ------------------------------------------------------
-# PCA
-# ------------------------------------------------------
-
-def run_pca(df_num, df_scaled, output_dir="data/output"):
-
-    X = df_scaled.values
-
-    pca = PCA()  # laat sklearn zelf het aantal componenten bepalen
-    pca.fit(X)
-
-    explained = pca.explained_variance_ratio_
-
-    # Plot cumulatieve variantie
-    plt.figure(figsize=(10,5))
-    plt.plot(explained.cumsum(), marker='o')
-    plt.title("Cumulatieve verklaarde variantie")
-    plt.xlabel("Aantal componenten")
-    plt.ylabel("Cumulatieve variantie")
-    plt.grid(True)
-
-    os.makedirs(output_dir, exist_ok=True)
-    plt.savefig(os.path.join(output_dir, "pca_cumulatieve_variantie.png"), dpi=150)
-    plt.close()
-
-    # Loadings met correct aantal componenten
-    n_components = pca.n_components_
-    loadings = pd.DataFrame(
-        pca.components_.T,
-        columns=[f"PC{i+1}" for i in range(n_components)],
-        index=df_num.columns
-    )
-    loadings.to_csv(os.path.join(output_dir, "pca_loadings.csv"))
-    return pca, loadings, explained
-
-
-# ------------------------------------------------------
-# Factoranalyse (EFA)
-# ------------------------------------------------------
-
-def run_factor_analysis(df_scaled, n_factors=4, output_dir="data/output"):
-
-    n_samples, n_features = df_scaled.shape
-    max_factors = max(1, min(n_features, n_samples - 1))
-    if n_factors > max_factors:
-        print(f"[FA] n_factors verlaagd van {n_factors} naar {max_factors} (beperkt door data).")
-        n_factors = max_factors
-
-    fa = FactorAnalyzer(n_factors=n_factors, rotation='varimax')
-    fa.fit(df_scaled)  # let op: geschaalde, geimputeerde data
-
-    loadings = pd.DataFrame(
-        fa.loadings_,
-        columns=[f"Factor{i+1}" for i in range(n_factors)],
-        index=df_scaled.columns
-    )
-
-    os.makedirs(output_dir, exist_ok=True)
-    loadings.to_csv(os.path.join(output_dir, "factor_loadings.csv"))
-    return fa, loadings
-
-# ------------------------------------------------------
-# Automatische thema-indeling op basis van factor loadings
-# ------------------------------------------------------
-
-def factor_theme_map(loadings, threshold=0.4):
-    mapping = {}
-    for col in loadings.index:
-        row = loadings.loc[col]
-        factor = row.abs().idxmax()
-        if abs(row[factor]) >= threshold:
-            mapping[col] = factor
-        else:
-            mapping[col] = None
-    return pd.Series(mapping, name="Thema")
-
-
-def build_factor_tree(loadings, threshold=0.4):
+def build_loading_tree(loadings, threshold=0.40):
+    absL = loadings.abs()
     tree = {}
-    for indicator in loadings.index:
-        row = loadings.loc[indicator]
-        factor = row.abs().idxmax()
-        if abs(row[factor]) < threshold:
-            continue
-        tree.setdefault(factor, []).append(indicator)
+    for feature in loadings.index:
+        primary = absL.loc[feature].idxmax()
+        if absL.loc[feature, primary] >= threshold:
+            tree.setdefault(primary, []).append(feature)
     return tree
 
 
-def normalize_factor_labels(tree):
+def normalize_loading_labels(tree, prefix="PC"):
     new_tree = {}
-    for i, key in enumerate(sorted(tree.keys()), start=1):
-        new_tree[f"Factor {i}"] = tree[key]
+    for i, comp in enumerate(tree.keys(), start=1):
+        new_comp = f"{prefix}{i}"
+        new_tree[new_comp] = tree[comp]
     return new_tree
 
 
-def print_factor_tree(tree):
-    for factor, indicators in tree.items():
-        print(f"\n{factor}:")
-        for ind in indicators:
-            print(f"   - {ind}")
+def print_loading_tree(tree):
+    for comp, items in tree.items():
+        print(f"{comp}: {len(items)} items")
+        for it in items:
+            print(f"   - {it}")
+
+
+# -----------------------------------------------------
+# Zonnestraalplot
+# -----------------------------------------------------
+
+def sunburst_from_tree(tree, title, filename="sunburst.html", output_dir="data/output/"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    rows = []
+    for comp, items in tree.items():
+        for it in items:
+            rows.append([comp, it])
+
+    df = pd.DataFrame(rows, columns=["Component", "Item"])
+    fig = px.sunburst(df, path=["Component", "Item"], title=title)
+
+    file_path = os.path.join(output_dir, filename)
+    fig.write_html(file_path, include_plotlyjs="cdn")
+    print(f"[Plot] Sunburst opgeslagen: {file_path}")
+
+    return fig
+
+
+# -----------------------------------------------------
+# PCA & FA functies
+# -----------------------------------------------------
+
+def run_pca_threshold(df_scaled, variance_threshold=0.80):
+    """
+    PCA uitvoeren en automatisch aantal componenten kiezen
+    op basis van cumulatieve variantie (default = 80%).
+    """
+
+    #Fit PCA zonder max aantal componenten
+    pca = PCA().fit(df_scaled)
+
+    #Cumulatieve variantie
+    cum_var = np.cumsum(pca.explained_variance_ratio_)
+
+    #Aantal componenten dat threshold bereikt
+    n_components = np.argmax(cum_var >= variance_threshold) + 1
+
+    print(f"[PCA] Variantie-threshold = {variance_threshold*100:.0f}%")
+    print(f"[PCA] Geselecteerde componenten = {n_components}")
+    print(f"[PCA] Cumulatieve variantie = {cum_var[n_components-1]*100:.2f}%")
+
+    #PCA opnieuw fitten met gekozen aantal componenten
+    pca_final = PCA(n_components=n_components)
+    pca_final.fit(df_scaled)
+
+    #Loadings tabel
+    loadings = pd.DataFrame(
+        pca_final.components_.T,
+        index=df_scaled.columns,
+        columns=[f"PC{i+1}" for i in range(n_components)]
+    )
+
+    return pca_final, loadings, cum_var
+
+
+def run_fa(df_scaled, n_factors=None):
+    if n_factors is None:
+        n_factors = min(5, df_scaled.shape[1] - 1)
+
+    fa = FactorAnalyzer(n_factors=n_factors, rotation="oblimin")
+    fa.fit(df_scaled)
+
+    loadings = pd.DataFrame(
+        fa.loadings_,
+        index=df_scaled.columns,
+        columns=[f"F{i+1}" for i in range(n_factors)]
+    )
+    return fa, loadings

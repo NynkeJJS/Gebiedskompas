@@ -1,4 +1,4 @@
-BASE_URL = "https://opendata.cbs.nl/ODataApi/odata/85318NED"
+BASE_URL = "https://opendata.cbs.nl/ODataApi/odata/86165NED"
 PROVINCIE = "Friesland"
 BATCH_SIZE = 50
 FRIESE_GEMEENTEN = [

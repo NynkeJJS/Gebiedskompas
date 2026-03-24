@@ -1,4 +1,3 @@
-# functies_experiment.py
 from __future__ import annotations
 
 import os
@@ -127,15 +126,19 @@ def sla_op(df_data: pd.DataFrame, df_meta: pd.DataFrame) -> None:
     print(f"  Meta opgeslagen op: {os.path.abspath(meta_path)}")
 
 
-def lees_opgeslagen_data() -> tuple[pd.DataFrame, pd.DataFrame | None]:
-    data_path = os.path.join(OUTPUT_DIR, OUTPUT_DATA)
-    meta_path = os.path.join(OUTPUT_DIR, OUTPUT_META)
+def lees_opgeslagen_data(output_dir, output_data, output_meta, verbose=True):
+    data_path = os.path.join(output_dir, output_data)
+    meta_path = os.path.join(output_dir, output_meta)
 
-    print("Data vanaf schijf inlezen...")
+    if verbose:
+        print("Data vanaf schijf inlezen...")
+
     df_data = pd.read_csv(data_path, low_memory=False)
     df_meta = pd.read_csv(meta_path, low_memory=False) if os.path.exists(meta_path) else None
 
-    print(f"Klaar! Shape: {df_data.shape}")
+    if verbose:
+        print(f"Klaar! Shape: {df_data.shape}")
+
     return df_data, df_meta
 
 

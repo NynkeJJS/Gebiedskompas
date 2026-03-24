@@ -4,7 +4,7 @@ import pandas as pd
 import os
 from config_experiment import INPUT_DIR, DATA_CSV, META_CSV, OUTPUT_DIR, OUTPUT_DATA, OUTPUT_META
 
-from functies_experiment import (
+from data_inlezen_experiment import (
     get_metadata,
     get_provincie_gebieden,
     get_data_provincie,
@@ -16,15 +16,15 @@ from functies_experiment import (
     join_cbs_with_klimaat
 )
 
+from data_pipeline_experiment import pca_check
+
 from analyse_experiment import (
-    normalize_factor_labels,
-    pca_check,
-    run_pca,
-    run_factor_analysis,
-    factor_theme_map,
-    build_factor_tree,
-    normalize_factor_labels,
-    print_factor_tree
+    run_pca_threshold,
+    run_fa,
+    build_loading_tree,
+    normalize_loading_labels,
+    print_loading_tree,
+    sunburst_from_tree
 )
 
 
@@ -33,40 +33,26 @@ def main():
     # ------------------------------------------------------
     # Data en metadata kerncijfers buurt ophalen en voorbereiden
     # ------------------------------------------------------
-    # print("Data inlezen...")
-    # df_meta = get_metadata()
-    # df_provincie = get_provincie_gebieden()
-    # provincie_codes = df_provincie['Key'].tolist()
-    # df_data = get_data_provincie(provincie_codes)
-    # df_data = koppel_metadata(df_data, df_meta)
-    # df_data = koppel_geo_info(df_data, df_provincie)
-    # sla_op(df_data, df_meta)
-    # print(f"\nKlaar! Shape: {df_data.shape}")
-    # print(df_data.head())
+    print("Data inlezen...")
+    df_meta = get_metadata()
+    df_provincie = get_provincie_gebieden()
+    provincie_codes = df_provincie['Key'].tolist()
+    df_data = get_data_provincie(provincie_codes)
+    df_data = koppel_metadata(df_data, df_meta)
+    df_data = koppel_geo_info(df_data, df_provincie)
+    sla_op(df_data, df_meta)
+    print(f"\nKlaar! Shape: {df_data.shape}")
+    print(df_data.head())
 
     # ------------------------------------------------------
-    # Data inlezen vanaf schijf (CSV uit data/output)
+    # Data inlezen vanaf schijf
     # ------------------------------------------------------
-
-    # Bouw paden op
-    data_path = os.path.join(OUTPUT_DIR, OUTPUT_DATA)
-    meta_path = os.path.join(OUTPUT_DIR, OUTPUT_META)
-
-    print("Data vanaf schijf inlezen...")
-
-    # Controleer of bestanden bestaan
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(
-            f"Kon {data_path} niet vinden. "
-            f"Zorg dat je eerst hebt weggeschreven of pas OUTPUT_DIR/OUTPUT_DATA aan."
-        )
-
-    # Inlezen
-    df_data = pd.read_csv(data_path, low_memory=False)
-    df_meta = pd.read_csv(meta_path, low_memory=False) if os.path.exists(meta_path) else None
-
-    print(f"Klaar! df_data shape: {df_data.shape}")
-    print(df_data.head(3))
+    df_data, df_meta = lees_opgeslagen_data(
+        output_dir=OUTPUT_DIR,
+        output_data=OUTPUT_DATA,
+        output_meta=OUTPUT_META,
+        verbose=True
+    )
 
 
     # ------------------------------------------------------
@@ -120,7 +106,7 @@ def main():
     # ------------------------------------------------------
     # Kerncijfers en Klimaatatlasdata koppelen
     # ------------------------------------------------------
-    # Stel: df_data heeft 'Codering', df_meta heeft 'buurtcode2024' (en/of andere jaren)
+
     df_join = join_cbs_with_klimaat(
         df_data=df_data,
         df_klimaat=df_klimaat,
@@ -131,79 +117,48 @@ def main():
     print(df_join.shape)
     df_join.head()
 
-
-
     # ------------------------------------------------------
-    # PRECHECK EERST — alleen inspectie en keuzes bepalen
+    # Data pipeline: clean, impute, scale
     # ------------------------------------------------------
     
     print("\n Check (imputeren + schalen + shape):")
-    df_num, df_scaled = pca_check(df_join, min_rows_warning=10)
-
+    df_num, df_scaled = pca_check(df_join, verbose=True, impute_strategy="median")
     # → Op basis van deze output kies je bewust je aantallen:
     #    - Voor PCA laten we in deze main sklearn zelf bepalen (alle componenten) en kijken we naar cumulatieve variantie.
     #    - Voor FA kun je hier je n_factors kiezen. Start bijvoorbeeld met 4.
     n_factors = 10  # pas aan na je preflight-inzicht
-
+    variance_threshold=0.90
 
 
     # ------------------------------------------------------
     # PCA
     # ------------------------------------------------------
     print("\n[Running PCA...")
-    pca, pca_loadings, explained = run_pca(df_num, df_scaled)
+    pca, pca_loadings, cum_var = run_pca_threshold(    
+        df_scaled,    
+        variance_threshold=0.80 
+    )
+    pca_tree = build_loading_tree(pca_loadings, threshold=0.40)
+    pca_tree = normalize_loading_labels(pca_tree, prefix="PC")
 
-    print("\nEerste PCA loadings:")
-    print(pca_loadings.head())
+    print("\n--- PCA Boomstructuur ---")
+    print_loading_tree(pca_tree)
 
-    print("\nVerklaarde variantie (eerste 10 componenten):")
-    print(explained[:10])
+    sunburst_from_tree(pca_tree, "PCA Zonnestraalplot", "pca_sunburst.html")
 
-    # ------------------------------------------------------
-    # FACTORANALYSE
-    # ------------------------------------------------------
-    print("\nRunning Factor Analysis...")
-    fa, fa_loadings = run_factor_analysis(df_scaled, n_factors=n_factors)
+    # -------------------------------------------------
+    # Factoranalyse
+    # -------------------------------------------------
+    fa, fa_loadings = run_fa(df_scaled)
 
-    print("\nFactor loadings (eerste variabelen):")
-    print(fa_loadings.head())
+    fa_tree = build_loading_tree(fa_loadings, threshold=0.40)
+    fa_tree = normalize_loading_labels(fa_tree, prefix="FA")
 
-    # (optioneel) Factor-scores:
-    # try:
-    #     fa_scores = fa.transform(df_scaled.values)  # sommige versies bieden transform()
-    #     fa_scores_df = pd.DataFrame(fa_scores, index=df_scaled.index,
-    #                                 columns=[f"F{i+1}" for i in range(fa_scores.shape[1])])
-    #     fa_scores_df.to_csv("data/output/factor_scores.csv", index=True)
-    # except Exception:
-    #     pass  # transform() is niet in alle factor_analyzer-versies aanwezig
+    print("\n--- FA Boomstructuur ---")
+    print_loading_tree(fa_tree)
 
+    sunburst_from_tree(fa_tree, "FA Zonnestraalplot", "fa_sunburst.html")
 
-    print("fa_loadings.shape:", fa_loadings.shape)
-    print("fa_loadings.index[:5]:", fa_loadings.index[:5].tolist())
-    print("fa_loadings.columns[:5]:", fa_loadings.columns[:5].tolist())
-    print(fa_loadings.head(3))
-
-    # ------------------------------------------------------
-    # Automatische thema‑indeling
-    # ------------------------------------------------------
-
-    print("\nThema‑indeling op basis van factor loadings...")
-    thema_indeling = factor_theme_map(fa_loadings, threshold=0.40)
-
-    print(thema_indeling.head())
-
-    # (optioneel) wegschrijven:
-    # thema_indeling.to_csv("data/output/thema_indeling.csv", header=True)
-
-
-    # ------------------------------------------------------
-    # Boomstructuur tonen
-    # ------------------------------------------------------
-
-    print("\nBoomstructuur van factoren:")
-    factor_tree = build_factor_tree(fa_loadings, threshold=0.40)
-    factor_tree = normalize_factor_labels(factor_tree)
-    print_factor_tree(factor_tree)
 
 # ------------------------------------------------------
 # Uitvoeren main script
