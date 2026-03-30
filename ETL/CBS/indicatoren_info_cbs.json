@@ -1,0 +1,154 @@
+[
+    {
+        "table_name": "KERNCIJFERS_WIJKEN_EN_BUURTEN",
+        "normalize": true,
+        "columns": [
+            "OpleidingsniveauLaag",
+            "OpleidingsniveauMiddelbaar",
+            "OpleidingsniveauHoog"
+        ],
+        "indicator_name": [
+            "laag",
+            "middelhoog",
+            "hoog"
+        ],
+        "total_indicators": 3
+    },
+    {
+        "table_name": "KERNCIJFERS_WIJKEN_EN_BUURTEN",
+        "normalize": false,
+        "columns": [
+            "PersonenautoSPerHuishouden",
+            "PersonenautoSNaarOppervlakte"
+        ],
+        "indicator_name": [
+            "Personenauto's per huishouden",
+            "Personenauto's naar oppervlakte"
+        ],
+        "total_indicators": 2
+    },
+    {
+        "table_name": "KERNCIJFERS_WIJKEN_EN_BUURTEN",
+        "normalize": "HuishoudensTotaal",
+        "columns": [
+            "HuishoudensTotaal",
+            "HuishoudensZonderKinderen",
+            "HuishoudensMetKinderen"
+        ],
+        "indicator_name": [
+            "zonder kind",
+            "met kind"
+        ],
+        "total_indicators": 2
+    },
+    {
+        "table_name": "NABIJHEID_VOORZIENINGEN_BUURT",
+        "normalize": false,
+        "columns": [
+            "AfstandTotOpritHoofdverkeersweg",
+            "AfstandTotTreinstationsTotaal",
+            "AfstandTotBelangrijkOverstapstation"
+        ],
+        "indicator_name": [
+            "Afstand tot oprit hoofdverkeersweg",
+            "Afstand treinstation",
+            "Afstand treinknooppunt"
+        ],
+        "total_indicators": 3
+    },
+    {
+        "table_name": "GEZONDHEID_PER_WIJK_EN_BUURT",
+        "normalize": false,
+        "columns": [
+            "MoeiteMetRondkomen",
+            "ErnstigBeperktVanwegeGezondheid",
+            "BeperktVanwegeGezondheid",
+            "Roker",
+            "OvermatigeDrinker",
+            "Drinker",
+            "Overgewicht",
+            "VoldoetAanBeweegrichtlijn",
+            "Eenzaam",
+            "Vrijwilligerswerk",
+            "Mantelzorger"
+        ],
+        "indicator_name": [
+            "Moeite met rondkomen",
+            "Beperkte functionaliteit",
+            "Beperking",
+            "Roken",
+            "Overmatig drinken",
+            "Alcohol",
+            "Overgewicht",
+            "Bewegen",
+            "Eenzaamheid",
+            "Vrijwilliger",
+            "Mantelzorger"
+        ],
+        "total_indicators": 11
+    },
+    {
+        "table_name": "GEREGISTREERDE_OVERLAST_PER_BUURT",
+        "normalize": false,
+        "columns": [
+            "GeregistreerdeOverlast"
+        ],
+        "indicator_name": [
+            "wonen"
+        ],
+        "total_indicators": 1
+    },
+    {
+        "table_name": "ARBEIDSDEELNAME_WIJKEN_EN_BUURTEN",
+        "normalize": false,
+        "columns": [
+            "Werknemer",
+            "Zelfstandige"
+        ],
+        "indicator_name": [
+            "werkzamen",
+            "zzp'ers"
+        ],
+        "total_indicators": 2
+    },
+    {
+        "table_name": "KERNCIJFERS_WIJKEN_EN_BUURTEN",
+        "normalize": false,
+        "columns": [
+            "Koopwoningen",
+            "InBezitWoningcorporatie",
+            "InBezitOverigeVerhuurders"
+        ],
+        "indicator_name": [
+            "koop",
+            "cooperatief",
+            "particulier"
+        ],
+        "total_indicators": 3
+    },
+    {
+        "table_name": "NABIJHEID_VOORZIENINGEN_BUURT",
+        "normalize": false,
+        "columns": [
+            "AfstandTotHuisartsenpraktijk",
+            "AfstandTotApotheek",
+            "AfstandTotGroteSupermarkt",
+            "AfstandTotCafeED",
+            "AfstandTotRestaurant",
+            "AfstandTotKinderdagverblijf",
+            "AfstandTotBibliotheek",
+            "AfstandTotZwembad"
+        ],
+        "indicator_name": [
+            "Huisarts",
+            "Apotheek",
+            "Grote supermarkt",
+            "Caf\u00e9",
+            "Restaurant",
+            "Kinderdagverblijf",
+            "Bibliotheek",
+            "Zwembad"
+        ],
+        "total_indicators": 8
+    }
+]

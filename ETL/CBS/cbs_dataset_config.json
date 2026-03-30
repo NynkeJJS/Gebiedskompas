@@ -1,0 +1,22 @@
+{
+    "KERNCIJFERS_WIJKEN_EN_BUURTEN": [
+  "84799NED",
+  "85039NED",
+  "85318NED",
+  "85808NED",
+  "85984NED",
+  "86165NED"
+],
+    "NABIJHEID_VOORZIENINGEN_BUURT": "84463NED",
+    "GEZONDHEID_PER_WIJK_EN_BUURT": "85052NED",
+    "GEREGISTREERDE_OVERLAST_PER_BUURT": "85618NED",
+    "ARBEIDSDEELNAME_WIJKEN_EN_BUURTEN": "85618NED",
+    "GEZONDHEID_PER_WIJK_EN_BUURT_RIVM": {
+        "id": "50150NED",
+        "endpoint": "dataderden.cbs.nl"
+    },
+    "GEZONDHEIDSMONITOR_JONGVOLWASSENEN": {
+        "id": "50140NED",
+        "endpoint": "dataderden.cbs.nl"
+    }
+}

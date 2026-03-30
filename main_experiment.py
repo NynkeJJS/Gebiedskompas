@@ -2,7 +2,7 @@
 from numpy import rint
 import pandas as pd
 import os
-from config_experiment import INPUT_DIR, DATA_CSV, META_CSV, OUTPUT_DIR, OUTPUT_DATA, OUTPUT_META
+from config_experiment import RAW_DIR, BEWERKT_DIR, OUTPUT_DIR, KERNCIJFERS_DATA, KERNCIJFERS_META, KLIMAAT_DATA_CSV, KLIMAAT_META_CSV
 
 from data_inlezen_experiment import (
     get_metadata,
@@ -45,12 +45,18 @@ def main():
     print(df_data.head())
 
     # ------------------------------------------------------
+    # Data en metadata kerncijfers buurt ophalen en voorbereiden met ETL
+    # ------------------------------------------------------
+    # run python cbs_data_ophalen_experiment.py in de terminal om een enriched json-bestand te krijgen met data + metadata gekoppeld. 
+    
+
+    # ------------------------------------------------------
     # Data inlezen vanaf schijf
     # ------------------------------------------------------
     df_data, df_meta = lees_opgeslagen_data(
-        output_dir=OUTPUT_DIR,
-        output_data=OUTPUT_DATA,
-        output_meta=OUTPUT_META,
+        output_dir=BEWERKT_DIR,
+        output_data=KERNCIJFERS_DATA,
+        output_meta=KERNCIJFERS_META,
         verbose=True
     )
 
@@ -59,8 +65,8 @@ def main():
     # Klimaatatlasdata en metadata inlezen en koppelen
     # ------------------------------------------------------
 
-    data_path = os.path.join(INPUT_DIR, DATA_CSV)
-    metadata_path = os.path.join(INPUT_DIR, META_CSV)
+    data_path = os.path.join(RAW_DIR, KLIMAAT_DATA_CSV)
+    metadata_path = os.path.join(RAW_DIR, KLIMAAT_META_CSV)
 
     print(f"Data-bestand:      {data_path}")
     print(f"Metadata-bestand:  {metadata_path}")
@@ -122,12 +128,8 @@ def main():
     # ------------------------------------------------------
     
     print("\n Check (imputeren + schalen + shape):")
-    df_num, df_scaled = pca_check(df_join, verbose=True, impute_strategy="median")
-    # → Op basis van deze output kies je bewust je aantallen:
-    #    - Voor PCA laten we in deze main sklearn zelf bepalen (alle componenten) en kijken we naar cumulatieve variantie.
-    #    - Voor FA kun je hier je n_factors kiezen. Start bijvoorbeeld met 4.
-    n_factors = 10  # pas aan na je preflight-inzicht
-    variance_threshold=0.90
+    df_num, df_scaled = pca_check(df_join, verbose=True, impute_strategy="knn")
+
 
 
     # ------------------------------------------------------
@@ -139,12 +141,12 @@ def main():
         variance_threshold=0.80 
     )
     pca_tree = build_loading_tree(pca_loadings, threshold=0.40)
-    pca_tree = normalize_loading_labels(pca_tree, prefix="PC")
+    pca_tree = normalize_loading_labels(pca_tree, prefix="PCA")
 
     print("\n--- PCA Boomstructuur ---")
     print_loading_tree(pca_tree)
 
-    sunburst_from_tree(pca_tree, "PCA Zonnestraalplot", "pca_sunburst.html")
+    sunburst_from_tree(pca_tree, "PCA Zonnestraalplot", "pca_sunburst.html", output_dir=OUTPUT_DIR)
 
     # -------------------------------------------------
     # Factoranalyse
@@ -157,7 +159,7 @@ def main():
     print("\n--- FA Boomstructuur ---")
     print_loading_tree(fa_tree)
 
-    sunburst_from_tree(fa_tree, "FA Zonnestraalplot", "fa_sunburst.html")
+    sunburst_from_tree(fa_tree, "FA Zonnestraalplot", "fa_sunburst.html", output_dir=OUTPUT_DIR)
 
 
 # ------------------------------------------------------

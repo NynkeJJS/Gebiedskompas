@@ -40,7 +40,7 @@ def print_loading_tree(tree):
 # Zonnestraalplot
 # -----------------------------------------------------
 
-def sunburst_from_tree(tree, title, filename="sunburst.html", output_dir="data/output/"):
+def sunburst_from_tree(tree, title, filename, output_dir):
     os.makedirs(output_dir, exist_ok=True)
 
     rows = []

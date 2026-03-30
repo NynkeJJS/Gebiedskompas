@@ -10,9 +10,9 @@ from config_experiment import (
     PROVINCIE,
     BATCH_SIZE,
     FRIESE_GEMEENTEN,
-    OUTPUT_DIR,
-    OUTPUT_DATA,
-    OUTPUT_META,
+    BEWERKT_DIR,
+    KERNCIJFERS_DATA,
+    KERNCIJFERS_META,
 )
 
 __all__ = [
@@ -114,10 +114,10 @@ def koppel_geo_info(df_data: pd.DataFrame, df_provincie: pd.DataFrame) -> pd.Dat
 
 def sla_op(df_data: pd.DataFrame, df_meta: pd.DataFrame) -> None:
     print("Bestanden opslaan...")
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    os.makedirs(BEWERKT_DIR, exist_ok=True)
 
-    data_path = os.path.join(OUTPUT_DIR, OUTPUT_DATA)
-    meta_path = os.path.join(OUTPUT_DIR, OUTPUT_META)
+    data_path = os.path.join(BEWERKT_DIR, KERNCIJFERS_DATA)
+    meta_path = os.path.join(BEWERKT_DIR, KERNCIJFERS_META)
 
     df_data.to_csv(data_path, index=False)
     df_meta.to_csv(meta_path, index=False)
