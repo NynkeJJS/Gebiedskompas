@@ -210,5 +210,5 @@ __marimo__/
 # Virtuele omgeving (venv)
 gebied/
 
-# Datasets uitsluiten
-data/**
+# Datasets uitsluiten --> Niet uitsluiten ivm samenwerking Rik
+# data/**

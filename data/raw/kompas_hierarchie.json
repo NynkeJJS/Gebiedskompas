@@ -1,0 +1,1914 @@
+{
+  "config_id": 1,
+  "config_naam": "Volledig Kompas",
+  "config_icoon": "\ud83c\udf0d",
+  "hierarchie": {
+    "name": "Root",
+    "type": "root",
+    "children": [
+      {
+        "name": "Kwaliteit fysieke leefomgeving",
+        "type": "titel",
+        "color": "#3B82F6",
+        "children": [
+          {
+            "name": "Verkeer",
+            "type": "thema",
+            "children": [
+              {
+                "name": "veiligheid en overlast",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Overlast autoverkeer",
+                    "type": "indicator",
+                    "uuid": "b0e5ad11-8f42-4733-8e1a-0e5407e6c5fb",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Overlast gestalde fietsen",
+                    "type": "indicator",
+                    "uuid": "8ce45dd7-e60d-4356-814e-4e9fe519bf07",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verkeersongevallen",
+                    "type": "indicator",
+                    "uuid": "55ba59c5-19fe-4de3-97f2-97422b4b4f3b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verkeersveiligheid",
+                    "type": "indicator",
+                    "uuid": "4e5dc6ef-4cec-4879-93df-e6a41fa34af6",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Bereikbaarheid en parkeren",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Afstand treinknooppunt",
+                    "type": "indicator",
+                    "uuid": "9d54fe9e-3b54-48e6-ad11-18437cc49dc0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Afstand treinstation",
+                    "type": "indicator",
+                    "uuid": "c4185251-746b-4a19-b3a4-819ef65081c0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Bereikbaarheid",
+                    "type": "indicator",
+                    "uuid": "042564f9-3a45-4901-8f14-417622f8b4a0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Openbaar vervoer",
+                    "type": "indicator",
+                    "uuid": "1043837d-ce3f-486e-b611-c6940067d6c8",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Parkeerdruk",
+                    "type": "indicator",
+                    "uuid": "a6e0c52d-c214-4f66-9548-3ee43dd06826",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Personenauto's naar oppervlakte",
+                    "type": "indicator",
+                    "uuid": "88192b70-faa9-4108-a473-302aa0f624a9",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Personenauto's per huishouden",
+                    "type": "indicator",
+                    "uuid": "461d542b-b8be-4510-9dd0-5ba554b818cb",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Openbare ruimte",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Klimaat",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Afstand tot koele plek",
+                    "type": "indicator",
+                    "uuid": "bf4e5b8f-6b0a-4632-b9b4-8e29d025e68c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Afvoer water",
+                    "type": "indicator",
+                    "uuid": "ba212eab-e5a3-4511-80a7-a7709523818c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Gemiddeld Laagste Grondwaterstand",
+                    "type": "indicator",
+                    "uuid": "a4f84d1c-3263-4229-ad95-615924cb7852",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Gevoelstemperatuur",
+                    "type": "indicator",
+                    "uuid": "fdb4c11b-60ca-4ea1-86b8-6855a83344ee",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Maatregelen inwoners",
+                    "type": "indicator",
+                    "uuid": "5e457881-a811-4317-9d49-94288e912fb0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Oppervlak groen per inwoner",
+                    "type": "indicator",
+                    "uuid": "97f53738-3439-4c28-8cac-046a52c65248",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Oppervlakte groen (openbare ruimte)",
+                    "type": "indicator",
+                    "uuid": "dcb66a35-5711-477f-a89f-ea72c5be80a9",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Oppervlakte vegetatie (NDVI)",
+                    "type": "indicator",
+                    "uuid": "0b069c82-c6a6-4918-a87b-f49dca3d93e1",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Oppervlakte water",
+                    "type": "indicator",
+                    "uuid": "1d52806b-55fe-4328-a09e-f3a2e38e3f7c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Overlast weer",
+                    "type": "indicator",
+                    "uuid": "90c18e2b-c164-4a59-83fe-367e64fceec2",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Vegetatie op daken",
+                    "type": "indicator",
+                    "uuid": "eafba4fe-c2e0-452d-acaf-f6707388feee",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verandering GLG nu t.o.v. 2050",
+                    "type": "indicator",
+                    "uuid": "2d6bdaba-3832-40cc-acae-950883f1aa76",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verhouding oppervlakte water / verharding",
+                    "type": "indicator",
+                    "uuid": "0bbd30e5-08f5-4499-b6ca-cdda990720dc",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verwerken hemelwater exc. schade",
+                    "type": "indicator",
+                    "uuid": "89b6274f-9372-4784-8ba3-924b6c7e4d7d",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Waterdiepte op straat",
+                    "type": "indicator",
+                    "uuid": "c4e1b3bb-e4ce-4cd0-bd52-219f4a9f5df3",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Inrichting",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Groen",
+                    "type": "indicator",
+                    "uuid": "18ee5ec3-d8de-4100-9e49-ba60e9a95f80",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Speelplekken kinderen",
+                    "type": "indicator",
+                    "uuid": "a677997b-8d50-4608-8d8b-97b9ca5d8e23",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Sport- en spelplekken",
+                    "type": "indicator",
+                    "uuid": "eac0ea06-1a07-4aa2-abfa-41fc9b7bb53d",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Straatmeubilair",
+                    "type": "indicator",
+                    "uuid": "282cb12e-b46a-4ace-abbf-cf3eb907189f",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Verloedering",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Bekladdingen",
+                    "type": "indicator",
+                    "uuid": "4a4e9cb6-ef0d-4b29-9d26-bc19eda0339e",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Hondenpoep",
+                    "type": "indicator",
+                    "uuid": "5c75d4a3-3ace-4c95-a051-7040defecefa",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Rommel",
+                    "type": "indicator",
+                    "uuid": "055d550f-2af8-44cd-87c5-13afdf9aa38f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Vernielingen",
+                    "type": "indicator",
+                    "uuid": "13fa6584-2935-4209-bbe3-da04706d4c3e",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Onderhoud",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Fietspaden",
+                    "type": "indicator",
+                    "uuid": "0261bbb5-65ba-4106-b58c-b3ca6e05c8f0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Groen",
+                    "type": "indicator",
+                    "uuid": "18ee5ec3-d8de-4100-9e49-ba60e9a95f80",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Schoonhouden",
+                    "type": "indicator",
+                    "uuid": "365e6c71-e729-44fa-a8b3-13d084815c63",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Straatmeubilair",
+                    "type": "indicator",
+                    "uuid": "282cb12e-b46a-4ace-abbf-cf3eb907189f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Trottoirs",
+                    "type": "indicator",
+                    "uuid": "2298a045-ac31-4154-9fe2-08dbe131d83e",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Wegen",
+                    "type": "indicator",
+                    "uuid": "694bc048-dffe-4c5d-b362-b037c3de9e98",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Wonen",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Functionele kwaliteit",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Geschikte leefsituatie",
+                    "type": "indicator",
+                    "uuid": "c140f420-0263-4f30-b899-bb96458c569d",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Incourante eensgezins",
+                    "type": "indicator",
+                    "uuid": "0365aba9-4555-44c9-86a4-3d532d2e5433",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Indeling",
+                    "type": "indicator",
+                    "uuid": "c7378440-b10a-49c5-a1cd-6ed9e6954f51",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Omvang",
+                    "type": "indicator",
+                    "uuid": "63c022a2-0832-4de8-8cf2-81942d4ae39b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Sfeer",
+                    "type": "indicator",
+                    "uuid": "499ff5ac-9c79-4d3d-ae47-40b505582e52",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Beschikbaar betaalbaar",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Verhuiswens",
+                    "type": "indicator",
+                    "uuid": "e5a1cf06-6119-4a75-a78b-793ac63da9c4",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "prijs-kwaliteit",
+                    "type": "indicator",
+                    "uuid": "5c86f538-76fe-454e-a858-297c5d29e9fd",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Technische kwaliteit",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Aantal energielabels (definitief)",
+                    "type": "indicator",
+                    "uuid": "a2ed3719-64a7-40da-bfc5-a43d3d292594",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Definitief energielabel",
+                    "type": "indicator",
+                    "uuid": "81ccf247-0449-40e0-a99c-a67019f272e4",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Energielabel coverage",
+                    "type": "indicator",
+                    "uuid": "b53e54d6-ff54-4be1-b539-f915fd253831",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Geluidsisolatie",
+                    "type": "indicator",
+                    "uuid": "ea01bdeb-14a2-42b7-9234-51a24d72c24c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Gemiddeld energielabel",
+                    "type": "indicator",
+                    "uuid": "3c2d0ca0-3a6d-4f53-809f-f82fa9b9fd22",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Onderhoud woningen buurt",
+                    "type": "indicator",
+                    "uuid": "cc1715ea-156f-403c-9841-f06d9dd6ab05",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Ventilatie",
+                    "type": "indicator",
+                    "uuid": "2aa4c162-29c3-4313-8a42-0deea6ef0d68",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Warmte isolatie",
+                    "type": "indicator",
+                    "uuid": "bafc1045-8674-486b-9100-647b397443df",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Kwaliteit van leven",
+        "type": "titel",
+        "color": "#3B82F6",
+        "children": [
+          {
+            "name": "Rondkomen",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Werk",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Percentage werknemers",
+                    "type": "indicator",
+                    "uuid": "352dda4d-5de8-4f31-b85a-6d82f812ba7c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Percentage zelfstandigen",
+                    "type": "indicator",
+                    "uuid": "f8d0d890-3975-4183-9555-06d673c4657f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Werkloos totaal",
+                    "type": "indicator",
+                    "uuid": "d7c79eb2-b8a2-4949-91c5-caf7fefb89ba",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Werkloze jongeren",
+                    "type": "indicator",
+                    "uuid": "05960c54-67c3-4760-8d8e-035d7bc4748e",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Werkzamen deeltd 0,3+",
+                    "type": "indicator",
+                    "uuid": "33f4a3b1-8fc7-4cc1-9628-b6967b6742da",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "werkzamen",
+                    "type": "indicator",
+                    "uuid": "7fd17589-46b6-460a-a1f6-ef421517ccb3",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Armoede",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Financi\u00eble buffer",
+                    "type": "indicator",
+                    "uuid": "c26a0cc2-c7bf-4860-8cfa-cea5e0b6436f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Minima huish met kinderen",
+                    "type": "indicator",
+                    "uuid": "2e6a3139-e3a8-4565-9172-a2e9ff9347c7",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Minima huishouden",
+                    "type": "indicator",
+                    "uuid": "e6026bbf-0e0d-4c2c-870d-29810b248bcf",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Minima kinderen",
+                    "type": "indicator",
+                    "uuid": "6dbbd65f-492b-4a80-b6c0-acdef412f0b1",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Minima personen",
+                    "type": "indicator",
+                    "uuid": "1f5e5ca4-2491-4e64-a587-33181d1635aa",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Moeite met rondkomen",
+                    "type": "indicator",
+                    "uuid": "58fc72b6-881e-4917-83de-8099df3e3b0d",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Participatiewet 5+ jaar",
+                    "type": "indicator",
+                    "uuid": "1d7c7beb-45b2-406d-ab0a-3580e28e782f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Participatiewet totaal",
+                    "type": "indicator",
+                    "uuid": "aa5ce990-a43e-439a-9e98-69899321cf40",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verwachting inkomen",
+                    "type": "indicator",
+                    "uuid": "c8a449b6-70d9-4f67-9bf3-834863e31d75",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Opgroeien",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Onderwijs",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Achterstand leerlingen",
+                    "type": "indicator",
+                    "uuid": "a5ed2ff5-f431-48e8-98d4-0c56686de109",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Niveau VO",
+                    "type": "indicator",
+                    "uuid": "45ecade6-6417-4bba-8d71-1d576e6a1b08",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Opleiding jonge volwassenen",
+                    "type": "indicator",
+                    "uuid": "5209531d-0766-4576-be94-47cf9d14b481",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Gezondheid",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Eigenkracht",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Belemmerd",
+                    "type": "indicator",
+                    "uuid": "3c09922b-98ac-448c-8384-d7b8b10f15a7",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Beperkte functionaliteit",
+                    "type": "indicator",
+                    "uuid": "3dee52f6-edfb-4fe9-9abe-f222315d954f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Draad oppakken",
+                    "type": "indicator",
+                    "uuid": "2eed6515-267b-4552-85cd-2bf7489c62fd",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Grip op leven",
+                    "type": "indicator",
+                    "uuid": "54f1c5c9-c7d3-486e-abca-4f4681276def",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Hulp",
+                    "type": "indicator",
+                    "uuid": "86c91137-c719-4a26-b48c-aab85f6bd0f1",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Hulp organiseren",
+                    "type": "indicator",
+                    "uuid": "324f1ce6-1684-444a-ab0e-2ee5bab6138c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Zelfregie",
+                    "type": "indicator",
+                    "uuid": "68190acc-0018-4c00-8617-b30b5e315c5c",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Functioneren",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Beperking",
+                    "type": "indicator",
+                    "uuid": "69616648-298a-493e-8264-57b5756e6fb7",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Beperking gehoord",
+                    "type": "indicator",
+                    "uuid": "6784d8c0-5439-4be4-9a83-8a926a4a1484",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Beperking zicht",
+                    "type": "indicator",
+                    "uuid": "95cfcccd-8bf1-4b72-8ebe-03a09aaf529b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Chronische aandoening, 2 of meer",
+                    "type": "indicator",
+                    "uuid": "babc4c46-d1c1-444c-af11-2bc1154af66d",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Geluk",
+                    "type": "indicator",
+                    "uuid": "aeb8a326-9b6b-4072-a6e4-f194b6250683",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Gezondheid",
+                    "type": "indicator",
+                    "uuid": "311a6449-b145-4678-b51e-ac4e342dd1bf",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Tevreden leven",
+                    "type": "indicator",
+                    "uuid": "336d70fd-8895-4036-aecb-ef16dbb17b98",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verwachting leven",
+                    "type": "indicator",
+                    "uuid": "acfc43a5-c625-4680-88f5-67d0433fbe43",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Leefstijl",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Alcohol",
+                    "type": "indicator",
+                    "uuid": "c7534c64-b1ad-4100-ba3e-58d8d8fae9d2",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Bewegen",
+                    "type": "indicator",
+                    "uuid": "64470009-7467-4a34-8f3c-b44d896a5364",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Overgewicht",
+                    "type": "indicator",
+                    "uuid": "34e36ae1-4132-4555-a4fc-d16b039d467e",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Overmatig drinken",
+                    "type": "indicator",
+                    "uuid": "1ed22149-7fed-4466-a3b8-dfd7ff28f5b5",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Roken",
+                    "type": "indicator",
+                    "uuid": "a4780646-844e-4221-b07a-b4f4ade25059",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Meedoen",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Deelname",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Evenement",
+                    "type": "indicator",
+                    "uuid": "04b8badd-50d3-4ce3-b88e-3de9ec3537da",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Hobby's",
+                    "type": "indicator",
+                    "uuid": "71ecc0e5-582e-4ff0-a4ad-0c671f275c04",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Levensbeschouwing",
+                    "type": "indicator",
+                    "uuid": "f3b4cd73-904a-4ac6-b83e-d675d63493ed",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Lid sport",
+                    "type": "indicator",
+                    "uuid": "40bc78fc-9e8a-48ba-9530-38454d6ea2bd",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Sporten",
+                    "type": "indicator",
+                    "uuid": "3773b795-25ea-4039-bd65-9baad76a1009",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Uitgaan",
+                    "type": "indicator",
+                    "uuid": "5825a9b3-7de6-41ad-80e5-d201288fc065",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Voorstelling museum",
+                    "type": "indicator",
+                    "uuid": "a3377f8a-5daf-4bc7-8ae8-626f05001885",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Wijkgebouw",
+                    "type": "indicator",
+                    "uuid": "c2f0cb97-0fbc-4638-ab46-2265c61f4962",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Netwerk",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Buren",
+                    "type": "indicator",
+                    "uuid": "fd7e846f-568a-4bb5-ba98-8f042ce37425",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Buurtgenoten",
+                    "type": "indicator",
+                    "uuid": "2b83af90-b647-45f9-a80d-9524df4516c5",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Eenzaamheid",
+                    "type": "indicator",
+                    "uuid": "4661dcb9-b7c4-42f8-b7c5-a61c12568806",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Familie",
+                    "type": "indicator",
+                    "uuid": "2a027507-324e-4245-bc89-63a0e764ce84",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Internet",
+                    "type": "indicator",
+                    "uuid": "c24bfe4e-a657-4026-9ce1-e301c6fb5ac1",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Inwoners",
+                    "type": "indicator",
+                    "uuid": "31f70dff-c116-4267-bef0-d15b0ff4c020",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Meedoen",
+                    "type": "indicator",
+                    "uuid": "22815a97-e5f9-4b16-bfbf-70a0e0298746",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Voldoende",
+                    "type": "indicator",
+                    "uuid": "802c39dd-3ec1-4b19-b617-9fb8c3f929c4",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Vrienden",
+                    "type": "indicator",
+                    "uuid": "8a7e7b11-19d5-495d-bbf3-f7d51eef0cec",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Kwaliteit sociale leefomgeving",
+        "type": "titel",
+        "color": "#3B82F6",
+        "children": [
+          {
+            "name": "Voorzieningen",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Sociaal culturele",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Bibliotheek",
+                    "type": "indicator",
+                    "uuid": "c70a2b96-510c-434f-ba69-2c575eb9b669",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Binnensport",
+                    "type": "indicator",
+                    "uuid": "d3e66467-9425-48be-92bf-e6cf27cc15d6",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Buitensport",
+                    "type": "indicator",
+                    "uuid": "4bfb21eb-0dfe-4e53-97b8-700bb88c9587",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Cafetaria",
+                    "type": "indicator",
+                    "uuid": "3d5f1d64-0e67-493c-8213-b20f07fd699f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Caf\u00e9",
+                    "type": "indicator",
+                    "uuid": "f2d04e1e-404e-49b6-a5fc-8c600aef782b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Ontmoeting",
+                    "type": "indicator",
+                    "uuid": "2d11e901-25f1-4045-b75f-004cc7e4b4ec",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Restaurant",
+                    "type": "indicator",
+                    "uuid": "1bec5763-5216-484d-95fe-474a4296a341",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Zwembad",
+                    "type": "indicator",
+                    "uuid": "cf630c8c-d152-4455-bca5-b3f1fe48dab0",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Maatschappelijke",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Afstand tot grote supermarkt",
+                    "type": "indicator",
+                    "uuid": "869bec9c-9b9a-4425-9cd6-09cb4f7451ae",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Afstand tot kinderdagverblijf",
+                    "type": "indicator",
+                    "uuid": "76abbf47-6eb6-4c10-a4bf-ec0280435052",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Afstand tot school",
+                    "type": "indicator",
+                    "uuid": "ec95fe04-04fd-4bbb-bb9f-0f3f97861e5d",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Apotheek",
+                    "type": "indicator",
+                    "uuid": "162f1888-66d9-428e-bcf5-6af5a3aa4ada",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "BSO",
+                    "type": "indicator",
+                    "uuid": "fe677e77-6d01-4642-90a4-f9453f9eb462",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Basisscholen",
+                    "type": "indicator",
+                    "uuid": "6ecbc704-ce1d-49ea-8914-48b3a723d9fc",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Basisschool",
+                    "type": "indicator",
+                    "uuid": "3d913daa-d2e2-4ab2-bf2e-61c5ef2ab0de",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Boodschappen",
+                    "type": "indicator",
+                    "uuid": "a9752cb7-7404-4c46-9f45-49697f8d7d36",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Huisarts",
+                    "type": "indicator",
+                    "uuid": "0ed37b61-f13d-446b-b108-70bb09af98e0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Kinderdagverblijf",
+                    "type": "indicator",
+                    "uuid": "8cb1b47c-1474-4eba-8a1e-f4e63f374c86",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Medische zorg",
+                    "type": "indicator",
+                    "uuid": "dc666cf8-b0ee-4fc7-8cbd-ee5d7666b7d3",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Middelbare school",
+                    "type": "indicator",
+                    "uuid": "6b252d60-caca-4651-91de-5a6e982ea634",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Ondersteuning",
+                    "type": "indicator",
+                    "uuid": "399faf44-3858-4477-8949-99e1e65f734b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Overige levensmiddelen",
+                    "type": "indicator",
+                    "uuid": "e4eb972b-219d-4ae8-8b7d-b9fa1613cc77",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Mienskip",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Actief betrokken",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Actief buurt",
+                    "type": "indicator",
+                    "uuid": "5bdffb43-4e09-4fcc-8cf7-ab8fa0b48442",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Buren geholpen",
+                    "type": "indicator",
+                    "uuid": "ffb5832e-d8ec-4f21-be63-4ee591348932",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Mantelzorger",
+                    "type": "indicator",
+                    "uuid": "7b4a6b5f-7d6a-46ef-8a7d-7b3ee28a014c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Vertrouwen in gemeente",
+                    "type": "indicator",
+                    "uuid": "9ff62049-cabe-449b-937b-9bb5993eda6f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Vrijwilliger",
+                    "type": "indicator",
+                    "uuid": "9b168456-9219-4c3b-af16-636662a74155",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Sociale samenhang",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "10+ jaar buurt",
+                    "type": "indicator",
+                    "uuid": "57881985-6961-4dc8-8d85-0130e871f842",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "10+ jaar woning",
+                    "type": "indicator",
+                    "uuid": "4f87a602-7f53-4090-a0b4-bd2608b284aa",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Elkaar kennen",
+                    "type": "indicator",
+                    "uuid": "5b55a528-6495-4acb-b2e2-4b8cf58d7b9b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Gehecht",
+                    "type": "indicator",
+                    "uuid": "8c917dd9-1cdd-436f-a396-7107ac4e39a5",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Saamhorigheid",
+                    "type": "indicator",
+                    "uuid": "fb9f9529-dc8f-401e-b0e5-e7a5f4ef3ad5",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Thuis voelen",
+                    "type": "indicator",
+                    "uuid": "3a5eb073-170f-45a2-b07d-65f1c7d77a30",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Verhuisd binnen buurt",
+                    "type": "indicator",
+                    "uuid": "ccf475b4-d2cd-4934-a607-aeb54d982115",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Omgang integratie",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Buurtgenoten",
+                    "type": "indicator",
+                    "uuid": "2b83af90-b647-45f9-a80d-9524df4516c5",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Discriminatie",
+                    "type": "indicator",
+                    "uuid": "10c6d4df-44ef-4eb8-b4ab-8987012b7b16",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Etnische groepen",
+                    "type": "indicator",
+                    "uuid": "dd76185d-5e66-4dd9-aeab-82ce845cb14f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Jong en oud",
+                    "type": "indicator",
+                    "uuid": "52ec4615-dd5c-47d4-a898-44d2aa9edfe8",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Veilgheid",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Vermogensdelicten",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "beschadiging auto's",
+                    "type": "indicator",
+                    "uuid": "b7090c23-7495-48c2-bfb3-cbfb7140386f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "diefstal fiets",
+                    "type": "indicator",
+                    "uuid": "3ca8572d-cc03-4fd9-9bc9-e1cd0fc0a627",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "diefstal fietsen",
+                    "type": "indicator",
+                    "uuid": "35cd7fcf-3ddd-49b8-9703-9b07dbf280db",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "inbraak auto",
+                    "type": "indicator",
+                    "uuid": "92137246-e0f1-493d-97a8-e4a5660a99fb",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "inbraak woning",
+                    "type": "indicator",
+                    "uuid": "d90d2b4c-4bce-428c-834a-1cc8113958e4",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "slachtoffer inbraak",
+                    "type": "indicator",
+                    "uuid": "9c3224e6-7b1a-4284-a658-52eca918c750",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Overlast",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "dronken personen",
+                    "type": "indicator",
+                    "uuid": "7524a0df-fc76-4755-a855-cbcb368a43be",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "drugs",
+                    "type": "indicator",
+                    "uuid": "48edd30f-ef82-4820-8e80-7eb8daf82963",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "geluid",
+                    "type": "indicator",
+                    "uuid": "b558af0f-fa63-4735-a27c-79d12813ee1e",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "jongeren",
+                    "type": "indicator",
+                    "uuid": "3bbd1382-eaae-4e2c-ae48-caa40c112340",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "omwonenden",
+                    "type": "indicator",
+                    "uuid": "3fa946ce-b007-4748-9fab-c838c7ccb9dc",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "wonen",
+                    "type": "indicator",
+                    "uuid": "ee076c87-95e8-4f5a-a753-e31fc05a0eb8",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "woonomgeving",
+                    "type": "indicator",
+                    "uuid": "b8f453e4-522a-4c9d-b4d8-1f0b25594bb9",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Dreiging en geweld",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Geweld",
+                    "type": "indicator",
+                    "uuid": "784f5a85-7dcc-43fe-89a1-df4df500e34a",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "gevoel onveilig",
+                    "type": "indicator",
+                    "uuid": "6d56f7bc-aaf6-441e-a423-f19b3a825a79",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "idee bedreiging",
+                    "type": "indicator",
+                    "uuid": "379cd3a8-409e-499d-beac-02682fd13bcf",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "idee geweldsdelicten",
+                    "type": "indicator",
+                    "uuid": "b6c4e4fd-2ec9-4427-92b6-b28b64c125ab",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "idee lastigvallen",
+                    "type": "indicator",
+                    "uuid": "6f354ae4-db0a-4645-bec6-8218b4ab572d",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Samenstelling",
+        "type": "titel",
+        "color": "#3B82F6",
+        "children": [
+          {
+            "name": "Bebouwing",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Gebruik omgeving",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Bijeenkomstfunctie",
+                    "type": "indicator",
+                    "uuid": "5d7ad356-aac8-4815-8da7-97dff60c7873",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Celfunctie",
+                    "type": "indicator",
+                    "uuid": "29cfacae-021e-4fe5-819b-e9eb655837ae",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Gezondheidszorgfunctie",
+                    "type": "indicator",
+                    "uuid": "3baca929-ccc3-48aa-b966-e6877d01cbe7",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Industriefunctie",
+                    "type": "indicator",
+                    "uuid": "28a7a580-dc3c-4105-9fb3-d9ef47792429",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Kantoorfunctie",
+                    "type": "indicator",
+                    "uuid": "0212e8f8-053d-4287-b924-7bdc20c53bb2",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Logiesfunctie",
+                    "type": "indicator",
+                    "uuid": "a990c073-78e3-4490-a26e-1fa8ca6988f9",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Onderwijsfunctie",
+                    "type": "indicator",
+                    "uuid": "93048a96-d3cd-4d99-83b5-2b950e8d78a2",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Overige gebruiksfunctie",
+                    "type": "indicator",
+                    "uuid": "25405460-907c-4e63-acc4-4f9c949f7cac",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Sportfunctie",
+                    "type": "indicator",
+                    "uuid": "e2f618ca-0726-4c1f-8442-c1150578622e",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Winkelfunctie",
+                    "type": "indicator",
+                    "uuid": "49d5687e-c062-40b5-84b9-7e4557b6cee0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Woonfunctie",
+                    "type": "indicator",
+                    "uuid": "b1011f4c-30b1-4088-bcf6-a67893d92c5f",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Bouwperiode",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Bouwjaar 1915-1945",
+                    "type": "indicator",
+                    "uuid": "3241e6b8-0712-4653-a420-2f3274466f6b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Bouwjaar 1945-1984",
+                    "type": "indicator",
+                    "uuid": "8ef35d23-4060-4e32-a19f-670682afd7c3",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Bouwjaar vanaf 1985",
+                    "type": "indicator",
+                    "uuid": "b5990263-4ccf-4ab3-b9cf-f7415262cc03",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Bouwjaar voor 1915",
+                    "type": "indicator",
+                    "uuid": "3dfcad9b-fad4-47d3-b701-8de88c198d13",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Woningtypen",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "2-onder-1-kap",
+                    "type": "indicator",
+                    "uuid": "755deaa9-74ec-4aac-914d-10be2ea2eeea",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "appartementen",
+                    "type": "indicator",
+                    "uuid": "9bcd5fcc-312d-49df-b01e-7bd350e70188",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "beneden boven",
+                    "type": "indicator",
+                    "uuid": "c2174b21-1e54-4566-a93a-b39cfe7ceca0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "rijtjes",
+                    "type": "indicator",
+                    "uuid": "d491081f-a96d-4724-9caf-d155196a7941",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "studio's kamers",
+                    "type": "indicator",
+                    "uuid": "e555fa98-c258-4df0-9c72-0ee5d96649c9",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "vrijstaand",
+                    "type": "indicator",
+                    "uuid": "2b4a45b8-3756-4e24-851b-5c32a760125e",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Eigendom",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Koopwoningen",
+                    "type": "indicator",
+                    "uuid": "a0bbfd44-bacd-4434-bc8d-3a5204d65637",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Particulier huurbezit",
+                    "type": "indicator",
+                    "uuid": "2aadb30f-860f-4f70-916f-6df00e86e870",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Woningcorporatie bezit",
+                    "type": "indicator",
+                    "uuid": "6dd8b659-29c1-4396-a853-1abd7c6e0591",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "cooperatief",
+                    "type": "indicator",
+                    "uuid": "a5d925dc-13ea-4dc9-8e06-e60947c9b6ec",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "koop",
+                    "type": "indicator",
+                    "uuid": "8c57c048-ccb2-4ea4-b80f-d5ca44c9c183",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "particulier",
+                    "type": "indicator",
+                    "uuid": "ae0f05fd-0587-4de4-a742-d306ca4a0f8a",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "wozwaard m2",
+                    "type": "indicator",
+                    "uuid": "846f7c36-5391-4b74-a901-a84622b6cba0",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "wozwaarde woning",
+                    "type": "indicator",
+                    "uuid": "26e41525-ef0d-4e00-9f09-834c773b1d1f",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Bevolking",
+            "type": "thema",
+            "children": [
+              {
+                "name": "Cultuur",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "Gemakgeori\u00ebnteerden",
+                    "type": "indicator",
+                    "uuid": "050b8793-7b5e-458f-b92a-8c954b90caaa",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Kosmopolieten",
+                    "type": "indicator",
+                    "uuid": "466d90ee-7fc7-440b-8660-b8c2d532978b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Moderne burgerij",
+                    "type": "indicator",
+                    "uuid": "4c5d8397-abf9-4b98-a9c3-f7bee795f4c1",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Nieuw conservatieven",
+                    "type": "indicator",
+                    "uuid": "e55cf4e8-4bc3-4f09-a159-455f6596a091",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Opwaarts mobielen",
+                    "type": "indicator",
+                    "uuid": "1df7cd09-733e-4c5b-a0e1-f0bd28af7661",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Post-materialisten",
+                    "type": "indicator",
+                    "uuid": "bcd57865-1f7e-406b-aa19-7f4523f4d29b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Postmoderne hedonisten",
+                    "type": "indicator",
+                    "uuid": "f84116fa-448c-4f36-a555-e81539db58a1",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Traditionele burgerij",
+                    "type": "indicator",
+                    "uuid": "e69d4d1f-68a1-418e-bc68-6c4e80b8fa90",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "herkomst",
+                    "type": "indicator",
+                    "uuid": "fd94a542-850c-4377-91d5-395c0c50489a",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "leefstijl",
+                    "type": "indicator",
+                    "uuid": "e22a0d3f-9171-4f75-9d35-13d652bf58c7",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Leeftijd",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "0-3 jaar",
+                    "type": "indicator",
+                    "uuid": "a400ba17-486f-4ae5-ab97-12d25c00c984",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "13-17 jaar",
+                    "type": "indicator",
+                    "uuid": "fae46924-c3df-4e20-abc6-7f9aa7efae8f",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "4-12 jaar",
+                    "type": "indicator",
+                    "uuid": "984dedc9-44e9-448b-8cf6-4f2bda50b7df",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "80+ jaar",
+                    "type": "indicator",
+                    "uuid": "eb1764bf-7597-464d-b2f7-1ff80d0dd054",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Huishoudens",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "28-64 jaar",
+                    "type": "indicator",
+                    "uuid": "f20c2271-ec50-4eff-b34f-7568bf3917cd",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "65+ jaar",
+                    "type": "indicator",
+                    "uuid": "a4518bae-49e2-463e-bb6d-98e51ef17e10",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Huishoudens met kind",
+                    "type": "indicator",
+                    "uuid": "ad3b0509-3c14-49f8-aa10-4b3b391a2d84",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Huishoudens totaal",
+                    "type": "indicator",
+                    "uuid": "be1a9ac4-6330-47c9-93c6-c9008b5daf89",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "Huishoudens zonder kind",
+                    "type": "indicator",
+                    "uuid": "428c1232-0213-491b-ad0c-56dcc82a8c59",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "jongeren",
+                    "type": "indicator",
+                    "uuid": "3bbd1382-eaae-4e2c-ae48-caa40c112340",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "kind gescheid. Ouders",
+                    "type": "indicator",
+                    "uuid": "994ca4cf-b36d-4d75-9d04-15ed593ed74c",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "met kind",
+                    "type": "indicator",
+                    "uuid": "4b521d5c-fbd7-458d-8612-cd4e845951f9",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "niet-westers",
+                    "type": "indicator",
+                    "uuid": "027ad58c-8344-4a26-8bcd-8fe4d6d18214",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "tm 27 jaar",
+                    "type": "indicator",
+                    "uuid": "6b5fc16f-5d4f-4058-8d72-536f742d04ce",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "zonder kind",
+                    "type": "indicator",
+                    "uuid": "662d5d2f-d682-4007-8c59-bdb1eae11b98",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "\u00e9\u00e9n ouder gezin",
+                    "type": "indicator",
+                    "uuid": "19a6ed7d-950f-4cd3-84a9-715a872cb68d",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              },
+              {
+                "name": "Sociaal economische status",
+                "type": "onderdeel",
+                "children": [
+                  {
+                    "name": "hoog",
+                    "type": "indicator",
+                    "uuid": "56f32b9a-bc45-4be1-9e1c-c2668c2e2a32",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "huishouden jaar",
+                    "type": "indicator",
+                    "uuid": "4a24357e-dbe1-4376-8644-53a5f9e1910b",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "koopkracht",
+                    "type": "indicator",
+                    "uuid": "442c39e7-3610-493f-a7ad-ef8e960d30fd",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "laag",
+                    "type": "indicator",
+                    "uuid": "c9719a07-57a5-48cf-8f93-b6f932aead51",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "middelhoog",
+                    "type": "indicator",
+                    "uuid": "1fa5df89-13e3-424f-9eba-9372cae42896",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "potenti\u00eble",
+                    "type": "indicator",
+                    "uuid": "082ebe48-ee30-49f4-9106-e9e1074938d4",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "werkzamen",
+                    "type": "indicator",
+                    "uuid": "7fd17589-46b6-460a-a1f6-ef421517ccb3",
+                    "value": null,
+                    "color": null
+                  },
+                  {
+                    "name": "zzp'ers",
+                    "type": "indicator",
+                    "uuid": "bbb97c70-3b6d-4302-b8a2-6a07a2e2c087",
+                    "value": null,
+                    "color": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "total_indicators": 229,
+  "last_updated": "2026-02-11T14:29:51.419950"
+}
