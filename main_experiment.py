@@ -1,4 +1,4 @@
-from numpy import rint
+
 import pandas as pd
 import os
 import plotly.io as pio
@@ -145,9 +145,9 @@ def main():
     # Data pipeline: clean, impute, scale
     # ------------------------------------------------------
     
-    print("\n Check (imputeren + schalen + shape):")
-    df_num, df_scaled = pca_check(df_join, verbose=True, impute_strategy="knn")
 
+    print("\n Check data vervolgens bewerk de data (imputeren + schalen + shape):")
+    df_num, df_scaled, dq_summary = pca_check(df_data, min_rows_warning=10, verbose=True, impute_strategy="knn")
 
 
     # ------------------------------------------------------
@@ -192,6 +192,7 @@ def main():
     generate_pdf_report(
     figures_dir=FIGURE_DIR,
     output_pdf_path=PDF_PATH,
+    dq_summary=dq_summary
 )
 
 # ------------------------------------------------------

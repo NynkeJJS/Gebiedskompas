@@ -81,12 +81,18 @@ if not os.path.exists(CHROME_PATH):
 # HTML2IMAGE (Chrome headless)
 # -------------------------------
 
-hti = Html2Image(    browser_executable=CHROME_PATH,
+
+
+hti = Html2Image(
+    browser_executable=CHROME_PATH,
     output_path=_RENDER_TMP,
     custom_flags=[
+        "--headless=new",
         "--disable-gpu",
         "--disable-software-rasterizer",
         "--disable-dev-shm-usage",
-        "--headless=new"
+        "--no-sandbox",
+        "--disable-features=UseSkiaRenderer",
     ]
 )
+
