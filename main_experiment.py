@@ -1,8 +1,20 @@
-
 from numpy import rint
 import pandas as pd
 import os
-from config_experiment import RAW_DIR, BEWERKT_DIR, OUTPUT_DIR, KERNCIJFERS_DATA, KERNCIJFERS_META, KLIMAAT_DATA_CSV, KLIMAAT_META_CSV
+import plotly.io as pio
+
+pio.renderers.default = "json"  
+
+from config_experiment import (
+    RAW_DIR, 
+    BEWERKT_DIR, 
+    FIGURE_DIR,
+    RAPPORT_DIR,
+    KERNCIJFERS_DATA, 
+    KERNCIJFERS_META, 
+    KLIMAAT_DATA_CSV, 
+    KLIMAAT_META_CSV,
+)
 
 from data_inlezen_experiment import (
     get_metadata,
@@ -16,15 +28,21 @@ from data_inlezen_experiment import (
     join_cbs_with_klimaat
 )
 
-from data_pipeline_experiment import pca_check
+from data_pipeline_experiment import (
+    pca_check
+)
 
 from analyse_experiment import (
+    plot_fa_heatmap,
+    plot_pca_variance,
+    plot_loadings_heatmap,
     run_pca_threshold,
     run_fa,
     build_loading_tree,
     normalize_loading_labels,
     print_loading_tree,
-    sunburst_from_tree
+    sunburst_from_tree,
+    generate_pdf_report
 )
 
 
@@ -54,9 +72,9 @@ def main():
     # Data inlezen vanaf schijf
     # ------------------------------------------------------
     df_data, df_meta = lees_opgeslagen_data(
-        output_dir=BEWERKT_DIR,
-        output_data=KERNCIJFERS_DATA,
-        output_meta=KERNCIJFERS_META,
+        bewerkt_dir=BEWERKT_DIR,
+        bewerkt_data=KERNCIJFERS_DATA,
+        bewerkt_meta=KERNCIJFERS_META,
         verbose=True
     )
 
@@ -140,18 +158,23 @@ def main():
         df_scaled,    
         variance_threshold=0.80 
     )
+
+    plot_pca_variance(cum_var, FIGURE_DIR)
+    plot_loadings_heatmap(pca_loadings, FIGURE_DIR)
+
     pca_tree = build_loading_tree(pca_loadings, threshold=0.40)
     pca_tree = normalize_loading_labels(pca_tree, prefix="PCA")
 
     print("\n--- PCA Boomstructuur ---")
     print_loading_tree(pca_tree)
 
-    sunburst_from_tree(pca_tree, "PCA Zonnestraalplot", "pca_sunburst.html", output_dir=OUTPUT_DIR)
+    sunburst_from_tree(pca_tree, "PCA Zonnestraalplot", "pca_sunburst.png", output_dir=FIGURE_DIR)
 
     # -------------------------------------------------
     # Factoranalyse
     # -------------------------------------------------
     fa, fa_loadings = run_fa(df_scaled)
+    plot_fa_heatmap(fa_loadings, FIGURE_DIR)
 
     fa_tree = build_loading_tree(fa_loadings, threshold=0.40)
     fa_tree = normalize_loading_labels(fa_tree, prefix="FA")
@@ -159,8 +182,17 @@ def main():
     print("\n--- FA Boomstructuur ---")
     print_loading_tree(fa_tree)
 
-    sunburst_from_tree(fa_tree, "FA Zonnestraalplot", "fa_sunburst.html", output_dir=OUTPUT_DIR)
+    sunburst_from_tree(fa_tree, "FA Zonnestraalplot", "fa_sunburst.png", output_dir=FIGURE_DIR)
 
+    # ------------------------------------------------------
+    # PDF RAPPORT MAKEN
+    # ------------------------------------------------------
+
+    PDF_PATH = os.path.join(RAPPORT_DIR, "rapport.pdf")
+    generate_pdf_report(
+    figures_dir=FIGURE_DIR,
+    output_pdf_path=PDF_PATH,
+)
 
 # ------------------------------------------------------
 # Uitvoeren main script

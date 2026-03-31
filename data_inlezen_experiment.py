@@ -126,9 +126,9 @@ def sla_op(df_data: pd.DataFrame, df_meta: pd.DataFrame) -> None:
     print(f"  Meta opgeslagen op: {os.path.abspath(meta_path)}")
 
 
-def lees_opgeslagen_data(output_dir, output_data, output_meta, verbose=True):
-    data_path = os.path.join(output_dir, output_data)
-    meta_path = os.path.join(output_dir, output_meta)
+def lees_opgeslagen_data(bewerkt_dir, bewerkt_data, bewerkt_meta, verbose=True):
+    data_path = os.path.join(bewerkt_dir, bewerkt_data)
+    meta_path = os.path.join(bewerkt_dir, bewerkt_meta)
 
     if verbose:
         print("Data vanaf schijf inlezen...")
