@@ -1,0 +1,377 @@
+﻿Thema;Titel dataset in de kaartviewer;Datasetnaam in downloadfolder;Varianten van dataset;Klimaatscenario's;Kennisinstelling/bronhouder;Publicatiedatum op KEA;Oorspronkelijke publicatiedatum (indien afwijkend van KEA);Resolutie;Eenheden;Attribuutvelden ter visualisatie;Link kaartverhaal NL;Map narrative ENG;Aanvullend Kaartverhaal / Informatie;Additional map explanation / information ENG;Link NGR;WMS-laag
+;;;;N.v.t., KNMI'14;;;indien afwijkend;pixelgrootte of vectorvorm;;based on attributetables in GIS;Bevat o.a. achtergrond informatie over toegepaste methode + toepasbaarheid;Includes background information on the methodology, adaptive measures and use;;;;https://cas.cloud.sogelink.com/public/data/org/gws/YWFMLMWERURF/kea_public/wms?service=wms&request=getcapabilities
+Wateroverlast;Maatgevende grondwaterstand (GHG);Maatgevende_grondwaterstand_(GHG)_1911tot2010.tif;Huidig;n.v.t.;Deltares op basis van NWM;2025;2018;250x250 meter;meter onder maaiveld;n.v.t.;https://www.klimaateffectatlas.nl/nl/grondwateroverlast;https://www.klimaateffectatlas.nl/en/groundwater-flooding;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/ad767fe0-8084-4c83-8ea5-ffda49336c55;Maatgevende_Grondwaterstand_GHG_1911_2010
+Wateroverlast;Maximale grondwaterstand (HG3);Maximale_grondwaterstand_(HG3)_1911tot2010.tif;Huidig;n.v.t.;Deltares op basis van NWM;2025;2018;250x250 meter;meter onder maaiveld;n.v.t.;https://www.klimaateffectatlas.nl/nl/grondwateroverlast;https://www.klimaateffectatlas.nl/en/groundwater-flooding;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/ad767fe0-8084-4c83-8ea5-ffda49336c56;Maximale_Grondwaterstand_HG3_1911_2010
+Wateroverlast;Ontwateringsdiepte bij maatgevende grondwaterstand (GHG);Ontwateringsdiepte_Maatgevendegrondwaterstand.tif;Huidig;n.v.t.;Deltares op basis van NWM;2025;;250x250 meter;meter onder maaiveld;n.v.t.;https://www.klimaateffectatlas.nl/nl/grondwateroverlast;https://www.klimaateffectatlas.nl/en/groundwater-flooding;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/ad767fe0-8084-4c83-8ea5-ffda49336c57;Maatgevende_Grondwaterstand_GHG_1911_2010, styles = OntwateringsdiepteEnOndergrondseRuimtes_GHG_1911_2010
+Wateroverlast;Ontwateringsdiepte bij maximale grondwaterstand (HG3);Ontwateringsdiepte_Maximalegrondwaterstand.tif;Huidig;n.v.t.;Deltares op basis van NWM;2025;;250x250 meter;meter onder maaiveld;n.v.t.;https://www.klimaateffectatlas.nl/nl/grondwateroverlast;https://www.klimaateffectatlas.nl/en/groundwater-flooding;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/ad767fe0-8084-4c83-8ea5-ffda49336c58;Maximale_Grondwaterstand_HG3_1911_2010, styles=OntwateringsdiepteEnOndergrondseRuimtes_HG3_1911_2010
+Wateroverlast;n.v.t.;stijging_maxgrondwaterstand_tov_maatgevendegrondwaterstand.tif;Huidig;n.v.t.;Deltares op basis van NWM;2025;;250x250 meter;meter;n.v.t.;https://www.klimaateffectatlas.nl/nl/grondwateroverlast;https://www.klimaateffectatlas.nl/en/groundwater-flooding;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/ad767fe0-8084-4c83-8ea5-ffda49336c59;MaxStijgingGrondwaterstand_HG3_tov_MaatgevendeGrondwaterstand_GHG_1911_2010
+Wateroverlast;Ontwikkeling kans grondwateroverlast;Ontwikkeling kans grondwateroverlast 2050 Hoog.gpkg;2050 hoog;KNMI'14;Deltares op basis van NWM;2017;;250x250 meter;"Categorieën kans op grondwateroverlast: 
+5 = kleine kans door lage grondwaterstand
+4 = zeer grote toename kans
+3 = grote toename kans
+2 = aanmerkelijke toename kans
+1 = kleine toename kans";gridcode;https://www.klimaateffectatlas.nl/nl/grondwateroverlast;https://www.klimaateffectatlas.nl/en/groundwater-flooding;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/ad767fe0-8084-4c83-8ea5-ffda49336c60;kans_grondwateroverlast_2050hoog
+Wateroverlast;Gevoeligheid watererosie;Gevoeligheid watererosie.tif;Huidig;n.v.t.;Atlas Natuurlijk Kapitaal;2016;2014;50x50 meter;"Categorieën gevoeligheid watererosie:
+103 = Gevoelig - Landbouw, beschermd door begroeiing
+113 = Gevoelig - Landbouw, tijdelijk beschermd door begroeiing
+303 = Gevoelig - Natuur, beschermd door begroeiing
+313 = Gevoelig - Natuur geen bescherming door begroeiing";n.v.t.;;;;;;gevoeligheid_watererosie
+Wateroverlast;Kwel en infiltratie;Kwel en infiltratie Huidig.tif Kwel en infiltratie 2050 Hoog.tif;Huidig, 2050 Hoog;KNMI'14;Deltares op basis van NWM;2016;;250x250 meter;mm/dag;n.v.t.;;;;;;kwel_infiltratie_huidig   kwel_infiltratie_2050hoog
+Wateroverlast;Risico zuurstofstress;"Risico zuurstofstress 2050 Hoog.tif
+Risico zuurstofstress Huidig.tif";Huidig, 2050 Hoog;KNMI'14;KWR Water Research Institure;2016;;250x250 meter;% opbrengstderving bij gras;n.v.t.;https://www.klimaateffectatlas.nl/nl/zuurstofstress;https://www.klimaateffectatlas.nl/en/oxygen-stress;;;;"zuurstofstress_2050hoog
+zuurstofstress_huidig"
+Wateroverlast;"Waterdiepte bij hevige bui | 70 mm / 2 uur
+Waterdiepte bij hevige bui | 140 mm / 2 uur";"Waterdiepte bij intense neerslag - 1-100 jaar.tif
+Waterdiepte bij intense neerslag - 1-1000 jaar.tif";1-100 jaar (70mm, 2u), 1-100 jaar (140mm, 2u) ;n.v.t.;Deltares / Richtlijn Overstromingsrisico's (ROR);2018;;2x2 meter;"Categorieën waterdiepte in cm:
+1 = 5-10 cm
+2= 10-15 cm
+3= 15-20 cm
+4= 20-30 cm
+5 = > 30 cm";n.v.t.;https://www.klimaateffectatlas.nl/nl/waterdiepte-bij-kortdurende-hevige-neerslag;https://www.klimaateffectatlas.nl/en/flood-depth-associated-with-short-severe-precipitation;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/a25905cd-a222-412f-884d-1a7d99c252c5;"waterdiepte_neerslag_70mm_2uur
+waterdiepte_neerslag_140mm_2uur"
+Wateroverlast;Stedelijke infiltratie kansen;Potentie infiltratie stedelijk.tif;Huidig;n.v.t.;Deltares;2021;;250x250 meter;"Categorieën infiltratie potentie:
+1 - 3 = gering
+4, 6, 12 = matig
+9, 18 = groot 
+27 = zeer groot";n.v.t.;https://www.klimaateffectatlas.nl/nl/stedelijk-infiltratiekansen;https://www.klimaateffectatlas.nl/en/urban-infiltration-opportunities;;;;stedelijke_infiltratiekansen
+Wateroverlast;"Grootschalige extreme regen | Waterdiepte
+     <naam regio> | Waterdiepte basisgebeurtenis";"Achterhoek_BRS_basisgebeurtenis_waterdiepte
+Achterhoek_BRS_basisgebeurtenis_waterdiepte
+Achterhoek_BRS_basisgebeurtenis_waterdiepte
+ARKNZK_BRS_basisgebeurtenis_waterdiepte
+BrabantseDelta_BRS_basisgebeurtenis_waterdiepte
+Friesland_BRS_basisgebeurtenis_waterdiepte
+Gron_NOD_BRS_basisgebeurtenis_waterdiepte
+Limburg_BRS_basisgebeurtenis_waterdiepte
+NBrabantOost_BRS_basisgebeurtenis_waterdiepte
+OverijsselseVecht_BRS_basisgebeurtenis_waterdiepte
+Rivierenland_BRS_basisgebeurtenis_waterdiepte
+RMM_BRS_basisgebeurtenis_waterdiepte
+Scheldestromen_BRS_basisgebeurtenis_waterdiepte
+ValleiVeluwe_BRS_basisgebeurtenis_waterdiepte
+Zuiderzeeland_BRS_basisgebeurtenis_waterdiepte";"Beschikbaar voor de volgende regio's van de bovenregionale stresstest:
+Achterhoek, ARK-NZK, Brabantse Delta, Friesland, Groningen Noord-Oost Drenthe, Limburg, Noord-Brabant Oost, Overijsselse Vecht, Rivierenland, Rijn-Maas Monding, Scheldestromen, Vallei en Veluwe, Zuiderzeeland";n.v.t.;Deltares en de regio's van de bovenregionale stresstest;2025;;wisselend, zie GIS-bestand;meters;n.v.t.;https://www.klimaateffectatlas.nl/nl/grootschalige-extreme-regen;https://www.klimaateffectatlas.nl/en/large-scale-extreme-rainfall;;;;"Achterhoek_BRS_basisgebeurtenis_waterdiepte
+ARKNZK_BRS_basisgebeurtenis_waterdiepte
+BrabantseDelta_BRS_basisgebeurtenis_waterdiepte
+Friesland_BRS_basisgebeurtenis_waterdiepte
+Gron_NOD_BRS_basisgebeurtenis_waterdiepte
+Limburg_BRS_basisgebeurtenis_waterdiepte
+NBrabantOost_BRS_basisgebeurtenis_waterdiepte
+OverijsselseVecht_BRS_basisgebeurtenis_waterdiepte
+Rivierenland_BRS_basisgebeurtenis_waterdiepte
+RMM_BRS_basisgebeurtenis_waterdiepte
+Scheldestromen_BRS_basisgebeurtenis_waterdiepte
+ValleiVeluwe_BRS_basisgebeurtenis_waterdiepte
+Zuiderzeeland_BRS_basisgebeurtenis_waterdiepte"
+Wateroverlast;"Grootschalige extreme regen | Overstromingsduur
+     <naam regio> | Overstromingsduur basisgebeurtenis";"Achterhoek_BRS_basisgebeurtenis_overstromingsduur
+ARKNZK_BRS_basisgebeurtenis_overstromingsduur
+BrabantseDelta_BRS_basisgebeurtenis_overstromingsduur
+NBrabantOost_BRS_basisgebeurtenis_overstromingsduur
+OverijsselseVecht_BRS_basisgebeurtenis_overstromingsduur
+Rivierenland_BRS_basisgebeurtenis_overstromingsduur
+RMM_BRS_basisgebeurtenis_overstromingsduur
+Scheldestromen_BRS_basisgebeurtenis_overstromingsduur
+ValleiVeluwe_BRS_basisgebeurtenis_overstromingsduur
+Zuiderzeeland_BRS_basisgebeurtenis_overstromingsduur";"Beschikbaar voor de volgende regio's van de bovenregionale stresstest:
+Achterhoek, ARK-NZK, Brabantse Delta, Noord-Brabant Oost, Overijsselse Vecht, Rivierenland, Rijn-Maas Monding, Scheldestromen, Vallei en Veluwe, Zuiderzeeland";n.v.t.;Deltares en de regio's van de bovenregionale stresstest;2025;;wisselend, zie GIS-bestand;uren;n.v.t.;Grootschalige extreme regen - Klimaateffectatlas;https://www.klimaateffectatlas.nl/en/large-scale-extreme-rainfall;;;;"Achterhoek_BRS_basisgebeurtenis_overstromingsduur
+ARKNZK_BRS_basisgebeurtenis_overstromingsduur
+BrabantseDelta_BRS_basisgebeurtenis_overstromingsduur
+NBrabantOost_BRS_basisgebeurtenis_overstromingsduur
+OverijsselseVecht_BRS_basisgebeurtenis_overstromingsduur
+Rivierenland_BRS_basisgebeurtenis_overstromingsduur
+RMM_BRS_basisgebeurtenis_overstromingsduur
+Scheldestromen_BRS_basisgebeurtenis_overstromingsduur
+ValleiVeluwe_BRS_basisgebeurtenis_overstromingsduur
+Zuiderzeeland_BRS_basisgebeurtenis_overstromingsduur"
+Wateroverlast;Bovenregionale indeling;BRS_regios.gpkg;n.v.t.;n.v.t.;Regio's van de bovenregionale stresstest;2025;;grenzen bovenregionale stresstest regio's;regio's voor de bovenregionale stresstesten;name;;;;;;Gebiedsindeling_BRS
+Wateroverlast;Risico op ondergrondverdichting;Risico op ondergrondverdichting.tiff;Huidig;n.v.t.;Wageningen Environmental Research (WenR);2017;2013;25x25 meter;"categorieën risico ondergrondverdichting:
+1 = zeer beperkt
+2 = beperkt
+3 = matig
+4 = groot
+5 = zeer groot
+10 = beperkt door veenlagen
+11 = van nature dicht";n.v.t.;;;;;;risico_ondergrondverdichting
+Storm;Jaarlijkse kans op windkracht;"JaarlijkseKansOpWindkracht8.tiff
+JaarlijkseKansOpWindkracht9.tiff
+JaarlijkseKansOpWindkracht10.tiff
+JaarlijkseKansOpWindkracht11.tiff";Windkracht 8, 9, 10 en 11;n.v.t.;Vrije Universiteit Amsterdam;2025;;2600x2650 meter;Procent;n.v.t.;https://www.klimaateffectatlas.nl/nl/storm;https://www.klimaateffectatlas.nl/en/windstorm;;;;"JaarlijkseKansOpWindkracht8
+JaarlijkseKansOpWindkracht9
+JaarlijkseKansOpWindkracht10
+JaarlijkseKansOpWindkracht11"
+Storm;Verwachte windstoten voor een herhalingstijd eens in de 10 en 100 jaar;"WindstotenT10.tiff
+WindstotenT100.tiff";10 en 100 jaar;n.v.t.;Vrije Universiteit Amsterdam;2025;;2600x2650 meter;Meter per seconde;n.v.t.;https://www.klimaateffectatlas.nl/nl/storm;https://www.klimaateffectatlas.nl/en/windstorm;;;;"WindstotenT10
+WindstotenT100"
+Droogte;"Bodemdaling 2020 - 2050
+Bodemdaling 2020 - 2100";"Bodemdaling 2020 2050 Hoog.tif
+Bodemdaling 2020 2050 Laag.tif
+Bodemdaling 2020 2100 Hoog.tif
+Bodemdaling 2020 2100 Laag.tif";2050 Hoog, 2050 Laag, 2100 Hoog, 2100 Laag;KNMI'14;Deltares, Wageningen Environmental Reserach & TNO;2021;;100x100 meter;meters;n.v.t.;https://www.klimaateffectatlas.nl/nl/bodemdalingsvoorspellings-kaarten;https://www.klimaateffectatlas.nl/en/soil-subsidence-prediction-map;;;;"bodemdaling_2020_2100laag
+bodemdaling_2020_2100hoog
+bodemdaling_2020_2050laag
+bodemdaling_2020_2050hoog"
+Droogte;Bodemdaling door ophoging;Bodemdaling door ophoging 2020 2050.tif;2050;KNMI'14;Deltares;2021;2021;100x100 meter;meters;n.v.t.;https://www.klimaateffectatlas.nl/nl/bodemdalingsvoorspellings-kaarten;https://www.klimaateffectatlas.nl/en/soil-subsidence-prediction-map;;;;bodemdaling_ophoging
+Droogte;Gemiddelde Laagste Grondwaterstand ;"GLG_Huidig.tif
+GLG_2050Hoog.tif
+GLG_2050Laag.tif
+GLG_2085Hoog.tif
+GLG_2085Laag.tif";2050 hoog, 2050 laag, 2085 hoog, 2085 laag, huidig;KNMI'14;Nationaal Water Model;2025;2018;250x250 meter;"huidig: meter onder maaiveld
+2050/2085: verschil in meter t.o.v. huidig";n.v.t.;https://www.klimaateffectatlas.nl/nl/laagste-grondwaterstanden;https://www.klimaateffectatlas.nl/en/lowest-groundwater-levels;;;;(volgt)
+Droogte;Laagste grondwaterstand - extreem droge zomer;"LG_extreemdrogezomer_2050Hoog.tif
+LG_extreemdrogezomer_2085Hoog.tif
+LG_extreemdrogezomer_Huidig.tif";2050 hoog, 2085 hoog, huidig;KNMI'14;Nationaal Water Model;2025;2018;250x250 meter;"huidig: meter onder maaiveld
+2050/2085: verschil in meter t.o.v. huidig";n.v.t.;https://www.klimaateffectatlas.nl/nl/laagste-grondwaterstanden;https://www.klimaateffectatlas.nl/en/lowest-groundwater-levels;;;;(volgt)
+Droogte;Natuurbrandgevoeligheid  ;"Natuurbrandgevoeligheid 2050 Hoog.tif
+Natuurbrandgevoeligheid Huidig.tif";2050 hoog, huidig;KNMI'14;Wageningen Environmental Research (WenR) & Deltares;2021;2021;250x250 meter;"natuurbrandgevoeligheid:
+1= lage gevoeligheid
+2 = middel gevoeligheid
+3 = hoge gevoeligheid";n.v.t.;https://www.klimaateffectatlas.nl/nl/natuurbrand;https://www.klimaateffectatlas.nl/en/wildfires;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/cba94f69-891f-42e9-a268-2f09ecabf3f0;"natuurbrandrisico_2050hoog
+natuurbrandrisico_huidig"
+Droogte;"Signaalkaart bodemdaling mei 2015 - mei 2018
+Signaalkaart bodemdaling okt 2016 - okt 2018";"Signaalkaart bodemdaling mei15-mei18.tif
+Signaalkaart bodemdaling okt16-okt18.tif";mei 2015 - mei 2018, oktober 2016-oktober 2018;n.v.t.;STOWA / SAT-WATER / GVL;2019;;50x50 meter;"Signalering bodemdaling mei'15-mei'18:
+1 = weinig daling
+2 = Significante daling eerste helft periode
+3 = Significante daling tweede helft periode
+4 = Significante daling
+5  = Veel daling
+
+Signalering bodemdaling okt16-okt18:
+1 = weinig daling
+2 = continue significatne daling vanaf mei'15 tot okt'18
+3 = Significante daling (meer dan voorafgaande periode)
+4 = veel daling";n.v.t.;https://www.klimaateffectatlas.nl/nl/signaalkaarten-bodemdaling;https://www.klimaateffectatlas.nl/en/current-soil-subsidence-indicator-maps;;;;"signaalkaart_bodemdaling_mei15mei18
+signaalkaart_bodemdaling_okt16okt18"
+Droogte;Tekort oppervlaktewater extreem droog jaar;"Tekort oppervlaktewater extreem droog jaar 2050 Hoog.gpkg
+Tekort oppervlaktewater extreem droog jaar Huidig.gpkg";2050 hoog, huidig;KNMI'14;Nationaal Water Model;2019;;regionale watersystemen;"categorieën tekort oppervlaktewater:
+0 = geen problemen
+1 = te weinig
+2 = te zout
+4 = te krap
+5 = te weinig + te krap
+6 = te zout + te krap
+9 = geen wateraanvoer mogelijk";F1976;https://www.klimaateffectatlas.nl/nl/tekort-oppervlaktewater;https://www.klimaateffectatlas.nl/en/surface-water-deficits;;;;"tekort_opvwater_extreem_2050hoog
+tekort_opvwater_extreem_huidig"
+Droogte;Tekort oppervlaktewater gemiddeld jaar;"Tekort oppervlaktewater gemiddeld jaar 2050 Hoog.gpkg
+Tekort oppervlaktewater gemiddeld jaar Huidig.gpkg";2050 hoog, huidig;KNMI'14;Nationaal Water Model;2019;;regionale watersystemen;"categorieën tekort oppervlaktewater:
+0 = geen problemen
+1 = te weinig
+2 = te zout
+4 = te krap
+5 = te weinig + te krap
+6 = te zout + te krap
+9 = geen wateraanvoer mogelijk";;https://www.klimaateffectatlas.nl/nl/tekort-oppervlaktewater;https://www.klimaateffectatlas.nl/en/surface-water-deficits;;;;"tekort_opvwater_gem_2050hoog
+tekort_opvwater_gem_huidig"
+Droogte;Droogtegevoeligheid Grondwaterafhankelijke Natuur;Droogtegevoeligheid grondwaterafhankelijke natuur.gpkg;huidig;n.v.t.;KWR & FWE;2021;;Natuurbeheertypegebieden;"Droogtegevoeligheid:
+W = weinig gevoelig
+G = Gevoelig
+Z = Zeer gevoelig
+anders = Niet grondwaterafhankelijk";;https://www.klimaateffectatlas.nl/nl/droogtegevoeligheid-natuur;https://www.klimaateffectatlas.nl/en/drought-susceptibility-nature;;;;droogtegevoeligheidgrondwaterafhankelijkenatuur
+Droogte;Risico droogtestress;"Risico droogtestress 2050 Hoog.tif
+Risico droogtestress Huidig.tif";2050 hoog, huidig;KNMI'14;KWR Water  ;2017;;250x250 meter;"Jaarlijkse opbrengstderving bij gras:
+<= 1 = n.v.t.
+t/m 20 = Laag (jaarlijkse opbrangstderving <10% bij gras)
+t/m 30 = Matig (jaarlijkse opbrengstderving 10%-20% bij gras)
+> 30 = Hoog (jaarlijkse opbrengstderving >20% bij gras)";n.v.t.;https://www.klimaateffectatlas.nl/nl/droogtestress;https://www.klimaateffectatlas.nl/en/drought-stress;;;;"droogtestress_2050hoog
+droogtestress_huidig"
+Droogte;Risico paalrot;"Risico Paalrot 2050 Hoog.gpkg
+Risico Paalrot 2050 Laag.gpkg
+Risico Paalrot Huidig";2050 hoog, 2050 laag, huidig;KNMI'14;Deltares;2021;;CBS buurtniveau;"Risico op paalrot:
+0 - 0,8 = zeer laag risico
+0,8 - 3,0 = laag risico
+3,0 - 6,0 = matig risico
+6,0 - 15,0 = hoog risico
+> 15,0 = zeer hoog risico";"Risico paalrot 2050 hoog: sterke_c_2
+Risico paalrot 2050 laag: mild_cc__1
+Risico paalrot huidig: no_cc_risi";https://www.klimaateffectatlas.nl/nl/risicokaarten-funderingen;https://www.klimaateffectatlas.nl/en/foundation-risk-map;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/cf208d1b-3c0d-402a-87c8-5b5ed6e2ed78;"risicopaalrot_2050laag
+risicopaalrot_2050hoog
+risicopaalrot_huidig"
+Droogte;Risico verschilzetting;"Risico Verschilzetting 2050 Hoog.gpkg
+Risico Verschilzetting 2050 Laag.gpkg";2050 hoog, 2050 laag;KNMI'14;Deltares;2021;;CBS buurtniveau;"Risico op verschilzetting:
+0 - 1,0 = zeer laag risico
+1,0 - 5,0 = laag risico
+5,0 - 10,0 = matig risico
+10,0 - 25,0 = hoog risico
+> 25,0 = zeer hoog risico";"Risico verschilzetting 2050 hoog: sterke_c_1
+Risico verschilzetting 2050 laag: mild_cc_ri";https://www.klimaateffectatlas.nl/nl/risicokaarten-funderingen;https://www.klimaateffectatlas.nl/en/foundation-risk-map;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/cf208d1b-3c0d-402a-87c8-5b5ed6e2ed78;"risicoverschilzetting_2050laag
+risicoverschilzetting_2050hoog"
+Hitte;Stedelijk hitte eiland effect;Stedelijk hitte eiland effect.tif;huidig;n.v.t.;Atlas Natuurlijk Kapitaal;2017;;10x10 meter;graden Celsius;n.v.t.;;;;;;hitteeiland
+Hitte;Afstand tot koelte (zoom in);Afstand tot koelte.gpkg;huidig;n.v.t.;TAUW & Hogeschool van Amsterdam;2021;;gebouwen + koele plekken;categorieën meters tot koele plek + koele plek;Legenda;https://www.klimaateffectatlas.nl/nl/afstand-tot-koeltekaart;https://www.klimaateffectatlas.nl/en/distance-to-cooling;;;;Afstand_tot_koelte
+Hitte;Ernstig eenzame 75+ers;Ernstig eenzame 75+ers.gpkg;huidig;n.v.t.;Gezondheidsmonitor / RIVM;2020;;CBS buurtniveau;Aantal eenzame 75+ers per KM2;DENSITY_O;;;;;;eenzame_75plussers
+Hitte;"Gevoelstemperatuur Buurtniveau 2012
+Gevoelstemperatuur Buurtniveau 2022
+Gevoelstemperatuur 2012
+Gevoelstemperatuur 2022";"GevoelstemperatuurBuurt_2012.gpkg
+GevoelstemperatuurBuurt_2022.gpkg
+Gevoelstemperatuur2012_Raster > PET_ahn2.vrt
+Gevoelstemperatuur2022_Raster > PET_ahn4.vrt";2012, 2022, 2012 buurt, 2022 buurt;n.v.t.;Nelen & Schuurmans;2024;;"CBS buurtniveau 2024
+2x2 meter";(categorieën) graden Celcius;"GevoelstemperatuurBuurt_2022: RIVMClass
+GevoelstemperatuurBuurt_2012: Class";https://www.klimaateffectatlas.nl/nl/gevoelstemperatuur;https://www.klimaateffectatlas.nl/en/perceived-temperature;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/c176ea7d-00dc-4a90-9170-bd62b6ea48ad;"gevoelstemperatuur_2012
+gevoelstemperatuur_2022
+GevoelstemperatuurBuurt_2012
+GevoelstemperatuurBuurt_2022"
+Hitte;Hittestress door warme nachten;"Hittestress door warme nachten 2050 Hoog.tif
+Hittestress door warme nachten Huidig.tif";2050 hoog, huidig;KNMI'14;Wageningen Environmental Research;2016;;100x100 meter;tijdseenheden (dag, week, weken, maand);n.v.t.;https://www.klimaateffectatlas.nl/nl/nachthitte;https://www.klimaateffectatlas.nl/en/night-heat;;;;"warme_nachten_2050hoog
+warme_nachten_huidig"
+Hitte;n.v.t.;"HittegolfJuli19.tif
+HittegolfJuli19_2grWarmer.tif";2019, 2019 in 2gr warmere wereld;2 graden warmer (geen scenario/jaartal);KNMI;2024;2019;500x500 meter;graden Celsius;n.v.t.;https://www.klimaateffectatlas.nl/nl/hittegolf;https://www.klimaateffectatlas.nl/en/heatwaves;;;;-
+Hitte;Sociale kwetsbaarheid hitte;Sociale Kwetsbaarheid Hitte.gpkg;huidig;n.v.t.;RIVM;2023;;CBS buurtniveau;Categorieën broosheid & sociaal minimum;"rule based o.b.v. ""P_H_SOCMIN"" & ""P_BROOS65P""";https://www.klimaateffectatlas.nl/nl/sociale-kwetsbaarheid-hitte;https://www.klimaateffectatlas.nl/en/social-vulnerability-to-heat;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/3119731f-3ada-43ec-b6eb-b96f25d1fc9f;sociale_kwetsbaarheid_hitte
+Overstroming;"Overstromingsdiepte | grote kans
+Overstromingsdiepte | middelgrote kans
+Overstromingsdiepte | kleine kans
+Overstromingsdiepte | zeer kleine kans
+Overstromingsdiepte | extreem kleine kans";"maximale_waterdiepte_nederland_grote_kans_20251219
+maximale_waterdiepte_nederland_middelgrote_kans_20251219
+maximale_waterdiepte_nederland_kleine_kans_20251219
+maximale_waterdiepte_nederland_zeer_kleine_kans_20251219
+maximale_waterdiepte_nederland_extreem_kleine_kans_20251219";grote kans, middelgrote kans, kleine kans, zeer kleine kans, extreem kleine kans;KNMI'14;LIWO;2025;;5x5 meter;Categorieën o.b.v. meters;n.v.t.;"https://www.klimaateffectatlas.nl/nl/overstromingsdiepte
+
+https://www.klimaateffectatlas.nl/nl/overstromingsrisico-en-gevolgbeperking";https://www.klimaateffectatlas.nl/en/flood-depth;https://www.klimaateffectatlas.nl/nl/overstromingsrisico-en-gevolgbeperking;https://www.klimaateffectatlas.nl/en/flood-risks-and-flood-impact-reduction;;"maximale_waterdiepte_nederland_grote_kans_20251219
+maximale_waterdiepte_nederland_middelgrote_kans_20251219
+maximale_waterdiepte_nederland_kleine_kans_20251219
+maximale_waterdiepte_nederland_zeer_kleine_kans_20251219
+maximale_waterdiepte_nederland_extreem_kleine_kans_20251219"
+Overstroming;"Plaatsgebonden overstromingskans > 0 cm
+Plaatsgebonden overstromingskans > 20 cm
+Plaatsgebonden overstromingskans > 50 cm
+Plaatsgebonden overstromingskans > 200 cm";"plaatsgebonden_overstromingskans_huidig_0_cm_20251120
+plaatsgebonden_overstromingskans_huidig_20_cm_20251120
+plaatsgebonden_overstromingskans_huidig_50_cm_20251120
+plaatsgebonden_overstromingskans_huidig_200_cm_20251120
+plaatsgebonden_overstromingskans_norm_2050_0_cm_20251120
+
+plaatsgebonden_overstromingskans_norm_2050_20_cm_20251120
+plaatsgebonden_overstromingskans_norm_2050_50_cm_20251120
+plaatsgebonden_overstromingskans_norm_2050_200_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_0_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_20_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_50_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_200_cm_20251120";"huidig: 0 cm, 20 cm, 50 cm, 200 cm
+Norm 2050: 0 cm, 20 cm, 50 cm, 200 cm
+Norm + klimaatverandering 2100: 0 cm, 20 cm, 50 cm, 200 cm";KNMI'14;LIWO;2024;;5x5 meter;"Categorieën kans op overstroming:
+1 = Extreem kleine kans: <1/30.000 per jaar
+2 = Zeer kleine kans: 1/3.000 tot 1/30.000 per jaar
+3 = Kleine kans: 1/300 tot 1/3.000 per jaar
+4 = Middelgrote kans: 1/30 tot 1/300 per jaar
+5 = Grote kans: 1/30 per jaar";n.v.t.;https://www.klimaateffectatlas.nl/nl/overstromingsrisico-en-gevolgbeperking;https://www.klimaateffectatlas.nl/en/flood-risks-and-flood-impact-reduction;https://www.klimaateffectatlas.nl/nl/kaartwijzer;https://www.klimaateffectatlas.nl/en/guide-to-flood-maps;;"plaatsgebonden_overstromingskans_huidig_0_cm_20251120
+plaatsgebonden_overstromingskans_huidig_20_cm_20251120
+plaatsgebonden_overstromingskans_huidig_50_cm_20251120
+plaatsgebonden_overstromingskans_huidig_200_cm_20251120
+plaatsgebonden_overstromingskans_norm_2050_0_cm_20251120
+plaatsgebonden_overstromingskans_norm_2050_20_cm_20251120
+plaatsgebonden_overstromingskans_norm_2050_50_cm_20251120
+plaatsgebonden_overstromingskans_norm_2050_200_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_0_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_20_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_50_cm_20251120
+plaatsgebonden_overstromingskans_norm_plus_klimaatverandering_2100_200_cm_20251120"
+Overstroming;Percentage droge verdiepingen per buurt | Overstroming extreem kleine kans;droge_verdiepingen_extreem_kleine_kans_20251120;huidig;n.v.t.;LIWO;2025;;CBS buurtniveau;percentage droge plekken per buurt;PerDrogePlekken;https://www.klimaateffectatlas.nl/nl/overstromingsrisico-en-gevolgbeperking;https://www.klimaateffectatlas.nl/en/flood-risks-and-flood-impact-reduction;;;;droge_verdiepingen_extreem_kleine_kans_20251120
+Overstroming;"Verandering waterstanden bij norm | 1m zeespiegelstijging
+Verandering waterstanden bij norm | 3m zeespiegelstijging
+Toename minimale kruinhoogte bij norm | 1m zeespiegelstijging
+Toename minimale kruinhoogte bij norm | 3m zeespiegelstijging";"VeranderingWaterstandbijNorm1mZeespiegelstijging.gpkg
+VeranderingWaterstandbijNorm3mZeespiegelstijging.gpkg
+ToenameMinimaleKruinhoogtebijNorm1mZeespiegelstijging.gpkg
+ToenameMinimaleKruinhoogtebijNorm3mZeespiegelstijging.gpkg";1m & 3m zeespiegelstijging;1 of 3 meter stijging (geen scenario/jaartal);Kennisprogramma Zeespiegelstijging;2025;;;categorieën in meters;"Rule based o.b.v.:
+VeranderingWaterstandbijNorm1mZeespiegelstijging: L2200L2050
+VeranderingWaterstandbijNorm3mZeespiegelstijging: E2200L2050
+ToenameMinimaleKruinhoogtebijNorm1mZeespiegelstijging: L2200L2050
+ToenameMinimaleKruinhoogtebijNorm3mZeespiegelstijging: E2200L2050";https://www.klimaateffectatlas.nl/nl/zeespiegelstijging-en-waterstanden;https://www.klimaateffectatlas.nl/en/sea-level-rise-and-water-levels;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/6651bb33-7b53-471b-95a5-031938f61222;"Veranderingwaterstandbijnormbij1mzeespiegelstijging
+Veranderingwaterstandbijnormbij3mzeespiegelstijging
+Toenamehoogtedijkenenduinenbijnormbij1mzeespiegelstijging
+Toenamehoogtedijkenenduinenbijnormbij3mzeespiegelstijging"
+Basiskaarten;"Basiskaart natuurlijk systeem hoofdtypen
+Basiskaart natuurlijk systeem eenheden";"Basiskaart Natuurlijk Systeem Nederland Hoofdklasse.gpkg
+Basiskaart Natuurlijk Systeem Nederland Subklasse.gpkg";hoofdklasse & subklasse;n.v.t.;Geo-Inspiratie & GrondRR;2023;;"hoofdklassen
+25x25 meter";klassen natuurlijke systemen;"Hoofdklasse: gridcode
+Subklasse: BKNSN_code";https://www.klimaateffectatlas.nl/nl/basiskaart-natuurlijk-systeem-nederland;https://www.klimaateffectatlas.nl/en/base-map-of-the-netherlands-natural-system;;;;"bknsn_hoofdklasse
+bkns_subklasse_2023_dreigingen_kansen"
+Basiskaarten;"Boomkroonbedekking
+Landbedekking
+Openbaar- en niet-openbaar gebied";"bkb_2024.tif
+landbedekking_2024.tif
+ONO_2024.tif
+VSK_2024.tif";huidig;n.v.t.;Friedenau;2025;;CBS buurtniveau;Categorieën percentages;;https://www.klimaateffectatlas.nl/nl/basiskaart-groen-en-verharding;https://www.klimaateffectatlas.nl/en/green-and-grey-base-map;;;;
+Basiskaarten;"Percentage schaduw op fiets- en wandelpaden - buurtniveau
+Percentage schaduw op fiets- en wandelpaden (zoom in)";"Schaduwkaart fiets en wandelpaden buurten.gpkg
+Schaduwkaart fiets en wandelpaden.gpkg";buurt & fiets/wandelpad niveau;n.v.t.;Cobra Groeninzicht;2024;;CBS buurtniveau / fiets en wandelpaden;Categorieën percentages;"Schaduwkaart fiets en wandelpaden buurten = P_scha_fw
+Schaduwkaart fiets en wandelpaden = Ptot_schad";https://www.klimaateffectatlas.nl/nl/schaduw-op-wandel-en-fietspaden;https://www.klimaateffectatlas.nl/en/shaded-footpaths-and-cycle-tracks;;;;"schaduwkaart_fiets_en_wandelpaden
+buurten_schaduwkaart_fiets_en_wandelpaden"
+Basiskaarten;Kansenkaart natuurlijke klimaatbuffers;TotaalkaartKlimaatbuffers.gpkg;huidig;n.v.t.;Coalitie Natuurlijke Klimaatbuffers & Hydrologic;2021;;;Type klimaatbuffers;Legenda;https://www.klimaateffectatlas.nl/nl/kansenkaart-natuurlijke-klimaatbuffers;https://www.klimaateffectatlas.nl/en/opportunity-map-natural-climate-buffers;;;;totaalkaartklimaatbuffers
+Basiskaarten;"Wijktypologie - Buurtniveau
+Wijktypologie - Postcode 6-gebieden";"Wijktypen buurten.gpkg
+Wijktypen Postcode 6 gebieden.gpkg";buurten & postcode 6;n.v.t.;Hogeschool van Amsterdam;2023;;"CBS buurtniveau
+Postcode 6";Wijktypen;WijktypeDef;https://www.klimaateffectatlas.nl/nl/wijktypologie;https://www.klimaateffectatlas.nl/en/neighbourhood-typology;;;https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/765a920b-1a0e-4596-a2cf-f39d0609ef6a;"wijktypen_buurten
+wijktypen_PC6"
+Basiskaarten;Werkregiogrenzen;WerkregioGrenzen_14012022.gpkg;huidig;n.v.t.;Deltaplan Ruimtelijke Adaptatie;2025;2022;Werkregio's;n.v.t.;n.v.t.;;;https://klimaatadaptatienederland.nl/beleid/nationale-aanpak/dpra/organisatie/werkregio/;;;werkregiogrenzen14012022
+waterkwaliteit;Ligging grensvlak tussen zoet en zout grondwater;Ligging grensvlak tussen zoet en zout grondwater.tif;huidig;n.v.t.;Rijkswaterstaat, Deltares, Arcadis, Hydrologic & Ministerie van Infrastructuur en Waterstaat;2024;;250x250 meter;meter NAP;n.v.t.;https://www.klimaateffectatlas.nl/nl/verzilting-door-zeespiegelstijging;https://www.klimaateffectatlas.nl/en/salinisation-as-a-result-of-sea-level-rise;;;;ligging_grensvlak_tussen_zoet_en_zout_grondwater
+waterkwaliteit;"Oppverlaktewaterverzilting 0m zeespiegelstijging
+Oppverlaktewaterverzilting 0,5m zeespiegelstijging
+Oppverlaktewaterverzilting 3m zeespiegelstijging";"Oppervlaktewaterverzilting_0mZSS_500m3Rijn.gpkg
+Oppervlaktewaterverzilting_0mZSS_1000m3Rijn.gpkg
+Oppervlaktewaterverzilting_0mZSS_2000m3Rijn.gpkg
+Oppervlaktewaterverzilting_1mZSS_500m3Rijn.gpkg
+Oppervlaktewaterverzilting_1mZSS_1000m3Rijn.gpkg
+Oppervlaktewaterverzilting_1mZSS_2000m3Rijn.gpkg
+Oppervlaktewaterverzilting_3mZSS_500m3Rijn.gpkg
+Oppervlaktewaterverzilting_3mZSS_1000m3Rijn.gpkg
+Oppervlaktewaterverzilting_3mZSS_2000m3Rijn.gpkg
+Oppervlaktewaterverzilting_05mZSS_500m3Rijn.gpkg
+Oppervlaktewaterverzilting_05mZSS_1000m3Rijn.gpkg
+Oppervlaktewaterverzilting_05mZSS_2000m3Rijn.gpkg";0m, 0,5m 1m & 3m zeespiegelstijging voor 500m3, 1000m3 & 2000m3 Rijn;0,5m, 1m of 3m stijging (geen scenario/jaartal);Rijkswaterstaat, Deltares, Arcadis, Hydrologic & Ministerie van Infrastructuur en Waterstaat;2024;;250x250 meter;"mg Cl/l:
+1 = Zoet | < 150 mg Cl/l
+2 = Matig zoet | 150 - 300 mg Cl/l
+3 = Licht brak | 300-1000 mg Cl/l
+4 = Zwak brak | 1000-3000 mg Cl/l
+5 = Brak | 3000-10000 mg Cl/l
+6 = Sterk brak tot zout | >10000";Verz_klasse;https://www.klimaateffectatlas.nl/nl/verzilting-door-zeespiegelstijging;https://www.klimaateffectatlas.nl/en/salinisation-as-a-result-of-sea-level-rise;;;;"Oppervlaktewaterverzilting_0m_ZSS_500m3_Rijn
+Oppervlaktewaterverzilting_0m_ZSS_1000m3_Rijn
+Oppervlaktewaterverzilting_0m_ZSS_2000m3_Rijn
+Oppervlaktewaterverzilting_05m_ZSS_500m3_Rijn
+Oppervlaktewaterverzilting_05m_ZSS_1000m3_Rijn
+Oppervlaktewaterverzilting_05m_ZSS_2000m3_Rijn
+Oppervlaktewaterverzilting_3mZSS_500m3_Rijn
+Oppervlaktewaterverzilting_3m_ZSS_1000m3_Rijn
+Oppervlaktewaterverzilting_3m_ZSS_2000m3_Rijn
+Oppervlaktewaterverzilting_1m_ZSS_500m3_Rijn
+Oppervlaktewaterverzilting_1m_ZSS_2000m3_Rijn
+Oppervlaktewaterverzilting_1m_ZSS_1000m3_Rijn"
+waterkwaliteit;Verandering doorspoelwatervraag;"Verandering doorspoelwatervraag 0_5m ZSS.gpkg
+Verandering doorspoelwatervraag 1m ZSS.gpkg
+Verandering doorspoelwatervraag 3m ZSS.gpkg";0,5 m, 1m & 3m zeespiegelstijging;0,5m, 1m of 3m stijging (geen scenario/jaartal);Rijkswaterstaat, Deltares, Arcadis, Hydrologic & Ministerie van Infrastructuur en Waterstaat;2024;;polders;categorieën percentage toename doorspoelwatervraag;"Verandering doorspoelwatervraag 0_5m ZSS = waterv_05 
+Verandering doorspoelwatervraag 1m ZSS = waterv_1
+Verandering doorspoelwatervraag 3m ZSS = waterv_3";https://www.klimaateffectatlas.nl/nl/verzilting-door-zeespiegelstijging;https://www.klimaateffectatlas.nl/en/salinisation-as-a-result-of-sea-level-rise;;;;"Verandering_doorspoelwatervraag_05m_ZSS
+Verandering_doorspoelwatervraag_1m_ZSS
+Verandering_doorspoelwatervraag_3m_ZSS"
+waterkwaliteit;n.v.t.;"ZoutvrachtBijdrageAutonoom1m_def.tif
+ZoutvrachtBijdrageAutonoom3m_def.tif
+ZoutvrachtBijdrageAutonoom05m_def.tif";0,5m, 1m & 3m;0,5m, 1m of 3m stijging (geen scenario/jaartal);Rijkswaterstaat, Deltares, Arcadis, Hydrologic & Ministerie van Infrastructuur en Waterstaat;2024;;250x250 meter;kg per ha per jaar;n.v.t.;https://www.klimaateffectatlas.nl/nl/verzilting-door-zeespiegelstijging;https://www.klimaateffectatlas.nl/en/salinisation-as-a-result-of-sea-level-rise;;;;"zoutvracht_bijdrage_autonoom_05m
+zoutvracht_bijdrage_autonoom_1m
+zoutvracht_bijdrage_autonoom_3m"
+waterkwaliteit;n.v.t.;"ZoutvrachtBijdrageZSS1m_def.tif
+ZoutvrachtBijdrageZSS3m_def.tif
+ZoutvrachtBijdrageZSS05m_def.tif";0,5m, 1m & 3m;0,5m, 1m of 3m stijging (geen scenario/jaartal);Rijkswaterstaat, Deltares, Arcadis, Hydrologic & Ministerie van Infrastructuur en Waterstaat;2024;;250x250 meter;kg per ha per jaar;n.v.t.;https://www.klimaateffectatlas.nl/nl/verzilting-door-zeespiegelstijging;https://www.klimaateffectatlas.nl/en/salinisation-as-a-result-of-sea-level-rise;;;;"zoutvracht_bijdrage_zss_05m
+zoutvracht_bijdrage_zss_1m
+zoutvracht_bijdrage_zss_3m"
+waterkwaliteit;n.v.t.;"ZoutvrachtBijdrageBodemdaling1m_def.tif
+ZoutvrachtBijdrageBodemdaling3m_def.tif
+ZoutvrachtBijdrageBodemdaling05m_def.tif";0,5m, 1m & 3m;0,5m, 1m of 3m stijging (geen scenario/jaartal);Rijkswaterstaat, Deltares, Arcadis, Hydrologic & Ministerie van Infrastructuur en Waterstaat;2024;;250x250 meter;kg per ha per jaar;n.v.t.;https://www.klimaateffectatlas.nl/nl/verzilting-door-zeespiegelstijging;https://www.klimaateffectatlas.nl/en/salinisation-as-a-result-of-sea-level-rise;;;;"zoutvracht_bijdrage_bodemdaling_05m
+zoutvracht_bijdrage_bodemdaling_1m
+zoutvracht_bijdrage_bodemdaling_3m"
+waterkwaliteit;"Zoutvracht
+Zoutvracht verschil zeespiegelstijging";"ZoutvrachtHuidig_def.tif
+ZoutvrachtVerschil1m_def.tif
+ZoutvrachtVerschil3m_def.tif
+ZoutvrachtVerschil05m_def.tif";huidig, 0,5m, 1m & 3m;0,5m, 1m of 3m stijging (geen scenario/jaartal);Rijkswaterstaat, Deltares, Arcadis, Hydrologic & Ministerie van Infrastructuur en Waterstaat;2024;;250x250 meter;kg per ha per jaar;n.v.t.;https://www.klimaateffectatlas.nl/nl/verzilting-door-zeespiegelstijging;https://www.klimaateffectatlas.nl/en/salinisation-as-a-result-of-sea-level-rise;;;;"zoutvracht_huidig
+zoutvracht_verschil_05m
+zoutvracht_verschil_1m
+zoutvracht_verschil_3m"
+waterkwaliteit;"Risico opwarming oppervlaktewater 2050 Hoog.gpkg
+Risico opwarming oppervlaktewater Huidig.gpkg";Risico opwarming oppervlaktewater;2050 hoog, huidig;KNMI'14;Wageningen Environmental Research & TAUW;2017;;Oppervlaktewateren;"langste reeks dagen oppervlaktewater > 20 graden celcius:
+1 = <10 dagen
+2 = 10-20 dagen
+3 = 20-30 dagen
+4 = 30-40 dagen
+5 = >40 dagen";Risicokl_3;https://www.klimaateffectatlas.nl/nl/opwarming-oppervlaktewater;https://www.klimaateffectatlas.nl/en/surface-water-warming;;;;"opwarming_oppervlaktewater_2050hoog
+opwarming_oppervlaktewater_huidig"
