@@ -2,7 +2,6 @@ from __future__ import annotations
 import re
 import os
 from typing import Tuple, Dict, Any, Iterable, Optional, List
-from pyparsing import col
 import requests
 import pandas as pd
 from tqdm import tqdm
@@ -24,16 +23,19 @@ __all__ = [
     "get_metadata",
     "get_provincie_gebieden",
     "get_data_provincie",
-    "koppel_metadata",
     "koppel_geo_info",
     "sla_op",
     "lees_opgeslagen_data",
-    "read_metadata_wide_to_tidy",
+    "read_data_csv",
+    "read_metadata_to_tidy",
+    "metadata_label_map",
+    "maak_suffix_tabel",
     "attach_and_apply_metadata",
-    "metadata_dict",
     "read_and_join_with_metadata",
+    "controleer_ahn_metadata",
     "maak_gelabelde_kopie_df_data",
     "maak_gelabelde_kopie_df_klimaat",
+    "join_cbs_with_klimaat",
 ]
 
 # ------------------------------------------------------
@@ -70,6 +72,37 @@ def get_metadata() -> pd.DataFrame:
     vprint(f"  {len(df_meta)} indicatoren gevonden")
     return df_meta
 
+def metadata_label_map(df_meta: pd.DataFrame) -> dict[str, str]:
+    """
+    Bouwt een mapping van indicatorcode -> 'Titel (eenheid)'
+    """
+    vprint("Metadata labels voorbereiden (met eenheid)...")
+
+    label_map = {}
+
+    for _, row in df_meta.iterrows():
+        key = row.get("Key")
+        title = row.get("Title")
+        unit = row.get("Unit") or row.get("Eenheid")
+
+        if not isinstance(key, str) or not isinstance(title, str):
+            continue
+
+        title = title.strip()
+
+        if isinstance(unit, str) and unit.strip():
+            label = f"{title} ({unit.strip()})"
+        else:
+            label = title
+
+        label_map[key] = label
+
+    # Sleutelveld eruit
+    label_map.pop("WijkenEnBuurten", None)
+
+    vprint(f"  {len(label_map)} labels met eenheid aangemaakt")
+    return label_map
+
 
 def get_provincie_gebieden() -> pd.DataFrame:
     """Haalt alle wijken/buurten/gemeenten op en filtert ze zodat alleen de gebieden die binnen Friesland vallen overblijven."""
@@ -101,7 +134,7 @@ def get_data_provincie(provincie_codes: list[str]) -> pd.DataFrame:
     for i in tqdm(
         range(0, len(provincie_codes), BATCH_SIZE),
         total=total_batches,
-        disable=not VERBOSE,                # <<< progress bar automatisch UIT als VERBOSE=False
+        disable=not VERBOSE,                # progress bar automatisch UIT als VERBOSE=False
         desc="Batches verwerken"
     ):
         batch = provincie_codes[i : i + BATCH_SIZE]
@@ -117,38 +150,6 @@ def get_data_provincie(provincie_codes: list[str]) -> pd.DataFrame:
     vprint(f"  Totaal {len(df_data)} rijen opgehaald")
 
     return df_data
-
-def metadata_dict(df_meta: pd.DataFrame) -> dict[str, str]:
-    """
-    Bouwt een mapping van indicatorcode -> leesbare titel
-    op basis van metadata.
-    """
-    vprint("Metadata voorbereiden...")
-
-    meta_dict = df_meta.set_index("Key")["Title"].to_dict()
-    meta_dict.pop("WijkenEnBuurten", None)
-
-    vprint(f"  {len(meta_dict)} metadata-items beschikbaar")
-    return meta_dict
-
-def maak_gelabelde_kopie_df_data(
-    df: pd.DataFrame,
-    meta_dict: dict[str, str],
-) -> pd.DataFrame:
-    """
-    Maakt een gelabelde kopie van df op basis van meta_dict.
-    Originele df blijft onaangetast.
-    """
-    rename_map = {
-        k: v
-        for k, v in meta_dict.items()
-        if k in df.columns
-    }
-
-    df_labeled = df.rename(columns=rename_map)
-
-    vprint(f"  {len(rename_map)} kolommen hernoemd (gelabelde kopie)")
-    return df_labeled
 
 
 
@@ -174,6 +175,7 @@ def sla_op(df_data: pd.DataFrame, df_meta: pd.DataFrame) -> None:
 
 
 def lees_opgeslagen_data(data_path, meta_path):
+    """leest data en metadata van schijf."""
     vprint("Data vanaf schijf inlezen...")
 
     df_data = pd.read_csv(data_path, low_memory=False)
@@ -194,7 +196,7 @@ def read_data_csv(
     na_values: Iterable = ("-9995", -9995, "", "NA", "N/A"),
     low_memory: bool = False,
 ) -> pd.DataFrame:
-    """Lees CSV-bestand met encoding-fallback en opgeschoonde kolomnamen."""
+    """Leest een CSV‑bestand met automatische encoding‑controle en opgeschoonde kolomnamen."""
 
     encodings = (encoding, "utf-8", "cp1252", "latin-1") 
     last_err = None
@@ -229,14 +231,14 @@ def read_metadata_to_tidy(
     sep: str = ";",
     decimal: str = ",",
     encoding: str = "utf-8-sig",
-    attribute_key: str = "Attribuutnaam",
+    indicator_key: str = "Attribuutnaam",
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Leest metadata en levert (meta_raw, meta_tidy).
     - Rij-oriëntatie: 
-    Als er een kolom `attribute_key` (=default: 'Attribuutnaam') bestaat:
-        * meta_tidy = zelfde rijen, hernoemd naar 'column_name'
-        * één rij per attribuut (kolomnaam in dataset)
+    Als er een kolom `indicator_key` (=default: 'Attribuutnaam') bestaat:
+        * meta_tidy = zelfde rijen, indicator_key hernoemd naar 'column_name'
+        * één rij per indicator (kolomnaam in dataset)
     - Kolom-oriëntatie:
         * Eerste kolom is lijst met meta-velden -> transpose naar tidy.
     """
@@ -246,16 +248,16 @@ def read_metadata_to_tidy(
     # Kolomnamen opschonen
     meta_raw.columns = meta_raw.columns.map(lambda c: str(c).strip())
 
-    # Vind attribute_key case-insensitive
+    # Vind indicator_key case-insensitive
     attr_col = next(
-        (c for c in meta_raw.columns if c.strip().lower() == attribute_key.strip().lower()),
+        (c for c in meta_raw.columns if c.strip().lower() == indicator_key.strip().lower()),
         None
     )
 
     if attr_col is not None:
-        # Rij-oriëntatie (één rij per attribuut)
+        # Rij-oriëntatie (één rij per indicator)
 
-        # Attribuutnaam-kolom opschonen
+        # Indicatornaam-kolom opschonen
         meta_raw[attr_col] = meta_raw[attr_col].astype(str).str.strip()
 
         # Duplicaten signaleren
@@ -264,10 +266,10 @@ def read_metadata_to_tidy(
             dup_vals = meta_raw.loc[dup_mask, attr_col].value_counts().to_dict()
             print(f"[WAARSCHUWING] Dubbele {attr_col}-waarden: {dup_vals}")
 
-        # Hernoem attribuut_key-kolom naar 'column_name'
+        # Hernoem indicator_key-kolom naar 'column_name'
         meta_tidy = meta_raw.rename(columns={attr_col: "column_name"}).copy()
 
-        # Opschonen + index zetten (CRUCIAAL)
+        # Opschonen + index zetten 
         meta_tidy["column_name"] = meta_tidy["column_name"].astype(str).str.strip()
         meta_tidy.index = meta_tidy["column_name"]
         meta_tidy = meta_tidy.drop(columns=["column_name"])
@@ -277,7 +279,7 @@ def read_metadata_to_tidy(
 
     else:
         # Kolom-oriëntatie (oude breed-naar-tidy transpose)
-        # Eerste kolom geeft naam van meta_veld. Deze opschonen en daarna transponeren.
+        # Eerste kolom geeft naam van indicator. Deze opschonen en daarna transponeren.
         first_col_name = meta_raw.columns[0]
         meta_raw[first_col_name] = meta_raw[first_col_name].astype(str).str.strip()
         meta_tidy = (
@@ -288,51 +290,72 @@ def read_metadata_to_tidy(
 
 
 
+# ------------------------------------------------------
+# Hulpfuncties voor omgaan met AHN en BK suffixen
+# ------------------------------------------------------
+
+# regex patroon om AHN/BK-kolommen te herkennen en basisnaam + suffix te extraheren
+
+PATTERN_SUFFIX = re.compile(
+    r"^(?P<base>.*?)(?:_(?P<suffix>AHN(?P<nr>\d+)(?:_[A-Za-z0-9]+)?|BK))?$",
+    re.IGNORECASE
+)
+
+def parse_suffix(col: str) -> dict[str, object]:
+    """
+    Ontleedt een kolomnaam in basisnaam en suffix-informatie.
+    """
+    m = PATTERN_SUFFIX.match(col)
+    if not m:
+        return {"base": col, "suffix": None, "ahn_nr": None}
+
+    return {
+        "base": m.group("base"),
+        "suffix": m.group("suffix"),
+        "ahn_nr": int(m.group("nr")) if m.group("nr") else None,
+    }
+
+
+# ------------------------------------------------------
+# Hulpfuncties voor het inzichtelijk maken van welke AHN/BK-suffixen er zijn per basisvariabele
+# ------------------------------------------------------
+
 def maak_suffix_tabel(df_klimaat: pd.DataFrame) -> pd.DataFrame:
     """
     Geeft een tabel:
     - variabele (basisnaam zonder suffix)
-    - alle gevonden AHN-suffixen (_AHN3, _AHN3_BK, _AHN4_X etc.)
+    - alle gevonden suffixen (AHN*, AHN*_BK, BK)
     """
-    # regex patroon om AHN-kolommen te herkennen en basisnaam + suffix te extraheren
-    pattern = re.compile(
-        r"^(?P<base>.*?)(?:_(?P<suffix>AHN\d+(?:_[A-Za-z0-9]+)?|BK))$",
-        re.IGNORECASE
-    )
-
     rows = []
 
-    # Gaat door alle kolommen en zoekt naar AHN-suffixen. Als gevonden, splitst in basisnaam + suffix.
     for col in df_klimaat.columns:
-        m = pattern.match(col)
-        if not m:
+        info = parse_suffix(col)
+
+        # Geen suffix → niet opnemen in overzicht
+        if info["suffix"] is None:
             continue
 
-        base = m.group(1)
-        suffix = m.group(2)
+        rows.append({
+            "variabele": info["base"],
+            "suffix": info["suffix"],
+        })
 
-        rows.append({"variabele": base, "suffix": suffix})
-    # Zet om naar DataFrame 
+    # Geen AHN/BK-kolommen gevonden → lege tabel met juiste kolommen teruggeven
+    if not rows:
+        return pd.DataFrame(columns=["variabele", "alle_suffixen"])
+
     df_long = pd.DataFrame(rows)
 
-    # Groepeert op basisnaam
     df_wide = (
-        df_long.groupby("variabele")["suffix"]
-        .apply(lambda s: ", ".join(sorted(s)))
+        df_long
+        .groupby("variabele")["suffix"]
+        .apply(lambda s: ", ".join(sorted(set(s))))
         .reset_index(name="alle_suffixen")
     )
 
     return df_wide
 
 
-PATTERN_SUFFIX = re.compile(
-    r"^(?P<base>.*?)(?:_(?P<suffix>AHN\d+(?:_[A-Za-z0-9]+)?|BK))?$",
-    re.IGNORECASE
-)
-
-def strip_suffix(col: str) -> str:
-    m = PATTERN_SUFFIX.match(col)
-    return m.group("base") if m else col
 
 def attach_and_apply_metadata(
     df: pd.DataFrame,
@@ -348,66 +371,62 @@ def attach_and_apply_metadata(
     - (Optioneel) hernoemt kolommen o.b.v. eerste gevonden veld in label_fields.
     - Retourneert dict: {kolomnaam: {meta_field: waarde, ...}}.
     """
-    # Alleen metadata voor kolommen die in df zitten
-    
+    # strip kolomnamen
+    df_cols_stripped = {c: parse_suffix(c)["base"] for c in df.columns}
 
-    df_cols_stripped = {c: strip_suffix(c) for c in df.columns}
+    col_meta: Dict[str, Dict[str, Any]] = {}
 
-    reverse_map: Dict[str, list[str]] = {}
-    for original, base in df_cols_stripped.items():
-        reverse_map.setdefault(base, []).append(original)
+    for original_col, base in df_cols_stripped.items():
+        if base in meta_tidy.index: # Controleren of er metadata beschikbaar is
+            col_meta[original_col] = meta_tidy.loc[base].to_dict() # metadata ophalen en omzetten naar dict
 
-    # meta_tidy.index bevat AL de basisindicatornamen
-    valid_meta_rows = meta_tidy.index.isin(reverse_map.keys())
-    meta_tidy = meta_tidy.loc[valid_meta_rows].copy()
-
-
-
-    # Maakt een dictionary met een dictionary per kolom met metadata, 
-    col_meta: Dict[str, Dict[str, Any]] = meta_tidy.to_dict(orient="index")
-
-    # Dtypes toepassen
-
-    # Controleert of dtype_field aanwezig is in meta_tidy, en of het veld niet leeg is,
+    # ---------------------------
+    # Dtypes toepassen (per df-kolom)
+    # ---------------------------
     if dtype_field in meta_tidy.columns:
+
+        # Maak en dictionary aan met basisnaam en dtype
         dtype_map = meta_tidy[dtype_field].dropna().to_dict()
 
-        # Splits datetime van overige dtypes
-        datetime_cols = [
-            col
-            for col, dtype_spec in dtype_map.items()
-            if isinstance(dtype_spec, str) and dtype_spec.lower().startswith("datetime")
-        ]
-        other_dtypes = {col: dtype_spec for col, dtype_spec in dtype_map.items() if col not in datetime_cols}
+        for col in df.columns:
+            base = parse_suffix(col)["base"]
 
-        for col, dtype_spec in other_dtypes.items():
-            # Alleen bestaande kolommen proberen te converteren, en alleen als dtype_spec een string is
-            if col not in df.columns or not isinstance(dtype_spec, str):
+            if base not in dtype_map:
                 continue
+            
+            # Alleen geldige dtype-specificaties toepassen
+            dtype_spec = dtype_map[base]
+            if not isinstance(dtype_spec, str):
+                continue
+
             d_lower = dtype_spec.lower()
-            # Dtypes toepassen
+
             try:
-                if d_lower in ("string", "category"):
+                if d_lower.startswith("datetime"):
+                    df[col] = pd.to_datetime(
+                        df[col], errors="coerce", dayfirst=dayfirst
+                    )
+                elif d_lower in ("string", "category"):
                     df[col] = df[col].astype(d_lower)
-                elif d_lower in ("float", "float64", "float32"):
+                elif d_lower.startswith("float"):
                     df[col] = pd.to_numeric(df[col], errors="coerce")
-                elif d_lower in ("int", "int64", "int32", "int16", "int8"):
-                    df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
-                elif d_lower in ("boolean", "bool"):
+                elif d_lower.startswith(("int", "uint")):
+                    df[col] = (
+                        pd.to_numeric(df[col], errors="coerce")
+                        .astype("Int64")
+                    )
+                elif d_lower in ("bool", "boolean"):
                     df[col] = df[col].astype("boolean")
                 else:
-                    # Onbekende dtype -> probeer numeriek, anders laat staan
                     df[col] = pd.to_numeric(df[col], errors="ignore")
+
             except Exception:
-                # Veilige fallback
-                df[col] = pd.to_numeric(df[col], errors="ignore")
-        # Dtypes toepassen voor datetime-kolommen apart.
-        for col in datetime_cols:
-            if col in df.columns:
-                df[col] = pd.to_datetime(df[col], errors="coerce", dayfirst=dayfirst) # dayfirst--> dag-maand-jaar 
+                # Veilige fallback: kolom ongewijzigd laten
+                pass
 
     df.attrs["metadata"] = col_meta
     return col_meta
+
 
 def read_and_join_with_metadata(
     data_path: str,
@@ -415,164 +434,293 @@ def read_and_join_with_metadata(
     sep: str = ";",
     decimal: str = ",",
     encoding: str = "utf-8-sig",
-) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Dict[str, Any]]]:
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, dict]]:
     """
-    Leest data + metadata in, koppelt ze, en verwijdert ALLE AHN3- en AHN4-
-    variabelen inclusief suffixvarianten (_AHN3, _AHN3_*, _AHN4, _AHN4_*).
+    Leest data + metadata in, koppelt ze, en behoudt per basisvariabele
+    alleen de hoogste AHN-versie (incl. AHN*_BK).
     """
+
+    # ---------------------------------------------------------
     # Data en metadata inlezen
+    # ---------------------------------------------------------
+    
     df = read_data_csv(data_path, sep=sep, decimal=decimal, encoding=encoding)
     _, meta_tidy = read_metadata_to_tidy(
         metadata_path,
         sep=sep,
         decimal=decimal,
         encoding=encoding,
-        attribute_key="Attribuutnaam"
+        indicator_key="Attribuutnaam"
     )
 
     # Metadata koppelen
     col_meta = attach_and_apply_metadata(df, meta_tidy)
 
     # ---------------------------------------------------------
-    # Alleen recente AHN-variabelen behouden.
+    # AHN-informatie verzamelen
     # ---------------------------------------------------------
-    
-    # Herken AHN-suffixen en splits basis + AHN-nummer
-    pattern_ahn = re.compile(
-        r"^(?P<base>.*?)(?:_)?AHN(?P<nr>\d+)(?P<rest>.*)$",
-        flags=re.IGNORECASE,
-    )
-
     ahn_cols = []
 
-    # Verzamel AHN-informatie per kolom
     for col in df.columns:
-        m = pattern_ahn.match(col)
-        if not m:
+        info = parse_suffix(col)
+
+        # Alleen kolommen met een AHN-nummer
+        if info["ahn_nr"] is None:
             continue
 
+        # Lijst van AHN-kolommen bijhouden met basisnaam en AHN-nummer
         ahn_cols.append({
             "col": col,
-            "base": m.group("base"),
-            "ahn_nr": int(m.group("nr")),
+            "base": info["base"],
+            "ahn_nr": info["ahn_nr"],
         })
 
-    # Bepaal per basisnaam het hoogste AHN-nummer
+    # Geen AHN-kolommen
+    if not ahn_cols:
+        return df, meta_tidy, col_meta
+
+    # ---------------------------------------------------------
+    # Hoogste AHN per basisvariabele bepalen
+    # ---------------------------------------------------------
     max_ahn_per_base = defaultdict(int)
+
+    # Dcitionary maken van basisnaam → hoogste AHN-nummer
     for row in ahn_cols:
         max_ahn_per_base[row["base"]] = max(
             max_ahn_per_base[row["base"]],
             row["ahn_nr"],
         )
 
-    # Te verwijderen: alle kolommen met een lager AHN-nummer
+    # ---------------------------------------------------------
+    # Oudere AHN-kolommen verwijderen
+    # ---------------------------------------------------------
     to_drop = [
         row["col"]
         for row in ahn_cols
         if row["ahn_nr"] < max_ahn_per_base[row["base"]]
     ]
 
-    # Verwijderen + logging
+    # Kolommen verwijderen die een oudere AHN-versie hebben dan de hoogste gevonden voor die basisvariabele
     if to_drop:
         vprint(f"[AHN] Verwijderen {len(to_drop)} oudere AHN-kolommen:")
         for col in to_drop:
             vprint(f"   - {col}")
         df = df.drop(columns=to_drop)
+
     return df, meta_tidy, col_meta
 
-def controleer_ahn_metadata(df: pd.DataFrame):
-    print("\n--- Controle metadata voor AHN‑variabelen na verwijderen oudere AHN kolommen---")
+import pandas as pd
 
-    meta = df.attrs.get("metadata", {})
-    if not meta:
-        print(" Geen metadata gevonden in df.attrs['metadata']")
-        return
 
-    # patroon om AHN‑kolommen te herkennen
-    pattern = re.compile(
-        r"^(.*?)(?:_)?(AHN\d(?:_[A-Za-z0-9]+)?)$",
-        re.IGNORECASE
-    )
+import pandas as pd
+
+
+def controleer_ahn_metadata(
+    df: pd.DataFrame,
+    meta_tidy: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Controleert voor AHN/BK-kolommen:
+    - of metadata exact bestaat in meta_tidy
+    - of metadata via de basisnaam bestaat
+    - waar de metadata inhoudelijk vandaan komt 
+    """
+
     rows = []
-    for col in df.columns:
-        m = pattern.match(col)
-        if not m:
-            continue
-        
-        base = m.group(1)
-        suffix = m.group(2)
 
-        # metadata kan gekoppeld zijn op exacte naam of op basisnaam
-        has_meta_exact = col in meta
-        has_meta_base  = base in meta
+    for col in df.columns:
+        info = parse_suffix(col)
+
+        # Alleen AHN of BK-varianten inspecteren
+        if info["suffix"] is None:
+            continue
+
+        base = info["base"]
+        suffix = info["suffix"]
+        ahn_nr = info["ahn_nr"]
+
+        # Bronnen van metadata
+        has_meta_exact = col in meta_tidy.index
+        has_meta_base = base in meta_tidy.index
+
+        # Resolutie bepalen (zonder expliciete 'geërfd'-kolom)
+        if has_meta_exact:
+            resolution = "exact"
+        elif has_meta_base:
+            resolution = "basis"
+        else:
+            resolution = "geen"
 
         rows.append({
             "kolom": col,
             "basisnaam": base,
             "suffix": suffix,
-            "metadata_op_exacte_kolom": "ja" if has_meta_exact else "nee",
-            "metadata_op_basisnaam": "ja" if has_meta_base else "nee",
+            "ahn_nr": ahn_nr,
+            "metadata_exact": "ja" if has_meta_exact else "nee",
+            "metadata_basis": "ja" if has_meta_base else "nee",
+            "metadata_resolutie": resolution,
         })
 
     df_check = pd.DataFrame(rows)
-    print(df_check.to_string(index=False))  # mooi geformatteerd printen
+
+    if df_check.empty:
+        print("Geen AHN/BK-kolommen gevonden.")
+        return df_check
+
+    print("\n--- Controle metadata voor AHN/BK‑variabelen ---")
+    print(df_check.to_string(index=False))
 
     return df_check
+
+
+# ------------------------------------------------------------------------
+# Helpers voor het het maken van unieke labels op basis van jaartallen
+# ------------------------------------------------------------------------
+
+def extract_year_from_column(col: str) -> Optional[str]:
+    """
+    Haalt een jaartal uit een kolomnaam zoals.
+    Retourneert None als er geen jaar is.
+    """
+    # Zoek naar een suffix van een tweecijferig jaartal aan het einde van de kolomnaam, voorafgegaan door een underscore of het begin van de string
+    m = re.search(r"(?:_|^)(\d{2})$", col)
+    if not m:
+        return None
+
+    year = int(m.group(1))
+    # Geeft een 4 cijferig jaartal terug.
+    return f"20{year:02d}"
+
+def build_label_with_unit_and_year(
+    *,
+    title: str,
+    unit: str | None,
+    year: str | None,
+) -> str:
+    """
+    Bouwt een label als:
+    - Titel (eenheid, jaar)
+    - Titel (eenheid)
+    - Titel (jaar)
+    - Titel
+    """
+    parts = []
+
+    if unit:
+        parts.append(unit)
+
+    if year:
+        parts.append(year)
+
+    if parts:
+        return f"{title} ({', '.join(parts)})"
+
+    return title
+
+# ------------------------------------------------------------------------
+# Functies voor het gebruik van labels in plaats van indicatornamen
+# ------------------------------------------------------------------------
+
+
+def maak_gelabelde_kopie_df_data(
+    df: pd.DataFrame,
+    df_meta: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Maakt een gelabelde kopie van df:
+    Titel + eenheid + jaar (indien aanwezig).
+    """
+    df_labeled = df.copy()
+
+    rename_map = {}
+
+    # Zorg voor snelle lookup van metadata
+    meta_lookup = df_meta.set_index("Key")
+
+    for col in df.columns:
+        if col not in meta_lookup.index:
+            continue
+        
+        # Haal titel, eenheid en jaar op basis van metadata en kolomnaam
+        title = meta_lookup.at[col, "Title"]
+        unit = meta_lookup.at[col, "Unit"] if "Unit" in meta_lookup.columns else None
+        year = extract_year_from_column(col)
+
+        if not isinstance(title, str):
+            continue
+        
+        # Bouwt een label op basis van titel, eenheid en jaar.
+        label = build_label_with_unit_and_year(
+            title=title.strip(),
+            unit=unit.strip() if isinstance(unit, str) and unit.strip() else None,
+            year=year,
+        )
+
+        rename_map[col] = label
+
+    df_labeled = df_labeled.rename(columns=rename_map)
+    return df_labeled
+
 
 def maak_gelabelde_kopie_df_klimaat(
     df_klimaat: pd.DataFrame,
     meta_tidy: pd.DataFrame,
-    label_field: str, 
-    suffix_scheider: str = "_AHN",
+    label_field: str,
+    *,
+    keep_suffix: bool = False,
 ) -> pd.DataFrame:
-    """
-    Maakt een gelabelde kopie van df_klimaat op basis van metadata.
-    De originele df_klimaat blijft onaangetast.
 
-    Parameters
-    ----------
-    df_klimaat : pd.DataFrame
-        Bron-dataframe met technische kolomnamen.
-    meta_tidy : pd.DataFrame
-        Metadata met index = basisnaam van de indicator.
-    label_field : str
-        Metadata-kolom die het label bevat (default: 'Omschrijving').
-    suffix_scheider : str
-        Scheider waarmee AHN-suffixen worden herkend (default: '_AHN').
-
-    Returns
-    -------
-    pd.DataFrame
-        Een nieuwe DataFrame met gelabelde kolommen.
-    """
+    # Maakt een kopie van df_klimaat om labels aan toe te voegen zonder de originele data te wijzigen.
     df_klimaat_labels = df_klimaat.copy()
 
+    # Controleert of het opgegeven label_field in de metadata aanwezig is.  
     if label_field not in meta_tidy.columns:
-        vprint(f"[WAARSCHUWING] label_field '{label_field}' niet gevonden in metadata. Geen kolommen gelabeld.")
+        vprint(
+            f"[WAARSCHUWING] label_field '{label_field}' niet gevonden in metadata. "
+            "Geen kolommen gelabeld."
+        )
         return df_klimaat_labels
-    print("Voorbeeld meta_tidy.index:")
-    print(meta_tidy.index[:20].tolist())
 
-    print("Voorbeeld df_klimaat kolommen:")
-    print(df_klimaat_labels.columns[:20].tolist())
 
     rename_map = {}
 
+    # Itereert over de kolommen van df_klimaat, probeert de basisnaam te matchen met metadata, en bouwt een label op basis van het opgegeven label_field.
+    # Neemt automatisch ook indicatoren mee zonder suffix, zolang de basisnaam maar in de metadata staat.
     for col in df_klimaat_labels.columns:
-        base = strip_suffix(col)
-        if base in meta_tidy.index:
-            label = meta_tidy.at[base, label_field]
-            if isinstance(label, str) and label.strip().lower() not in {"", "nvt", "none"}:
-                rename_map[col] = label
+        info = parse_suffix(col)
+        base = info["base"]
 
+        if base not in meta_tidy.index:
+            continue
+
+        label = meta_tidy.at[base, label_field]
+
+        if not isinstance(label, str):
+            continue
+
+        label = label.strip()
+        if label.lower() in {"", "nvt", "none"}:
+            continue
+
+        # Voeg suffix-informatie toe aan het label
+        if info["suffix"] and info["suffix"].endswith("BK"):
+            label = f"{label} (bebouwde kom)"
+        elif keep_suffix and info["suffix"]:
+            label = f"{label} ({info['suffix']})"
+
+        rename_map[col] = label
 
     if rename_map:
         df_klimaat_labels = df_klimaat_labels.rename(columns=rename_map)
-    
+
     vprint(f"[INFO] Kolommen gelabeld: {len(rename_map)}")
-    print(rename_map)
 
     return df_klimaat_labels
+
+
+# ---------------------------------------------------------------------------------------
+# Functievoor het koppelen van CBS-data aan klimaatdata op basis van gebiedscode.
+# ---------------------------------------------------------------------------------------
 
 def join_cbs_with_klimaat(
     df_data: pd.DataFrame,
@@ -594,21 +742,21 @@ def join_cbs_with_klimaat(
         Kolomnaam in df_klimaat (bijv. 'buurtcode2024')
     """
 
-    # --- 1. Controles ---
+    # Controle of beide sleutels aanwezig zijn in de respectievelijke DataFrames
     if left_key not in df_data.columns:
         raise KeyError(f"df_data mist sleutelkolom '{left_key}'.")
     if right_key not in df_klimaat.columns:
         raise KeyError(f"df_klimaat mist sleutelkolom '{right_key}'.")
 
-    # --- 2. Kopieën maken ---
+    # Maakt kopieën van de DataFrames om originele data ongewijzigd te laten.
     left = df_data.copy()
     right = df_klimaat.copy()
 
-    # --- 3. Normaliseer sleutels ---
+    # Normaliseer sleutels
     left[left_key] = left[left_key].astype(str).str.strip().str.upper()
     right[right_key] = right[right_key].astype(str).str.strip().str.upper()
 
-    # --- 4. Controleer uniciteit rechts ---
+    # Controleert duplicaten in de rechter DataFrame op basis van right_key.
     dup_mask = right.duplicated(subset=[right_key])
     dup_count = dup_mask.sum()
 
@@ -633,7 +781,7 @@ def join_cbs_with_klimaat(
                 .drop_duplicates(subset=[right_key], keep="first")
             )
 
-    # --- 5. Definitieve LEFT JOIN ---
+    # Left join uitvoeren
     df_join = left.merge(
         right,
         left_on=left_key,
@@ -642,7 +790,7 @@ def join_cbs_with_klimaat(
         validate="m:1"
     )
 
-    # --- 6. Logging ---
+    # Logging
     if verbose:
         n_missing = df_join[right_key].isna().sum()
         coverage = 1 - n_missing / len(df_join)

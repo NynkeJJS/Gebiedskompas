@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from pyparsing import warnings
 from sklearn.decomposition import PCA
 from factor_analyzer import FactorAnalyzer
 import plotly.express as px
@@ -123,23 +124,200 @@ def plot_loadings_heatmap(loadings, output_dir):
     return fig
 
 
+# -----------------------------------------------------------------
+# Parallel Analysis functie of aantal factoren bij FA te bepalen
+# -----------------------------------------------------------------
+
+
+def parallel_analysis_fa(
+    df_scaled,
+    n_iter: int = 200,
+    percentile: float = 95,
+    random_state: int = 0,
+):
+    """
+    Parallel Analysis voor Factoranalyse.
+    Bepaalt het maximale aantal factoren dat boven ruis uitstijgt.
+
+    Parameters
+    ----------
+    df_scaled : pd.DataFrame
+        Gestandaardiseerde data.
+    n_iter : int
+        Aantal random simulaties.
+    percentile : float
+        Percentiel van random eigenwaarden (meestal 95).
+    """
+
+    rng = np.random.default_rng(random_state)
+
+    n_samples, n_features = df_scaled.shape
+
+    # 1) Eigenwaarden van de echte data (correlatiematrix)
+    corr = np.corrcoef(df_scaled.T)
+    eig_data = np.linalg.eigvalsh(corr)[::-1]
+
+    # 2) Eigenwaarden van random data
+    rand_eigs = np.zeros((n_iter, n_features))
+
+    for i in range(n_iter):
+        rand = rng.standard_normal((n_samples, n_features))
+        rand_corr = np.corrcoef(rand.T)
+        rand_eigs[i] = np.linalg.eigvalsh(rand_corr)[::-1]
+
+    # 3) Percentiel van random eigenwaarden
+    eig_random = np.percentile(rand_eigs, percentile, axis=0)
+
+    # 4) Aantal factoren = data > random
+    n_factors = int(np.sum(eig_data > eig_random))
+
+    return n_factors, eig_data, eig_random
+
+
 # -----------------------------------------------------
 # Factoranalyse functies
 # -----------------------------------------------------
 
-def run_fa(df_scaled, n_factors=None):
-    if n_factors is None:
-        n_factors = min(5, df_scaled.shape[1]-1)
 
-    fa = FactorAnalyzer(n_factors=n_factors, rotation="oblimin").fit(df_scaled)
+def run_fa_auto_stable(
+    df_scaled,
+    *,
+    rotation: str = "oblimin",
+    max_factors: int | None = None,
+    min_factors: int = 2,
+    verbose: bool = True,
+):
+    """
+    Automatische factoranalyse met:
+    - Parallel Analysis als bovengrens
+    - aflopend aantal factoren
+    - strikte stabiliteitscriteria
+    - automatische fallback van ML → principal
 
-    loadings = pd.DataFrame(
-        fa.loadings_,
-        index=df_scaled.columns,
-        columns=[f"F{i+1}" for i in range(n_factors)]
+    Retourneert
+    ----------
+    fa : FactorAnalyzer
+    loadings : pd.DataFrame
+    info : dict (gekozen methode, n_factors)
+    """
+
+    # --------------------------------------------------
+    # 1. Parallel Analysis
+    # --------------------------------------------------
+    n_pa, eig_data, eig_rand = parallel_analysis_fa(df_scaled)
+
+    start = min(n_pa, max_factors) if max_factors else n_pa
+
+    if verbose:
+        print(f"[FA] Parallel Analysis bovengrens: {n_pa}")
+        print(f"[FA] Start bij {start} factoren")
+
+    # --------------------------------------------------
+    # 2. Interne helper: probeer FA
+    # --------------------------------------------------
+    def try_fa(n_factors: int, method: str):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            fa = FactorAnalyzer(
+                n_factors=n_factors,
+                rotation=rotation,
+                method=method,
+            )
+            fa.fit(df_scaled)
+
+            # Waarschuwingen analyseren
+            messages = [str(x.message).lower() for x in w]
+            bad = any(
+                ("invalid value" in m or "converge" in m)
+                for m in messages
+            )
+
+            if bad:
+                raise RuntimeError(f"FA warning: {messages}")
+
+            loadings = fa.loadings_
+
+            if (
+                np.isnan(loadings).any()
+                or np.isinf(loadings).any()
+            ):
+                raise RuntimeError("NaN/inf in loadings")
+
+            return fa, loadings
+
+    # --------------------------------------------------
+    # 3. Eerst proberen: ML‑FA
+    # --------------------------------------------------
+    last_error = None
+
+    for k in range(start, min_factors - 1, -1):
+        if verbose:
+            print(f"[FA] ML‑FA proberen met {k} factoren…")
+
+        try:
+            fa, loadings = try_fa(k, method="ml")
+
+            loadings_df = pd.DataFrame(
+                loadings,
+                index=df_scaled.columns,
+                columns=[f"F{i+1}" for i in range(k)],
+            )
+
+            if verbose:
+                print(f"[FA] ML‑FA stabiel bij {k} factoren")
+
+            return fa, loadings_df, {
+                "method": "ml",
+                "n_factors": k,
+                "pa_upper_bound": n_pa,
+            }
+
+        except Exception as e:
+            last_error = e
+            if verbose:
+                print(f"[FA] ML‑FA afgekeurd ({k}): {e}")
+
+    # --------------------------------------------------
+    # 4. Fallback: principal FA
+    # --------------------------------------------------
+    if verbose:
+        print("[FA] ML‑FA faalt volledig → overschakelen op principal FA")
+
+    for k in range(start, min_factors - 1, -1):
+        if verbose:
+            print(f"[FA] Principal FA proberen met {k} factoren…")
+
+        try:
+            fa, loadings = try_fa(k, method="principal")
+
+            loadings_df = pd.DataFrame(
+                loadings,
+                index=df_scaled.columns,
+                columns=[f"F{i+1}" for i in range(k)],
+            )
+
+            if verbose:
+                print(f"[FA] Principal FA stabiel bij {k} factoren")
+
+            return fa, loadings_df, {
+                "method": "principal",
+                "n_factors": k,
+                "pa_upper_bound": n_pa,
+            }
+
+        except Exception as e:
+            last_error = e
+            if verbose:
+                print(f"[FA] Principal FA afgekeurd ({k}): {e}")
+
+    # --------------------------------------------------
+    # 5. Niets werkt
+    # --------------------------------------------------
+    raise RuntimeError(
+        "Geen stabiele factoranalyse gevonden.\n"
+        f"Laatst waargenomen probleem: {last_error}"
     )
-
-    return fa, loadings
 
 
 def plot_fa_heatmap(loadings, output_dir):

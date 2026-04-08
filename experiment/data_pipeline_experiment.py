@@ -85,8 +85,7 @@ def select_pca_features(df: pd.DataFrame):
 
     to_drop = set()
     
-    # verwijder dubbele kolommen (behoud eerste)
-    # Het is mogelijk dat er dubbele kolommen zijn ontstaan door het labelen van de data, waarbij verschillende originele kolommen hetzelfde label hebben gekregen. Dit veroorzaakt problemen bij PCA, dus we verwijderen dubbele kolommen op basis van naam (behoud eerste voorkomen).    
+    # Verwijder dubbele kolommen (behoud eerste)
     if not df_num.columns.is_unique:        
         vprint("[PCA] Waarschuwing: dubbele kolomnamen gevonden → dedupliceren")        
         df_num = df_num.loc[:, ~df_num.columns.duplicated()]

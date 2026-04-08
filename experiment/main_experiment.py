@@ -12,13 +12,11 @@ from data_inlezen_experiment import (
     get_metadata,
     get_provincie_gebieden,
     get_data_provincie,
-    metadata_dict,
+    metadata_label_map,
     koppel_geo_info,
     sla_op, 
     lees_opgeslagen_data,
     read_data_csv,
-    read_metadata_to_tidy,
-    attach_and_apply_metadata,
     read_and_join_with_metadata,
     controleer_ahn_metadata,
     maak_suffix_tabel,
@@ -36,7 +34,7 @@ from analyse_experiment import (
     plot_pca_variance,
     plot_loadings_heatmap,
     run_pca_threshold,
-    run_fa,
+    run_fa_auto_stable,
     build_loading_tree,
     normalize_loading_labels,
     print_loading_tree,
@@ -52,7 +50,7 @@ def main():
     # ------------------------------------------------------
     print("Data inlezen...")
     df_meta = get_metadata()                   # DataFrame
-    df_meta_dict = metadata_dict(df_meta)         # dict
+    df_meta_dict = metadata_label_map(df_meta)         # dict
 
     df_provincie = get_provincie_gebieden()
     provincie_codes = df_provincie['Key'].tolist()
@@ -93,13 +91,6 @@ def main():
         path=KLIMAAT_DATA_CSV
     )
 
-    _, meta_tidy = read_metadata_to_tidy(
-        path=KLIMAAT_META_CSV
-    )
-
-    col_meta = attach_and_apply_metadata(df_klimaat, meta_tidy)
-
-    # AHN overzicht maken
     df_ahn_overzicht = maak_suffix_tabel(df_klimaat)
     
     print("\n---- Print tabel AHN overzicht ----")
@@ -108,48 +99,20 @@ def main():
     print("\n---- Print AHN overzicht shape----")
     print(df_ahn_overzicht.shape)
 
+    # Data en metadata inlezen en koppelen
     df_klimaat, meta_tidy, col_meta = read_and_join_with_metadata(
         data_path=KLIMAAT_DATA_CSV,
         metadata_path=KLIMAAT_META_CSV
     )
 
     # Geef overzicht van de AHN-gerelateerde metadata
-    controleer_ahn_metadata(df_klimaat)
+    controleer_ahn_metadata(df_klimaat, meta_tidy)
 
-    # Voorbeeld checks
-    print(f"\nKlaar! Shape klimaateffectatlas: {df_klimaat.shape}")
-
-    print("\n Overzicht metadata")
-    print(meta_tidy.head(30))
-
-    print("\n Voorbeeld metadata van F18ErnstigZ:")
-    print(col_meta.get("F18ErnstigZ", {}))
-
-    print("\n Voorbeeld metadata van SHDTot_LVR_percLVR _AHN5_BK:")
-    print(col_meta.get("SHDTot_LVR_percLVR_AHN5_BK", {}))
-
-    print("\n Dtype-overzicht (eerste 10 kolommen):")
-    print(df_klimaat.dtypes.head(10))
-
-    print("\n Data ingelezen en gekoppeld. Eerste 5 rijen:")
-    print(df_klimaat.head(20))
 
     # Aantal kolommen met metadata vs. totaal
     meta_klimaat = df_klimaat.attrs.get("metadata", {})
     covered = len(set(df_klimaat.columns) & set(meta_klimaat.keys()))
     print(f"Kolommen met metadata: {covered}/{df_klimaat.shape[1]}")
-
-    print("\n---- df_data columns ----")
-    print(df_data.columns.tolist())
-
-    print("\n---- df_data metadata columns ----")
-    print(df_meta.columns.tolist())
-
-    print("\n---- df_data meta_tidy columns ----")
-    print(meta_tidy.columns.tolist())
-
-    print("\n---- df_klimaat columns ----")
-    print(df_klimaat.columns.tolist())
 
 
     # ------------------------------------------------------
@@ -157,36 +120,25 @@ def main():
     # Beide datasets koppelen
     # ------------------------------------------------------
 
-    df_data_labeled = maak_gelabelde_kopie_df_data(df_data, df_meta_dict)
+    df_data_labeled = maak_gelabelde_kopie_df_data(df_data, df_meta)    
     df_klimaat_labeled = maak_gelabelde_kopie_df_klimaat(df_klimaat, meta_tidy, label_field="Omschrijving kort")
+
 
 
     # Controleren op dubbele kolommen
     print("\n---- Dubbele kolommen df_data_labeled: ----")
     print(df_data_labeled.columns[df_data_labeled.columns.duplicated()].tolist())
+    # Eventueel nog verder naar kijken
+
 
     print("\n---- Dubbele kolommen df_klimaat_labeled: ----")
     print(df_klimaat_labeled.columns[df_klimaat_labeled.columns.duplicated()].tolist())
-    # Dit betekent vermoedelijk dat kolommen in de data hetzelfde label hebben gekregen, maar wel verschillen.
-    # Moet nog worden opgelost, maar voorlopig kunnen we doorgaan met de analyse.
-
-    print("\n---- df_data columns ----")
-    print(df_data.columns.tolist())
-
-    print("\n---- df_klimaat columns ----")
-    print(df_klimaat.columns.tolist())
-
-    print("\n---- df_data_labeled columns ----")
-    print(df_data_labeled.columns.tolist())
-
-    print("\n---- df_klimaat_labeled columns ----")
-    print(df_klimaat_labeled.columns.tolist())
 
 
     df_join = join_cbs_with_klimaat(
         df_data=df_data_labeled,
         df_klimaat=df_klimaat_labeled,
-        left_key="Codering",
+        left_key="Codering (code)",
         right_key="Buurtcode op basis van CBS wijk en buurtkaart 2024",
         strict_unique=False,
         verbose=True
@@ -211,7 +163,7 @@ def main():
     print("\n[Running PCA...")
     pca, pca_loadings, cum_var = run_pca_threshold(    
         df_scaled,    
-        variance_threshold=0.90 
+        variance_threshold=0.90 # Robuuste keuze
     )
 
     plot_pca_variance(cum_var, FIGURE_DIR)
@@ -228,10 +180,19 @@ def main():
     # -------------------------------------------------
     # Factoranalyse
     # -------------------------------------------------
-    fa, fa_loadings = run_fa(df_scaled)
+
+    fa, fa_loadings, fa_info = run_fa_auto_stable(
+    df_scaled,
+    max_factors=12,
+    min_factors=2,
+    verbose=True
+    )
+
+    print(f"[FA] Gekozen methode: {fa_info['method']}")
+    print(f"[FA] Aantal factoren: {fa_info['n_factors']}")
     plot_fa_heatmap(fa_loadings, FIGURE_DIR)
 
-    fa_tree = build_loading_tree(fa_loadings, threshold=0.80)
+    fa_tree = build_loading_tree(fa_loadings, threshold=0)
     fa_tree = normalize_loading_labels(fa_tree, prefix="FA")
 
     print("\n--- FA Boomstructuur ---")
