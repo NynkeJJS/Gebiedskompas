@@ -41,7 +41,7 @@ def main():
 
     # DOWNLOAD PER GEMEENTE
     for gm in GEMEENTEN:
-        print(f"\n➡️ Ophalen gemeente GM{gm} ...")
+        print(f"\n Ophalen gemeente GM{gm} ...")
 
         cmd = [
             sys.executable,
@@ -73,8 +73,8 @@ def main():
 
     print("\n Alle downloads voltooid.")
 
-    # 3️⃣ VERWERK ALLE BESTANDEN + METADATA
-    print("\n🔎 Metadata koppelen...")
+    # VERWERK ALLE BESTANDEN + METADATA
+    print("\n Metadata koppelen...")
 
     data_files = sorted([f for f in temp_files if f.endswith("_DATA.json")])
 
@@ -83,7 +83,7 @@ def main():
     for data_path in data_files:
         meta_path = data_path.replace("_DATA.json", "_METADATA.json")
 
-        print(f"   ➕ Verwerken: {os.path.basename(data_path)}")
+        print(f" Verwerken: {os.path.basename(data_path)}")
 
         with open(data_path, "r", encoding="utf-8") as f:
             data_json = json.load(f)
@@ -124,10 +124,10 @@ def main():
     with open(enriched_file, "w", encoding="utf-8") as f:
         json.dump(enriched_all, f, ensure_ascii=False, indent=2)
 
-    print(f"\n✅ Verrijking voltooid → {enriched_file}")
+    print(f"\n Verrijking voltooid → {enriched_file}")
 
     # VERWIJDER ALLE TIJDELIJKE GEMEENTE-BESTANDEN
-    print("\n🧹 Opruimen: verwijderen tijdelijke gemeente-bestanden...")
+    print("\n Opruimen: verwijderen tijdelijke gemeente-bestanden...")
 
     for f in temp_files:
         try:

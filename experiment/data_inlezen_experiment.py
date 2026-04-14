@@ -10,6 +10,7 @@ from collections import defaultdict
 
 from config_experiment import (
     VERBOSE,
+    vprint,
     BASE_URL,
     PROVINCIE,
     BATCH_SIZE,
@@ -38,13 +39,6 @@ __all__ = [
     "join_cbs_with_klimaat",
 ]
 
-# ------------------------------------------------------
-# Debug helpers
-# ------------------------------------------------------
-
-def vprint(msg: str):
-    if VERBOSE:
-        print(msg)
 
 
 # ------------------------------------------------------
@@ -729,7 +723,6 @@ def join_cbs_with_klimaat(
     left_key: str,
     right_key: str,
     strict_unique: bool = False,   # True => error bij duplicaten, False => dedupe
-    verbose: bool = True
 ) -> pd.DataFrame:
     """
     Koppel df_data (links) aan df_klimaat (rechts) op opgegeven sleutels.
@@ -772,9 +765,8 @@ def join_cbs_with_klimaat(
                 f"Voorbeelden:\n{dups}"
             )
         else:
-            if verbose:
-                print(f"[WAARSCHUWING] {dup_count} duplicaten in df_klimaat['{right_key}'] gevonden.")
-                print("→ Dedupliceren (keep='first'), alle kolommen verder intact.")
+            vprint(f"[WAARSCHUWING] {dup_count} duplicaten in df_klimaat['{right_key}'] gevonden.")
+            vprint("→ Dedupliceren (keep='first'), alle kolommen verder intact.")
 
             right = (
                 right.sort_values(right_key)
@@ -791,15 +783,15 @@ def join_cbs_with_klimaat(
     )
 
     # Logging
-    if verbose:
+    if VERBOSE:
         n_missing = df_join[right_key].isna().sum()
         coverage = 1 - n_missing / len(df_join)
 
-        print(f"[INFO] Join afgerond op '{left_key}' ↔ '{right_key}'.")
-        print(f"[INFO] Dekking: {coverage:.3f} | Niet-gematcht: {n_missing} rijen.")
+        vprint(f"[INFO] Join afgerond op '{left_key}' ↔ '{right_key}'.")
+        vprint(f"[INFO] Dekking: {coverage:.3f} | Niet-gematcht: {n_missing} rijen.")
 
         if n_missing > 0:
-            print("Voorbeeld niet-gematchte sleutels (eerste 10):")
-            print(df_join.loc[df_join[right_key].isna(), left_key].head(10))
+            vprint("Voorbeeld niet-gematchte sleutels (eerste 10):")
+            vprint(df_join.loc[df_join[right_key].isna(), left_key].head(10))
 
     return df_join

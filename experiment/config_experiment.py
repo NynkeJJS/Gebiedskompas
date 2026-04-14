@@ -11,6 +11,14 @@ from html2image import Html2Image
 # Print alle stappen (voor debugging)
 VERBOSE = True
 
+# ------------------------------------------------------
+# Debug helpers
+# ------------------------------------------------------
+
+def vprint(msg: str):
+    if VERBOSE:
+        print(msg)
+
 
 # -------------------------------
 # CBS configuratie
@@ -84,8 +92,8 @@ CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 # Ctrl: als Chrome niet bestaat → geef waarschuwing
 if not os.path.exists(CHROME_PATH):
-    print("⚠️  Waarschuwing: Chrome niet gevonden op verwachte locatie.")
-    print("   → Controleer installatie of pas CHROME_PATH aan in config_experiment.py")
+    print("Waarschuwing: Chrome niet gevonden op verwachte locatie.")
+    print("Controleer installatie of pas CHROME_PATH aan in config_experiment.py")
 
 
 # -------------------------------
@@ -109,9 +117,9 @@ hti = Html2Image(
 
 
 
-# =============================================
+# ======================================================
 # KOLUMNEN DIE UITGESLOTEN MOETEN WORDEN VOOR PCA en FA
-# =============================================
+# ======================================================
 
 EXCLUDE = {
     "ID",
@@ -124,3 +132,8 @@ EXCLUDE = {
     "Gebied",
     "Buurtcode",
 }
+
+# ======================================================
+# PARAMETER VOOR PCA
+# ======================================================
+VARIANCE_THRESHOLD = 0.90 # Drempel voor cumulatieve variantie bij PCA

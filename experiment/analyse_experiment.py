@@ -13,39 +13,49 @@ from datetime import datetime
 
 
 from config_experiment import(
- FIGURE_DIR,_RENDER_TMP, hti
+                                FIGURE_DIR,
+                                _RENDER_TMP, 
+                                hti, 
+                                vprint,
+                                VARIANCE_THRESHOLD
 ) 
 
+"""PCA is gebruikt om de globale structuur te verkennen; 
+Parallel Analysis om een theoretische bovengrens voor het aantal factoren vast te stellen; 
+factoranalyse om latente patronen inhoudelijk te modelleren. 
+Maximum‑Likelihood factoranalyse is toegepast waar mogelijk, 
+met principal factoranalyse als robuust alternatief indien statistische aannames niet houdbaar bleken.
+"""
 
 # -----------------------------------------------------
-# PNG save functie (Werkt altijd op macOS + Python 3.14)
+# PNG save functie
 # -----------------------------------------------------
 
 
 def save_figure(fig, filename, output_dir=FIGURE_DIR):
-
     os.makedirs(output_dir, exist_ok=True)
 
+    # 1. HTML tijdelijk opslaan
     html_path = os.path.join(_RENDER_TMP, filename.replace(".png", ".html"))
     fig.write_html(html_path, include_plotlyjs="cdn")
 
-    # screenshot via Chrome
+    # 2. Screenshot maken (ALLEEN bestandsnaam!)
     hti.screenshot(
         html_file=html_path,
         save_as=filename,
         size=(1600, 1200)
     )
 
+    # 3. Verplaats van tijdelijke render-map naar definitieve output
     tmp_png = os.path.join(_RENDER_TMP, filename)
     final_png = os.path.join(output_dir, filename)
-
     os.replace(tmp_png, final_png)
 
-    # Schoonmaken
+    # 4. Opruimen
     if os.path.exists(html_path):
         os.remove(html_path)
 
-    print(f"[PNG opgeslagen] {final_png}")
+    vprint(f"[PNG opgeslagen] {final_png}")
     return final_png
 
 
@@ -53,17 +63,23 @@ def save_figure(fig, filename, output_dir=FIGURE_DIR):
 # Thema-boomstructuur
 # -----------------------------------------------------
 
-def build_loading_tree(loadings, threshold=0.40):
-    absL = loadings.abs()
+def build_loading_tree(loadings, threshold=0.4):
+    """Variabelen (features) toewijzen aan hun “belangrijkste” PCA‑component of factor, 
+    op basis van de sterkste loading, mits die loading groot genoeg is (threshold). """
+
+    absL = loadings.abs() 
     tree = {}
     for feature in loadings.index:
+        # Component met hoogste absolute loading voor deze feature
         primary = absL.loc[feature].idxmax()
+        # Alleen toewijzen als de loading boven de drempel ligt
         if absL.loc[feature, primary] >= threshold:
             tree.setdefault(primary, []).append(feature)
     return tree
 
 
-def normalize_loading_labels(tree, prefix="PC"):
+def normalize_loading_labels(tree, prefix):
+    """Component- of factorlabels normaliseren naar een vaste volgorde."""
     new = {}
     for i, comp in enumerate(tree.keys(), 1):
         new[f"{prefix}{i}"] = tree[comp]
@@ -71,6 +87,7 @@ def normalize_loading_labels(tree, prefix="PC"):
 
 
 def print_loading_tree(tree):
+    """Boomstructuur van componenten/factoren en hun belangrijkste variabelen printen."""
     for comp, items in tree.items():
         print(f"{comp}: {len(items)} items")
         for it in items:
@@ -81,16 +98,21 @@ def print_loading_tree(tree):
 # PCA functies
 # -----------------------------------------------------
 
-def run_pca_threshold(df_scaled, variance_threshold=0.80):
+def run_pca_threshold(df_scaled, variance_threshold=VARIANCE_THRESHOLD):
+    """ PCA uitvoeren en automatisch aantal componenten kiezen op basis van cumulatieve variantie. """
 
+    # Volledige PCA uitvoeren om cumulatieve variantie te berekenen
     pca = PCA().fit(df_scaled)
+    # Cumulatieve variantie berekenen en bepalen hoeveel componenten nodig zijn voor de drempel
     cum_var = np.cumsum(pca.explained_variance_ratio_)
     n = np.argmax(cum_var >= variance_threshold) + 1
 
     print(f"[PCA] {variance_threshold*100:.0f}% → {n} componenten")
 
+    # Finale PCA met gekozen aantal componenten
     pca_final = PCA(n_components=n).fit(df_scaled)
 
+    # Loadings in DataFrame-vorm met duidelijke labels
     loadings = pd.DataFrame(
         pca_final.components_.T,
         index=df_scaled.columns,
@@ -100,20 +122,40 @@ def run_pca_threshold(df_scaled, variance_threshold=0.80):
     return pca_final, loadings, cum_var
 
 
-def plot_pca_variance(cum_var, output_dir):
+def plot_pca_variance(cum_var, output_dir, variance_threshold=VARIANCE_THRESHOLD):
+    """ Visualiseert de cumulatieve verklaarde variantie van de PCA-componenten. """
     fig = go.Figure()
-    fig.add_trace(go.Scatter(y=cum_var, mode="lines+markers"))
+
+    fig.add_trace(
+        go.Scatter(
+            x=list(range(1, len(cum_var) + 1)),
+            y=cum_var,
+            mode="lines+markers"
+        )
+    )
+
     fig.update_layout(
         title="Cumulatieve variantie PCA",
         xaxis_title="Component",
         yaxis_title="Cumulatieve variantie",
         template="plotly_white"
     )
+
+    if variance_threshold is not None:
+        fig.add_hline(
+            y=variance_threshold,
+            line_dash="dash",
+            annotation_text=f"{variance_threshold:.0%}",
+            annotation_position="bottom right"
+        )
+
     save_figure(fig, "pca_cumulatieve_variantie.png", output_dir)
     return fig
 
 
 def plot_loadings_heatmap(loadings, output_dir):
+    """    Visualiseert de PCA-loadings als een heatmap, waarbij per variabele wordt    
+            getoond hoe sterk deze bijdraagt aan elke PCA-component.    """    
     fig = px.imshow(
         loadings,
         color_continuous_scale="RdBu",
@@ -137,7 +179,14 @@ def parallel_analysis_fa(
 ):
     """
     Parallel Analysis voor Factoranalyse.
-    Bepaalt het maximale aantal factoren dat boven ruis uitstijgt.
+    Welke factoren verklaren meer variantie dan je zou verwachten door puur toeval?
+    Bepaalt hoeveel factoren statistisch “echte structuur” bevatten,
+    door eigenwaarden van de data te vergelijken met eigenwaarden uit willekeurige data.
+    Alles boven de ruis → potentiële factor.
+
+    Parallel Analysis geeft een bovengrens voor het aantal factoren (wat statistisch boven ruis uitstijgt), 
+    maar dat aantal is geen garantie dat een factoranalyse met zoveel factoren ook convergeert, 
+    stabiel is of inhoudelijk interpreteerbaar.
 
     Parameters
     ----------
@@ -147,36 +196,108 @@ def parallel_analysis_fa(
         Aantal random simulaties.
     percentile : float
         Percentiel van random eigenwaarden (meestal 95).
+        In 95% van de gevallen levert puur toeval een eigenwaarde tot zó groot op.
     """
-
+    # Random generator met vaste seed voor reproduceerbaarheid
     rng = np.random.default_rng(random_state)
 
+    # Data dimensies, rijen = samples, kolommen = features
     n_samples, n_features = df_scaled.shape
 
-    # 1) Eigenwaarden van de echte data (correlatiematrix)
+    # Bereken de eigenwaarden van de correlatiematrix van de geschaalde data.
+    # Deze eigenwaarden representeren de hoeveelheid variantie per PCA-component
+    # en bevatten zowel het echte signaal als de ruis.
     corr = np.corrcoef(df_scaled.T)
     eig_data = np.linalg.eigvalsh(corr)[::-1]
 
-    # 2) Eigenwaarden van random data
-    rand_eigs = np.zeros((n_iter, n_features))
+    # Simuleer eigenwaarden van random data (alleen ruis)
+    # Deze worden gebruikt als referentie om te bepalen welke PCA-componenten
+    # significant zijn ten opzichte van toeval.
+    eig_random = np.zeros((n_iter, n_features))
 
     for i in range(n_iter):
+        # Genereer random normaal verdeelde data met dezelfde dimensies
         rand = rng.standard_normal((n_samples, n_features))
         rand_corr = np.corrcoef(rand.T)
-        rand_eigs[i] = np.linalg.eigvalsh(rand_corr)[::-1]
 
-    # 3) Percentiel van random eigenwaarden
-    eig_random = np.percentile(rand_eigs, percentile, axis=0)
+        # Bereken en sorteer de eigenwaarden van de correlatiematrix (aflopend)
+        eig_random[i] = np.linalg.eigvalsh(rand_corr)[::-1]
 
-    # 4) Aantal factoren = data > random
+    # Bepaal per component het gekozen percentiel van de random eigenwaarden
+    # (bijv. 95e percentiel als conservatieve ruisdrempel)
+    eig_random = np.percentile(eig_random, percentile, axis=0)
+
+    # Aantal significante factoren: eigenwaarden van de echte data
+    # die groter zijn dan die van de random (ruis) data
     n_factors = int(np.sum(eig_data > eig_random))
 
     return n_factors, eig_data, eig_random
 
-
 # -----------------------------------------------------
 # Factoranalyse functies
 # -----------------------------------------------------
+
+def try_fa(df_scaled, n_factors: int, method: str, rotation: str = "oblimin"):
+    """
+    Probeert een factoranalyse (FA) uit te voeren met een opgegeven methode
+    en aantal factoren, en controleert of de oplossing numeriek stabiel is.
+
+    De functie vangt waarschuwingen tijdens het fitten (zoals niet-convergeren
+    of invalid values) en controleert of de resulterende loadings geen NaN- of
+    oneindige waarden bevatten. Bij instabiliteit wordt een RuntimeError opgegooid.
+
+    Returns
+    -------
+    fa : FactorAnalyzer
+        Het gefitte FactorAnalyzer-object.
+    loadings : np.ndarray
+        De factorloadings van het model.
+    """
+
+    # Vang alle warnings op tijdens het fitten, zodat ook subtiele
+    # numerieke of convergentieproblemen niet gemist worden
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+
+        # Initialiseer het FactorAnalyzer-model met de opgegeven
+        # methode, rotatie en het aantal factoren
+        fa = FactorAnalyzer(
+            n_factors=n_factors,
+            rotation=rotation,
+            method=method,
+        )
+
+        # Fit het FA-model op de geschaalde inputdata
+        fa.fit(df_scaled)
+
+        # Verzamel alle waarschuwingsteksten
+        messages = [str(x.message).lower() for x in w]
+
+        # Controleer op bekende problematische signalen in warnings:
+        # - 'invalid value' wijst vaak op numerieke instabiliteit
+        # - 'converge' duidt op slechte of mislukte convergentie
+        bad = any(
+            ("invalid value" in m or "converge" in m)
+            for m in messages
+        )
+
+        # Breek expliciet af als de FA-oplossing onbetrouwbaar lijkt
+        if bad:
+            raise RuntimeError(f"FA warning: {messages}")
+
+        # Haal de factorloadings uit het gefitte model
+        loadings = fa.loadings_
+
+        # Extra veiligheidscheck: NaN- of oneindige waarden
+        # betekenen vrijwel altijd een instabiele oplossing
+        if (
+            np.isnan(loadings).any()
+            or np.isinf(loadings).any()
+        ):
+            raise RuntimeError("NaN/inf in loadings")
+
+        # FA is succesvol gefit en heeft valide, stabiele loadings
+        return fa, loadings
 
 
 def run_fa_auto_stable(
@@ -185,111 +306,102 @@ def run_fa_auto_stable(
     rotation: str = "oblimin",
     max_factors: int | None = None,
     min_factors: int = 2,
-    verbose: bool = True,
 ):
     """
-    Automatische factoranalyse met:
-    - Parallel Analysis als bovengrens
-    - aflopend aantal factoren
-    - strikte stabiliteitscriteria
-    - automatische fallback van ML → principal
+    Voert automatisch een stabiele exploratieve factoranalyse (EFA) uit.
+
+    Strategie:
+    - Bepaal een bovengrens voor het aantal factoren via Parallel Analysis
+    - Start bij dit maximum en verlaag het aantal factoren stapsgewijs
+    - Vereis strikte numerieke en convergentiestabiliteit
+    - Probeer eerst Maximum Likelihood (ML), met fallback naar principal FA
+    - Gebruik één consistente (oblique) rotatie voor alle pogingen
 
     Retourneert
     ----------
     fa : FactorAnalyzer
+        Het gefitte FA-model.
     loadings : pd.DataFrame
-    info : dict (gekozen methode, n_factors)
+        Factorloadings met variabelen als rijen en factoren als kolommen.
+    info : dict
+        Metadata over de gekozen oplossing (methode, n_factors, PA-bovengrens).
     """
 
     # --------------------------------------------------
-    # 1. Parallel Analysis
+    # Parallel Analysis
     # --------------------------------------------------
+    # Bepaal het maximaal onderbouwde aantal factoren
+    # via vergelijking met random (ruis) eigenwaarden
     n_pa, eig_data, eig_rand = parallel_analysis_fa(df_scaled)
 
-    start = min(n_pa, max_factors) if max_factors else n_pa
+    # Bepaal het startpunt:
+    # - maximaal toegestaan door Parallel Analysis
+    # - optioneel begrensd door max_factors
+    start = min(n_pa, max_factors) if max_factors is not None else n_pa
 
-    if verbose:
-        print(f"[FA] Parallel Analysis bovengrens: {n_pa}")
-        print(f"[FA] Start bij {start} factoren")
-
-    # --------------------------------------------------
-    # 2. Interne helper: probeer FA
-    # --------------------------------------------------
-    def try_fa(n_factors: int, method: str):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            fa = FactorAnalyzer(
-                n_factors=n_factors,
-                rotation=rotation,
-                method=method,
-            )
-            fa.fit(df_scaled)
-
-            # Waarschuwingen analyseren
-            messages = [str(x.message).lower() for x in w]
-            bad = any(
-                ("invalid value" in m or "converge" in m)
-                for m in messages
-            )
-
-            if bad:
-                raise RuntimeError(f"FA warning: {messages}")
-
-            loadings = fa.loadings_
-
-            if (
-                np.isnan(loadings).any()
-                or np.isinf(loadings).any()
-            ):
-                raise RuntimeError("NaN/inf in loadings")
-
-            return fa, loadings
+    print(f"[FA] Parallel Analysis bovengrens: {n_pa}")
+    print(f"[FA] Start bij {start} factoren")
 
     # --------------------------------------------------
-    # 3. Eerst proberen: ML‑FA
+    # Probeer eerst Maximum Likelihood FA
     # --------------------------------------------------
+    # ML heeft sterke statistische eigenschappen, maar
+    # is gevoelig voor instabiliteit en niet-convergentie
     last_error = None
 
+    # Loop aflopend om de meest parsimonieuze
+    # stabiele oplossing te vinden
     for k in range(start, min_factors - 1, -1):
-        if verbose:
-            print(f"[FA] ML‑FA proberen met {k} factoren…")
+        vprint(f"[FA] ML-FA proberen met {k} factoren…")
 
         try:
-            fa, loadings = try_fa(k, method="ml")
+            # Probeer FA met ML-extractie en vaste rotatie
+            fa, loadings = try_fa(
+                df_scaled,
+                n_factors=k,
+                method="ml",
+                rotation=rotation,
+            )
 
+            # Zet loadings om naar een netjes gelabelde DataFrame
             loadings_df = pd.DataFrame(
                 loadings,
                 index=df_scaled.columns,
                 columns=[f"F{i+1}" for i in range(k)],
             )
 
-            if verbose:
-                print(f"[FA] ML‑FA stabiel bij {k} factoren")
+            vprint(f"[FA] ML-FA stabiel bij {k} factoren")
 
+            # Eerste stabiele oplossing = direct teruggeven
             return fa, loadings_df, {
                 "method": "ml",
                 "n_factors": k,
+                "rotation": rotation,
                 "pa_upper_bound": n_pa,
             }
 
         except Exception as e:
+            # Opslaan van het laatst waargenomen probleem
             last_error = e
-            if verbose:
-                print(f"[FA] ML‑FA afgekeurd ({k}): {e}")
+            vprint(f"[FA] ML-FA afgekeurd ({k}): {e}")
 
     # --------------------------------------------------
-    # 4. Fallback: principal FA
+    # Fallback naar principal factor analysis
     # --------------------------------------------------
-    if verbose:
-        print("[FA] ML‑FA faalt volledig → overschakelen op principal FA")
+    # Principal FA is robuuster en werkt vaak ook als ML faalt,
+    # maar heeft zwakkere statistische aannames
+    vprint("[FA] ML-FA faalt volledig → fallback naar principal FA")
 
     for k in range(start, min_factors - 1, -1):
-        if verbose:
-            print(f"[FA] Principal FA proberen met {k} factoren…")
+        vprint(f"[FA] Principal FA proberen met {k} factoren…")
 
         try:
-            fa, loadings = try_fa(k, method="principal")
+            fa, loadings = try_fa(
+                df_scaled,
+                n_factors=k,
+                method="principal",
+                rotation=rotation,
+            )
 
             loadings_df = pd.DataFrame(
                 loadings,
@@ -297,36 +409,40 @@ def run_fa_auto_stable(
                 columns=[f"F{i+1}" for i in range(k)],
             )
 
-            if verbose:
-                print(f"[FA] Principal FA stabiel bij {k} factoren")
+            vprint(f"[FA] Principal FA stabiel bij {k} factoren")
 
             return fa, loadings_df, {
                 "method": "principal",
                 "n_factors": k,
+                "rotation": rotation,
                 "pa_upper_bound": n_pa,
             }
 
         except Exception as e:
             last_error = e
-            if verbose:
-                print(f"[FA] Principal FA afgekeurd ({k}): {e}")
+            vprint(f"[FA] Principal FA afgekeurd ({k}): {e}")
 
     # --------------------------------------------------
-    # 5. Niets werkt
+    # Geen enkele configuratie is stabiel
     # --------------------------------------------------
+    # Expliciet falen met het laatst gedetecteerde probleem
     raise RuntimeError(
         "Geen stabiele factoranalyse gevonden.\n"
         f"Laatst waargenomen probleem: {last_error}"
     )
 
-
-def plot_fa_heatmap(loadings, output_dir):
+def plot_fa_heatmap(loadings_df, output_dir):
+    """
+    Visualiseert de factorloadings van een factoranalyse als heatmap
+    en slaat de figuur op.
+    """
     fig = px.imshow(
-        loadings,
+        loadings_df,
         color_continuous_scale="RdBu",
         aspect="auto",
         title="FA Loadings Heatmap"
     )
+
     save_figure(fig, "fa_loadings_heatmap.png", output_dir)
     return fig
 
@@ -336,7 +452,8 @@ def plot_fa_heatmap(loadings, output_dir):
 # -----------------------------------------------------
 
 def sunburst_from_tree(tree, title, filename_png, output_dir=FIGURE_DIR):
-
+    """ Maakt een sunburst-visualisatie van een hiërarchische structuur    
+    (component → items) en slaat de figuur op als PNG. """
     rows = []
     for comp, items in tree.items():
         for it in items:
@@ -358,7 +475,7 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
     """
     Professioneel PDF-rapport met:
     - Titelblad
-    - Hoofdstuk 0: Data kwaliteit
+    - Hoofdstuk 1: Data kwaliteit
     - Hoofdstukken met PNG-grafieken (PCA en FA)
     - Geen tabellen
     - Perfect geschaalde figuren zonder afsnijden
@@ -491,6 +608,7 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
         c.drawString(60, y, "⚠ Er zijn nog missende waarden na imputatie!")
 
     c.showPage()
+
     # ---------------------------------------------------
     # HELPER FUNCTIE: FIGUUR PLAATSEN
     # ---------------------------------------------------

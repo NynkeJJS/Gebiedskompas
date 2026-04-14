@@ -3,12 +3,7 @@ import pandas as pd
 from sklearn.impute import SimpleImputer, KNNImputer
 from sklearn.preprocessing import StandardScaler
 from config_experiment import (EXCLUDE,
-                               VERBOSE)
-
-def vprint(msg: str):
-    """Print alleen als VERBOSE=True."""
-    if VERBOSE:
-        print(msg)
+                               vprint)
 
 
 def is_code_column(col: str) -> bool:
@@ -21,10 +16,12 @@ def is_code_column(col: str) -> bool:
 # DATA QUALITY CHECK
 # =============================================
 
-def report_data_quality(df, top_n=15, verbose=True):
+def report_data_quality(df, top_n=15):
     """Uitgebreide datakwaliteit-check vóór PCA."""
 
-    df_num = df.select_dtypes(include="number")
+    # Selecteer alleen numerieke kolommen.
+    df_num = df.select_dtypes(include="number").copy()
+
 
     # Missing
     missing_pct = df_num.isna().mean()
@@ -35,6 +32,7 @@ def report_data_quality(df, top_n=15, verbose=True):
     variance = df_num.var(numeric_only=True)
     zero_var = variance[variance == 0].index.tolist()
     low_var  = variance[(variance < 1e-6) & (variance > 0)].index.tolist()
+
 
     # Maak ALTIJD de volledige dictionary aan
     dq = {
@@ -57,14 +55,13 @@ def report_data_quality(df, top_n=15, verbose=True):
         "remaining_missing": None,
     }
 
-    if verbose:
-        vprint("\n======================")
-        vprint(" DATA QUALITY CHECK")
-        vprint("======================")
-        vprint(f"Rijen: {dq['n_rows']}")
-        vprint(f"Kolommen: {dq['n_cols']}")
-        vprint(f"Zero variantie: {dq['zero_var_cols']}")
-        vprint(f"Volledig missing: {dq['full_missing_cols']}")
+    vprint("\n======================")
+    vprint(" DATA QUALITY CHECK")
+    vprint("======================")
+    vprint(f"Rijen: {dq['n_rows']}")
+    vprint(f"Kolommen: {dq['n_cols']}")
+    vprint(f"Zero variantie: {dq['zero_var_cols']}")
+    vprint(f"Volledig missing: {dq['full_missing_cols']}")
 
     return dq
 
@@ -92,10 +89,13 @@ def select_pca_features(df: pd.DataFrame):
 
     for col in df_num.columns:
         if col in EXCLUDE:
+            # ID/sleutelkolommen
             to_drop.add(col)
         elif is_code_column(col):
+            # GM/WK/BU codes
             to_drop.add(col)
         elif df_num[col].nunique() <= 1:
+            # Constante waarden
             to_drop.add(col)
 
     if to_drop:
@@ -110,26 +110,24 @@ def select_pca_features(df: pd.DataFrame):
 # CLEAN + IMPUTE + SCALE
 # =============================================
 
-def clean_numeric(df, verbose=True):
+def clean_numeric(df):
     """Vervang inf → NaN en verwijder volledig-NaN kolommen."""
     df_num = df.select_dtypes(include="number").replace([np.inf, -np.inf], np.nan)
     nan_cols = df_num.columns[df_num.isna().all()]
 
-    if verbose and len(nan_cols):
-        vprint(f"[Clean] Drop volledig NaN: {list(nan_cols)}")
+    vprint(f"[Clean] Drop volledig NaN: {list(nan_cols)}")
 
     return df_num.drop(columns=nan_cols)
 
 
-def impute_numeric(df_num, strategy="knn", verbose=True):
-    """Imputeer numerieke data via median/mean of KNN."""
+def impute_numeric(df_num, strategy="median"):
+    """Imputeer numerieke data via KNN of median."""
     imputer = KNNImputer(n_neighbors=5) if strategy == "knn" else SimpleImputer(strategy=strategy)
     arr = imputer.fit_transform(df_num)
 
     df_imp = pd.DataFrame(arr, index=df_num.index, columns=df_num.columns)
 
-    if verbose:
-        vprint(f"[Impute] Missing na imputatie: {df_imp.isna().sum().sum()}")
+    vprint(f"[Impute] Missing na imputatie: {df_imp.isna().sum().sum()}")
 
     return df_imp
 
@@ -145,27 +143,27 @@ def scale_numeric(df_imp):
 # PCA PREPROCESSING PIPELINE (HOOFDFUNCTIE)
 # =============================================
 
-def pca_check(df_data, impute_strategy="knn", verbose=True):
+def pca_check(df_data, impute_strategy="knn"):
     """
     End-to-end PCA-preprocessing + quality metrics.
     """
-    # 1) Data quality
-    dq = report_data_quality(df_data, verbose=verbose)
+    # Data quality
+    dq = report_data_quality(df_data)
 
-    # 2) Selecteer PCA variabelen
+    # Selecteer PCA variabelen
     df_pca = select_pca_features(df_data)
 
-    # Aantal verwijderde kolommen (moet in PDF!)
+    # Aantal verwijderde kolommen
     original = df_data.select_dtypes(include="number").shape[1]
     cleaned  = df_pca.shape[1]
     dq["removed_cols"] = original - cleaned
 
-    # 3) Clean → Impute → Scale
-    df_clean = clean_numeric(df_pca, verbose=verbose)
-    df_imp   = impute_numeric(df_clean, strategy=impute_strategy, verbose=verbose)
+    # Clean → Impute → Scale
+    df_clean = clean_numeric(df_pca)
+    df_imp   = impute_numeric(df_clean, strategy=impute_strategy)
     df_scaled = scale_numeric(df_imp)
 
-    # Missing na imputatie (moet in PDF!)
+    # Missing na imputatie
     dq["remaining_missing"] = int(df_imp.isna().sum().sum())
 
     # PCA kolomnamen
