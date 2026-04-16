@@ -8,7 +8,7 @@ from tqdm import tqdm
 from collections import defaultdict
 
 
-from config_experiment import (
+from config import (
     VERBOSE,
     vprint,
     BASE_URL,
@@ -571,19 +571,19 @@ def controleer_ahn_metadata(
 # Helpers voor het het maken van unieke labels op basis van jaartallen
 # ------------------------------------------------------------------------
 
+
 def extract_year_from_column(col: str) -> Optional[str]:
     """
-    Haalt een jaartal uit een kolomnaam zoals.
-    Retourneert None als er geen jaar is.
+    Haalt een viervijferig jaartal (20xx) uit een kolomnaam.
+    Retourneert None als er geen echt jaartal aanwezig is.
     """
-    # Zoek naar een suffix van een tweecijferig jaartal aan het einde van de kolomnaam, voorafgegaan door een underscore of het begin van de string
-    m = re.search(r"(?:_|^)(\d{2})$", col)
+
+    # Match expliciet een 4-cijferig jaartal (20xx) aan het einde
+    m = re.search(r"(?:_|^)(20\d{2})$", col)
     if not m:
         return None
 
-    year = int(m.group(1))
-    # Geeft een 4 cijferig jaartal terug.
-    return f"20{year:02d}"
+    return m.group(1)
 
 def build_label_with_unit_and_year(
     *,

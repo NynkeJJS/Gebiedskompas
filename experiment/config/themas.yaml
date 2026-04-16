@@ -1,0 +1,106 @@
+
+Woningmarkt_Eigendom:
+  description: Eigendomssituatie en woningtypes
+  variables:
+    - "Koopwoningen (%)"
+    - "Huurwoningen totaal (%)"
+    - "In bezit woningcorporatie (%)"
+    - "In bezit overige verhuurders (%)"
+    - "Percentage eengezinswoning (%)"
+    - "Percentage meergezinswoning (%)"
+    - "Percentage vrijstaande woning (eengezins (%)"
+  runs:
+    entropy: {}
+    weighted_mean:
+      weights:
+        "Koopwoningen (%)": 0.20
+        "Huurwoningen totaal (%)": 0.20
+        "In bezit woningcorporatie (%)": 0.20
+        "In bezit overige verhuurders (%)": 0.10
+        "Percentage eengezinswoning (%)": 0.15
+        "Percentage meergezinswoning (%)": 0.10
+        "Percentage vrijstaande woning (eengezins (%)": 0.05
+
+
+Welvaart_Kwetsbaarheid:
+  description: Sociaal-economische positie en financiële kwetsbaarheid
+  variables:
+    - "Gemiddelde WOZ-waarde"
+    - "Gemiddelde WOZ-waarde van woningen (x 1 000 euro)"
+    - "Personenauto's per huishouden (per huishouden)"
+    - "Percentage moeite met rondkomen"
+    - "Percentage sociaal minimum huishoudens"
+  runs:
+    entropy: {}
+    weighted_mean:
+      weights:
+        "Gemiddelde WOZ-waarde": 0.25
+        "Gemiddelde WOZ-waarde van woningen (x 1 000 euro)": 0.15
+        "Personenauto's per huishouden (per huishouden)": 0.15
+        "Percentage moeite met rondkomen": 0.25
+        "Percentage sociaal minimum huishoudens": 0.20
+
+
+Groen_Verharding:
+  description: Groenvoorziening, verharding en landbedekking
+  variables:
+    - "Percentage Groen"
+    - "Percentage Groen (bebouwde kom)"
+    - "Percentage Verharding"
+    - "Percentage Verharding (bebouwde kom)"
+    - "Percentage Landbedekking - Verhard"
+    - "Percentage Landbedekking - Gras"
+    - "Hoeveelheid m2 groen per inwoner"
+  runs:
+    entropy: {}
+    weighted_mean:
+      weights:
+        "Percentage Groen": 0.20
+        "Percentage Groen (bebouwde kom)": 0.20
+        "Percentage Verharding": 0.15
+        "Percentage Verharding (bebouwde kom)": 0.15
+        "Percentage Landbedekking - Verhard": 0.15
+        "Percentage Landbedekking - Gras": 0.10
+        "Hoeveelheid m2 groen per inwoner": 0.05
+
+
+Water_En_Klimaatrisico:
+  description: Water, grondwater en overstromingsrisico’s
+  variables:
+    - "Percentage Water"
+    - "Gemiddelde hoogste grondwaterstand (meter onder maaiveld)"
+    - "Grondwaterstand extreem nat jaar (meter onder maaiveld)"
+    - "Grondwaterstand extreem droog jaar (meter onder maaiveld)"
+    - "Risico paalrot Huidig"
+    - "Risico paalrot 2050 Hoog"
+    - "Maximale overstromingsdiepte 50 tot 200cm met een extreem kleine kans"
+  runs:
+    entropy: {}
+    weighted_mean:
+      weights:
+        "Percentage Water": 0.15
+        "Gemiddelde hoogste grondwaterstand (meter onder maaiveld)": 0.15
+        "Grondwaterstand extreem nat jaar (meter onder maaiveld)": 0.15
+        "Grondwaterstand extreem droog jaar (meter onder maaiveld)": 0.10
+        "Risico paalrot Huidig": 0.15
+        "Risico paalrot 2050 Hoog": 0.15
+        "Maximale overstromingsdiepte 50 tot 200cm met een extreem kleine kans": 0.15
+
+
+Bereikbaarheid_Voorzieningen:
+  description: Nabijheid van dagelijkse voorzieningen
+  variables:
+    - "Afstand tot huisartsenpraktijk (km)"
+    - "Afstand tot grote supermarkt (km)"
+    - "Afstand tot school (km)"
+    - "Afstand tot kinderdagverblijf (km)"
+    - "Scholen binnen 3 km (aantal)"
+  runs:
+    entropy: {}
+    weighted_mean:
+      weights:
+        "Afstand tot huisartsenpraktijk (km)": 0.25
+        "Afstand tot grote supermarkt (km)": 0.25
+        "Afstand tot school (km)": 0.20
+        "Afstand tot kinderdagverblijf (km)": 0.20
+        "Scholen binnen 3 km (aantal)": 0.10

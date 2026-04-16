@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
 from sklearn.impute import SimpleImputer, KNNImputer
-from sklearn.preprocessing import StandardScaler
-from config_experiment import (EXCLUDE,
-                               vprint)
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from config import (
+    EXCLUDE,
+    vprint
+)
 
 
 def is_code_column(col: str) -> bool:
@@ -69,14 +71,14 @@ def report_data_quality(df, top_n=15):
 # PCA FEATURE SELECTIE (AUTOMATISCHE UITSUITING)
 # =============================================
 
-def select_pca_features(df: pd.DataFrame):
+def select_features(df: pd.DataFrame):
     """
-    Selecteert numerieke PCA-variabelen en verwijdert:
+    Selecteert numerieke variabelen en verwijdert:
     - ID/sleutels
     - GM/WK/BU codes
     - constanten
     """
-    vprint("[PCA] Selecteer PCA-geschikte variabelen...")
+    vprint("[PCA] Selecteer geschikte variabelen...")
 
     df_num = df.select_dtypes(include="number").copy()
 
@@ -132,41 +134,82 @@ def impute_numeric(df_num, strategy="median"):
     return df_imp
 
 
-def scale_numeric(df_imp):
-    """Z-score scaling voor PCA."""
+def scale_zscore(df_imp: pd.DataFrame) -> pd.DataFrame:
+    """
+    Z-score scaling: (x - mean) / std
+    """
     scaler = StandardScaler()
     arr = scaler.fit_transform(df_imp)
-    return pd.DataFrame(arr, index=df_imp.index, columns=df_imp.columns)
+
+    return pd.DataFrame(
+        arr,
+        index=df_imp.index,
+        columns=df_imp.columns,
+    )
+
+
+def scale_minmax(
+    df_imp: pd.DataFrame,
+    feature_range: tuple = (0, 1),
+) -> pd.DataFrame:
+    """
+    Min-max scaling naar opgegeven bereik (default 0–1)
+    """
+    scaler = MinMaxScaler(feature_range=feature_range)
+    arr = scaler.fit_transform(df_imp)
+
+    return pd.DataFrame(
+        arr,
+        index=df_imp.index,
+        columns=df_imp.columns,
+    )
 
 
 # =============================================
-# PCA PREPROCESSING PIPELINE (HOOFDFUNCTIE)
+# PREPROCESSING PIPELINE (HOOFDFUNCTIE)
 # =============================================
+def data_check(df_data, impute_strategy="knn"):
+    """
+    End-to-end preprocessing + quality metrics.
 
-def pca_check(df_data, impute_strategy="knn"):
+    Returns:
+    - df_clean: opgeschoonde numerieke data
+    - df_scaled_z: z-score geschaalde data (PCA / FA)
+    - df_scaled_minmax: min-max geschaalde data (entropie)
+    - dq: data quality samenvatting
     """
-    End-to-end PCA-preprocessing + quality metrics.
-    """
-    # Data quality
+    # ======================================================
+    # 1. Data quality
+    # ======================================================
     dq = report_data_quality(df_data)
 
-    # Selecteer PCA variabelen
-    df_pca = select_pca_features(df_data)
+    # ======================================================
+    # 2. Feature selectie
+    # ======================================================
+    df_pca = select_features(df_data)
 
-    # Aantal verwijderde kolommen
     original = df_data.select_dtypes(include="number").shape[1]
-    cleaned  = df_pca.shape[1]
+    cleaned = df_pca.shape[1]
     dq["removed_cols"] = original - cleaned
 
-    # Clean → Impute → Scale
+    # ======================================================
+    # 3. Clean → Impute
+    # ======================================================
     df_clean = clean_numeric(df_pca)
-    df_imp   = impute_numeric(df_clean, strategy=impute_strategy)
-    df_scaled = scale_numeric(df_imp)
+    df_imp = impute_numeric(df_clean, strategy=impute_strategy)
 
-    # Missing na imputatie
     dq["remaining_missing"] = int(df_imp.isna().sum().sum())
 
-    # PCA kolomnamen
-    dq["pca_features"] = list(df_scaled.columns)
+    # ======================================================
+    # 4. Scaling (twee varianten)
+    # ======================================================
+    df_scaled_z = scale_zscore(df_imp)
+    df_scaled_minmax = scale_minmax(df_imp)
 
-    return df_clean, df_scaled, dq
+    # ======================================================
+    # 5. Metadata voor downstream analyses
+    # ======================================================
+    dq["pca_features"] = list(df_scaled_z.columns)
+    dq["n_features"] = df_scaled_z.shape[1]
+
+    return df_clean, df_scaled_z, df_scaled_minmax, dq

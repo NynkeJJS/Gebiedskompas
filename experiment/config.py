@@ -130,10 +130,50 @@ EXCLUDE = {
     "Title",
     "Naam_gebied",
     "Gebied",
-    "Buurtcode",
+    "OBJECTID"
 }
 
 # ======================================================
 # PARAMETER VOOR PCA
 # ======================================================
 VARIANCE_THRESHOLD = 0.90 # Drempel voor cumulatieve variantie bij PCA
+
+# ======================================================
+# THEMA-CONFIGURATIE VOOR SAMENGESTELDE VARIABELEN
+# ======================================================
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+THEMA_CONFIG_PATH = os.path.join(
+    BASE_DIR,
+    "config",
+    "themas.yaml",
+)
+
+# Welke methoden per thema standaard worden uitgevoerd
+THEMA_RUNS = [
+    "entropy",
+    "weighted_mean",
+]
+
+# Algemene instellingen voor samengestelde scores
+THEMA_SCORE_CONFIG = {
+    "minmax_scaling_required": True,   # verplicht voor entropy
+    "store_entropy_weights": True,     # opslaan voor rapportage
+}
+
+THEMA_LABELS = {
+    "Woningmarkt_Eigendom": "Woningmarkt",
+    "Welvaart_Kwetsbaarheid": "Welvaart",
+    "Groen_Verharding": "Groen & Verharding",
+    "Water_En_Klimaatrisico": "Water & Klimaat",
+    "Bereikbaarheid_Voorzieningen": "Voorzieningen",
+}
+
+# ======================================================
+# BUURTEN VOOR PROFIEL
+# ======================================================
+BUURTEN_VOOR_PROFIEL = [    
+    "BU00740601",  # Oranjewoud (voorbeeld)    # voeg hier evt. meer buurten toe
+    ]
+

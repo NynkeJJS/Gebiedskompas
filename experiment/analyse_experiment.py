@@ -12,7 +12,7 @@ from reportlab.lib.utils import ImageReader
 from datetime import datetime
 
 
-from config_experiment import(
+from config import(
                                 FIGURE_DIR,
                                 _RENDER_TMP, 
                                 hti, 
@@ -23,7 +23,7 @@ from config_experiment import(
 """PCA is gebruikt om de globale structuur te verkennen; 
 Parallel Analysis om een theoretische bovengrens voor het aantal factoren vast te stellen; 
 factoranalyse om latente patronen inhoudelijk te modelleren. 
-Maximum‑Likelihood factoranalyse is toegepast waar mogelijk, 
+Maximum-Likelihood factoranalyse is toegepast waar mogelijk, 
 met principal factoranalyse als robuust alternatief indien statistische aannames niet houdbaar bleken.
 """
 

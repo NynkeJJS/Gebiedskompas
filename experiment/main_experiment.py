@@ -1,4 +1,7 @@
-from config_experiment import (
+import pandas as pd
+import plotly.express as px
+
+from config import (
     vprint, 
     FIGURE_DIR,
     PDF_PATH,
@@ -7,9 +10,11 @@ from config_experiment import (
     KLIMAAT_DATA_CSV, 
     KLIMAAT_META_CSV,
     VARIANCE_THRESHOLD,
+    THEMA_LABELS,
+    BUURTEN_VOOR_PROFIEL
 )
 
-from data_inlezen_experiment import (
+from data_inlezen import (
     get_metadata,
     get_provincie_gebieden,
     get_data_provincie,
@@ -26,8 +31,8 @@ from data_inlezen_experiment import (
     join_cbs_with_klimaat
 )
 
-from data_pipeline_experiment import (
-    pca_check
+from data_pipeline import (
+    data_check
 )
 
 from analyse_experiment import (
@@ -40,13 +45,26 @@ from analyse_experiment import (
     normalize_loading_labels,
     print_loading_tree,
     sunburst_from_tree,
-    generate_pdf_report
+    generate_pdf_report,
+    save_figure,
+)
+from analyse_samengestelde_variabelen import (
+    samengestelde_variabelen,
+    aggregate_themascores_for_sunburst,
+    sunburst_profiel_buurt,
 )
 
-def main():
 
+def main_data():
+    """
+    Stappen 1-4:
+    - kerncijfers
+    - klimaatdata
+    - labels + joins
+    - cleaning / scaling
+    """
     # ======================================================
-    # 1. Kerncijfers: data + metadata ophalen / inlezen
+    # 1. Kerncijfers
     # ======================================================
     print("Data inlezen...")
     df_meta = get_metadata()
@@ -62,14 +80,8 @@ def main():
     print(f"Kerncijfers shape: {df_data.shape}")
     vprint(df_data.head())
 
-    # # Inlezen vanaf schijf
-    # df_data, df_meta = lees_opgeslagen_data(
-    #     data_path=KERNCIJFERS_DATA,
-    #     meta_path=KERNCIJFERS_META,
-    # )
-
     # ======================================================
-    # 2. Klimaatatlasdata + metadata koppelen
+    # 2. Klimaatdata + metadata
     # ======================================================
     print(f"\nKlimaatdata: {KLIMAAT_DATA_CSV}")
     print(f"Metadata:    {KLIMAAT_META_CSV}")
@@ -79,7 +91,6 @@ def main():
 
     print("\n---- AHN-overzicht ----")
     print(df_ahn_overzicht)
-    print("Shape:", df_ahn_overzicht.shape)
 
     df_klimaat, meta_tidy, col_meta = read_and_join_with_metadata(
         data_path=KLIMAAT_DATA_CSV,
@@ -88,22 +99,13 @@ def main():
 
     controleer_ahn_metadata(df_klimaat, meta_tidy)
 
-    meta_klimaat = df_klimaat.attrs.get("metadata", {})
-    covered = len(set(df_klimaat.columns) & set(meta_klimaat.keys()))
-    print(f"Kolommen met metadata: {covered}/{df_klimaat.shape[1]}")
-
     # ======================================================
-    # 3. Labels toepassen + datasets koppelen
+    # 3. Labels + koppelen
     # ======================================================
     df_data_labeled = maak_gelabelde_kopie_df_data(df_data, df_meta)
     df_klimaat_labeled = maak_gelabelde_kopie_df_klimaat(
         df_klimaat, meta_tidy, label_field="Omschrijving kort"
     )
-
-    print("\nDubbele kolommen kerncijfers:",
-          df_data_labeled.columns[df_data_labeled.columns.duplicated()].tolist())
-    print("Dubbele kolommen klimaat:",
-          df_klimaat_labeled.columns[df_klimaat_labeled.columns.duplicated()].tolist())
 
     df_join = join_cbs_with_klimaat(
         df_data=df_data_labeled,
@@ -113,23 +115,47 @@ def main():
         strict_unique=False,
     )
 
+    # Zorg dat Buurtcode altijd expliciet bestaat
+    df_join = df_join.copy()
+
+    # Neem de CBS-buurtcode expliciet op
+    df_join["Buurtcode"] = df_join["Codering (code)"]
+
+    # Zet 'm ook als index (handig, maar kolom blijft bestaan)
+    df_join = df_join.set_index("Buurtcode", drop=False)
+
+
     print("Gecombineerde dataset:", df_join.shape)
 
     # ======================================================
-    # 4. Data pipeline: cleaning, imputatie, schalen
+    # 4. Cleaning / imputatie / schalen
     # ======================================================
     print("\nData controleren en voorbereiden...")
-    df_num, df_scaled, dq_summary = pca_check(
+
+    df_clean, df_scaled_z, df_scaled_minmax, dq_summary = data_check(
         df_join,
         impute_strategy="knn",
     )
 
+    return {
+        "df_scaled_z": df_scaled_z,             # voor PCA, FA en gewogen gemiddelde
+        "df_scaled_minmax": df_scaled_minmax,   # voor entropy
+        "dq_summary": dq_summary,
+    }
+
+def main_analyse_experiment(df_scaled_z, dq_summary):
+    """
+    Stappen 1-3:
+    - PCA
+    - Factoranalyse
+    - Rapportage
+    """
     # ======================================================
-    # 5. PCA
+    # 1. PCA
     # ======================================================
     print("\n[PCA]")
     pca, pca_loadings, cum_var = run_pca_threshold(
-        df_scaled,
+        df_scaled_z,
         variance_threshold=VARIANCE_THRESHOLD,
     )
 
@@ -141,7 +167,6 @@ def main():
         prefix="PCA",
     )
 
-    print("\n--- PCA boom ---")
     print_loading_tree(pca_tree)
 
     sunburst_from_tree(
@@ -152,18 +177,15 @@ def main():
     )
 
     # ======================================================
-    # 6. Factoranalyse (met expliciete rotatie)
+    # 2. Factoranalyse
     # ======================================================
     print("\n[FA]")
     fa, fa_loadings, fa_info = run_fa_auto_stable(
-        df_scaled,
-        rotation="oblimin",   
+        df_scaled_z,
+        rotation="oblimin",
         max_factors=12,
         min_factors=2,
     )
-
-    print(f"Methode: {fa_info['method']}")
-    print(f"Aantal factoren: {fa_info['n_factors']}")
 
     plot_fa_heatmap(fa_loadings, FIGURE_DIR)
 
@@ -172,7 +194,6 @@ def main():
         prefix="FA",
     )
 
-    print("\n--- FA boom ---")
     print_loading_tree(fa_tree)
 
     sunburst_from_tree(
@@ -182,8 +203,11 @@ def main():
         FIGURE_DIR,
     )
 
+
+
+
     # ======================================================
-    # 7. PDF-rapport
+    # 3. PDF rapport
     # ======================================================
     generate_pdf_report(
         figures_dir=FIGURE_DIR,
@@ -192,10 +216,180 @@ def main():
     )
 
 
-# ------------------------------------------------------
-# Uitvoeren main script
-# ------------------------------------------------------
-   
+
+def main_analyse_samengestelde_variabelen(weighted_mean, entropy):
+    
+    """
+    Orkestratie van analyse samengestelde variabelen.
+
+    - Bereken themascores per buurt (entropy & weighted mean)
+    - Maak geaggregeerde sunbursts (over alle buurten)
+    - Maak profiel-sunbursts per geselecteerde buurt
+      (gelijke grootte, kleur = score)
+    """
+
+    print("\n[Analyse samengestelde variabelen]")
+    print("Start berekening thema-scores (entropy & weighted mean)")
+
+    # ======================================================
+    # 1. Per buurt × thema × methode
+    # ======================================================
+    df_results = samengestelde_variabelen(weighted_mean=weighted_mean, entropy=entropy)
+    # Thema-labels inkorten
+    df_results["thema_kort"] = df_results["thema"].map(THEMA_LABELS)
+
+    print(f"Resultaten berekend: {df_results.shape[0]} rijen")
+    print("Thema's:", df_results["thema_kort"].unique())
+    print("Methodes:", df_results["methode"].unique())
+
+    # ======================================================
+    # 2. Opslaan detailresultaten (per buurt)
+    # ======================================================
+    output_scores = "../data/output/samengestelde_themascores.csv"
+    df_results.to_csv(output_scores, index=False)
+    print(f"Detailresultaten opgeslagen in: {output_scores}")
+
+    # ======================================================
+    # 3. Aggregatie over buurten (voor overzicht)
+    # ======================================================
+    df_agg = (
+        df_results
+        .groupby(["methode", "thema_kort"], as_index=False)["score"]
+        .mean()
+    )
+
+    # ======================================================
+    # 4. Geaggregeerde sunburst: entropy
+    # ======================================================
+    df_entropy = df_agg[df_agg["methode"] == "entropy"]
+
+    fig_entropy = px.sunburst(
+        df_entropy,
+        path=["thema_kort"],
+        values="score",
+        color="score",
+        color_continuous_scale="RdBu",
+        title="Samengestelde themascores - Entropy (gemiddeld over buurten)",
+    )
+
+    save_figure(
+        fig_entropy,
+        filename="themascores_sunburst_entropy.png",
+    )
+
+    # ======================================================
+    # 5. Geaggregeerde sunburst: weighted mean
+    # ======================================================
+    df_weighted = df_agg[df_agg["methode"] == "weighted_mean"]
+
+    fig_weighted = px.sunburst(
+        df_weighted,
+        path=["thema_kort"],
+        values="score",
+        color="score",
+        color_continuous_scale="RdBu",
+        title="Samengestelde themascores – Gewogen gemiddelde (gemiddeld over buurten)",
+    )
+
+    save_figure(
+        fig_weighted,
+        filename="themascores_sunburst_weighted_mean.png",
+    )
+
+    # ======================================================
+    # 6. Sunbursts per buurt (gelijke grootte, kleur = score)
+    # ======================================================
+    for buurt in BUURTEN_VOOR_PROFIEL:
+
+        df_buurt = df_results[df_results["Buurtcode"] == buurt].copy()
+
+        if df_buurt.empty:
+            print(f"[Waarschuwing] Geen data voor buurt {buurt}")
+            continue
+
+        # Alle thema's even groot
+        df_buurt["value"] = 1
+
+        # ------------------------------
+        # 6a. Entropy (profiel)
+        # ------------------------------
+        df_entropy_buurt = df_buurt[df_buurt["methode"] == "entropy"]
+
+        fig_entropy_buurt = px.sunburst(
+            df_entropy_buurt,
+            path=["thema_kort"],
+            values="value",
+            color="score",
+            color_continuous_scale="RdBu",
+            title=f"Buurt {buurt} – thematisch profiel (entropy)",
+        )
+
+        fig_entropy_buurt.update_traces(
+            hovertemplate=(
+                "<b>%{label}</b><br>"
+                "Score: %{color:.2f}<extra></extra>"
+            )
+        )
+
+        save_figure(
+            fig_entropy_buurt,
+            filename=f"buurt_{buurt}_sunburst_entropy.png",
+        )
+
+        # ------------------------------
+        # 6b. Weighted mean (profiel)
+        # ------------------------------
+        df_weighted_buurt = df_buurt[df_buurt["methode"] == "weighted_mean"]
+
+        fig_weighted_buurt = px.sunburst(
+            df_weighted_buurt,
+            path=["thema_kort"],
+            values="value",
+            color="score",
+            color_continuous_scale="RdBu",
+            title=f"Buurt {buurt} – thematisch profiel (gewogen gemiddelde)",
+        )
+
+        fig_weighted_buurt.update_traces(
+            hovertemplate=(
+                "<b>%{label}</b><br>"
+                "Score: %{color:.2f}<extra></extra>"
+            )
+        )
+
+        save_figure(
+            fig_weighted_buurt,
+            filename=f"buurt_{buurt}_sunburst_weighted_mean.png",
+        )
+
+    # ======================================================
+    # 7. Return (altijd als laatste)
+    # ======================================================
+    return df_results, df_agg
+
+
+
+
+def main(run_experiment=True, run_samengesteld=True):
+
+    data_out = main_data()
+
+    print(sorted(data_out["df_scaled_minmax"].columns.tolist()))
+
+    if run_experiment:
+        main_analyse_experiment(
+            df_scaled_z=data_out["df_scaled_z"],
+            dq_summary=data_out["dq_summary"],
+        )
+
+    if run_samengesteld:
+        main_analyse_samengestelde_variabelen(
+            weighted_mean=data_out["df_scaled_z"],
+            entropy=data_out["df_scaled_minmax"]
+        )
+
+
+
 
 if __name__ == "__main__":
-    main()
+    main(run_experiment=True, run_samengesteld=True)
