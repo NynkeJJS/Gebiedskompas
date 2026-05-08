@@ -9,52 +9,69 @@ from config import (
 
 
 def load_thema_config():
+    """
+    Laad thema-configuratie uit YAML-bestand.
+    """
     with open(THEMA_CONFIG_PATH, "r") as f:
         return yaml.safe_load(f)
 
 
 def score_weighted_mean(df, variables, weights):
+    """
+    Bereken samengestelde score als gewogen gemiddelde van variabelen.
+    """
     w = np.array([weights[v] for v in variables], dtype=float)
     w = w / w.sum()
     return (df[variables] * w).sum(axis=1)
 
 
 def score_entropy(df, variables):
-    X = df[variables].copy()
-    eps = 1e-12
+    """Bereken samengestelde score op basis van entropie-gewichten.
+    - Variabelen worden eerst omgezet naar een kansverdeling (P) per variabele.
+    - Entropie (H) wordt berekend voor elke variabele: H = -k * sum(P * log(P))
+    - Gewichten worden afgeleid van entropie: w = (1 - H) / sum(1 - H)
+    - Samengestelde score = gewogen gemiddelde van variabelen met deze gewichten.
+    """
+    X = df[variables].copy()  # DataFrame met alleen de relevante variabelen
+    eps = 1e-12 # kleine waarde om log(0) te voorkomen
 
-    P = X / (X.sum(axis=0) + eps)
-    P = P.clip(lower=eps)
+    # Omzetten naar kansverdeling per variabele
+    P = X / (X.sum(axis=0) + eps) # Sommeer per kolom en deel door totaal om P te krijgen
+    P = P.clip(lower=eps) # Voorkom exact 0 in P om log(0) te vermijden
 
-    n = X.shape[0]
-    k = 1.0 / np.log(n)
+    n = X.shape[0] # aantal rijen (buurten)
+    k = 1.0 / np.log(n) # Normalisatieconstante zodat 0 ≤ entropy ≤ 1
 
+    # Bereken entropie per variabele
     entropy = -k * (P * np.log(P)).sum(axis=0)
+    # Bereken gewichten op basis van entropie
     weights = (1 - entropy) / (1 - entropy).sum()
 
+    # Bereken samengestelde score als gewogen gemiddelde van variabelen
     score = (X * weights).sum(axis=1)
     return score, weights
 
 
 def samengestelde_variabelen(weighted_mean, entropy):
     """
-    Combineert indicatoren tot samengestelde scores per thema.
+    Deze functie berekent samengestelde themascores per buurt, 
+    op basis van meerdere indicatoren en meerdere methoden, 
+    volledig gestuurd door een YAML‑configuratie.
     
-    Parameters
-    ----------
-    weighted_mean : pd.DataFrame
-        Dataset met z-score geschaalde variabelen (voor weighted mean).
-    entropy : pd.DataFrame
-        Dataset met min-max geschaalde variabelen (voor entropy).
-    
-    Returns
-    -------
-    pd.DataFrame
-        Tabel met kolommen:
-        [buurtcode, thema, methode, score]
+    weighted_mean : Dataset met z-score geschaalde variabelen (voor weighted mean).
+    entropy : Dataset met min-max geschaalde variabelen (voor entropy).
     """
+
+    # Laad thema-configuratie
+    # Dictionary met structuur:
+        # Variabelen per thema
+        # Methodes per thema (entropie, gewogen gemiddelde)
+        # Eventuele parameters per methode (zoals gewichten voor gewogen gemiddelde) 
     thema_config = load_thema_config()
+
     results = []
+
+    # Loop door thema's en bijbehorende configuratie (variables, runs, parameters) zoals gespecificeerd in de thema_config
 
     for thema, cfg in thema_config.items():
         variables = cfg.get("variables", [])
@@ -76,8 +93,12 @@ def samengestelde_variabelen(weighted_mean, entropy):
             else:
                 raise ValueError(f"Onbekende methode: {methode}")
 
-            df_score = score.rename("score").reset_index()
-            df_score = df_score.rename(columns={"index": "buurtcode"})
+
+
+            # Dit codeblok zet een berekende score om naar een gestandaardiseerde tabel met buurtcode, 
+            # thema en methode, zodat alle resultaten eenvoudig gecombineerd en vergeleken kunnen worden.
+            df_score = score.rename("score").reset_index() # Index wordt buurtcode, kolomnaam wordt 'score'
+            df_score = df_score.rename(columns={"index": "buurtcode"}) # Herbenoem index naar buurtcode
             df_score["thema"] = thema
             df_score["methode"] = methode
             results.append(df_score)
@@ -86,24 +107,14 @@ def samengestelde_variabelen(weighted_mean, entropy):
 
 
 def aggregate_themascores_for_sunburst(
-    df_results: pd.DataFrame,
+    df_results: pd.DataFrame, # DataFrame met resultaten per buurt, thema en methode
     agg: str = "mean",
 ) -> pd.DataFrame:
     """
     Aggregeer samengestelde themascores over alle buurten
-    voor sunburst-visualisatie (optie 1).
-
-    Parameters
-    ----------
-    df_results : DataFrame
-        Kolommen: [buurtcode, thema, methode, score]
-    agg : str
-        'mean' of 'median'
-
-    Returns
-    -------
-    DataFrame met kolommen:
-        [methode, thema, score]
+    voor sunburst-visualisatie.
+    Aggregatiemethode kan 'mean' of 'median' zijn. 
+    Resultaat is DataFrame met gemiddelde/mediane score per thema en methode, klaar voor visualisatie.
     """
 
     if agg not in {"mean", "median"}:
@@ -119,7 +130,7 @@ def aggregate_themascores_for_sunburst(
     return df_agg
 
 
-import plotly.express as px
+
 
 def sunburst_profiel_buurt(
     df_results,

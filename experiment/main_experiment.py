@@ -5,8 +5,6 @@ from config import (
     vprint, 
     FIGURE_DIR,
     PDF_PATH,
-    KERNCIJFERS_DATA, 
-    KERNCIJFERS_META, 
     KLIMAAT_DATA_CSV, 
     KLIMAAT_META_CSV,
     VARIANCE_THRESHOLD,
@@ -18,10 +16,8 @@ from data_inlezen import (
     get_metadata,
     get_provincie_gebieden,
     get_data_provincie,
-    metadata_label_map,
     koppel_geo_info,
     sla_op, 
-    lees_opgeslagen_data,
     read_data_csv,
     read_and_join_with_metadata,
     controleer_ahn_metadata,
@@ -35,7 +31,7 @@ from data_pipeline import (
     data_check
 )
 
-from analyse_experiment import (
+from analyse_bottom_up import (
     plot_fa_heatmap,
     plot_pca_variance,
     plot_loadings_heatmap,
@@ -48,7 +44,7 @@ from analyse_experiment import (
     generate_pdf_report,
     save_figure,
 )
-from analyse_samengestelde_variabelen import (
+from analyse_top_down import (
     samengestelde_variabelen,
     aggregate_themascores_for_sunburst,
     sunburst_profiel_buurt,
@@ -68,7 +64,7 @@ def main_data():
     # ======================================================
     print("Data inlezen...")
     df_meta = get_metadata()
-    df_meta_dict = metadata_label_map(df_meta)
+    #df_meta_dict = metadata_label_map(df_meta)
 
     df_prov = get_provincie_gebieden()
     provincie_codes = df_prov["Key"].tolist()
@@ -80,9 +76,16 @@ def main_data():
     print(f"Kerncijfers shape: {df_data.shape}")
     vprint(df_data.head())
 
+
+
     # ======================================================
     # 2. Klimaatdata + metadata
     # ======================================================
+   
+    """ Klimaatdata inlezen en overzicht tonen van de AHN gegevens. 
+    Dit is een cruciale stap om te zorgen dat de klimaatdata correct gelabeld
+    en bruikbaar is voor verdere analyse."""
+
     print(f"\nKlimaatdata: {KLIMAAT_DATA_CSV}")
     print(f"Metadata:    {KLIMAAT_META_CSV}")
 
@@ -92,19 +95,29 @@ def main_data():
     print("\n---- AHN-overzicht ----")
     print(df_ahn_overzicht)
 
-    df_klimaat, meta_tidy, col_meta = read_and_join_with_metadata(
+    """ 
+    Klimaatdata inlezen en koppelen met metadata. 
+    Bij het inlezen van de klimaatdata wordt ook gecontroleerd of de AHN-gegevens correct gelabeld zijn.
+    """
+
+    df_klimaat, df_klimaat_meta, col_meta = read_and_join_with_metadata(
         data_path=KLIMAAT_DATA_CSV,
         metadata_path=KLIMAAT_META_CSV,
     )
 
-    controleer_ahn_metadata(df_klimaat, meta_tidy)
+    controleer_ahn_metadata(df_klimaat, df_klimaat_meta)
 
     # ======================================================
     # 3. Labels + koppelen
     # ======================================================
+    """ 
+    Labelt CBS- en klimaatdata met behulp van metadata en combineert beide datasets 
+    tot één samenhangende dataset op buurtniveau voor verdere analyse
+    """
+
     df_data_labeled = maak_gelabelde_kopie_df_data(df_data, df_meta)
     df_klimaat_labeled = maak_gelabelde_kopie_df_klimaat(
-        df_klimaat, meta_tidy, label_field="Omschrijving kort"
+        df_klimaat, df_klimaat_meta, label_field="Omschrijving kort"
     )
 
     df_join = join_cbs_with_klimaat(
@@ -115,7 +128,7 @@ def main_data():
         strict_unique=False,
     )
 
-    # Zorg dat Buurtcode altijd expliciet bestaat
+    # Maak expliciet een kopie om veilig kolommen en index aan te passendf_join = df_join.copy()
     df_join = df_join.copy()
 
     # Neem de CBS-buurtcode expliciet op
@@ -130,6 +143,7 @@ def main_data():
     # ======================================================
     # 4. Cleaning / imputatie / schalen
     # ======================================================
+
     print("\nData controleren en voorbereiden...")
 
     df_clean, df_scaled_z, df_scaled_minmax, dq_summary = data_check(
@@ -220,7 +234,8 @@ def main_analyse_experiment(df_scaled_z, dq_summary):
 def main_analyse_samengestelde_variabelen(weighted_mean, entropy):
     
     """
-    Orkestratie van analyse samengestelde variabelen.
+    Structurering van de analyse van samengestelde variabelen
+
 
     - Bereken themascores per buurt (entropy & weighted mean)
     - Maak geaggregeerde sunbursts (over alle buurten)

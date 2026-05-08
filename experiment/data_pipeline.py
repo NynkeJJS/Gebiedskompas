@@ -9,7 +9,9 @@ from config import (
 
 
 def is_code_column(col: str) -> bool:
-    """Herken GM/WK/BU codes (gebiedscodes)."""
+    """
+    Herken GM/WK/BU codes (gebiedscodes).
+    """
     c = col.lower()
     return c.startswith("gm") or c.startswith("wk") or c.startswith("bu")
 
@@ -19,20 +21,22 @@ def is_code_column(col: str) -> bool:
 # =============================================
 
 def report_data_quality(df, top_n=15):
-    """Uitgebreide datakwaliteit-check vóór PCA."""
+    """
+    Uitgebreide datakwaliteit-check vóór analyses.
+    """
 
     # Selecteer alleen numerieke kolommen.
     df_num = df.select_dtypes(include="number").copy()
 
 
     # Missing
-    missing_pct = df_num.isna().mean()
-    full_missing = missing_pct[missing_pct == 1.0]
-    non_full_missing_pct = missing_pct[missing_pct < 1.0].sort_values(ascending=False)
+    missing_pct = df_num.isna().mean() # berekent percentage missing per kolom
+    full_missing = missing_pct[missing_pct == 1.0] 
+    non_full_missing_pct = missing_pct[missing_pct < 1.0].sort_values(ascending=False) 
 
     # Variantie
-    variance = df_num.var(numeric_only=True)
-    zero_var = variance[variance == 0].index.tolist()
+    variance = df_num.var(numeric_only=True) # berekent variantie per kolom
+    zero_var = variance[variance == 0].index.tolist() 
     low_var  = variance[(variance < 1e-6) & (variance > 0)].index.tolist()
 
 
@@ -52,7 +56,7 @@ def report_data_quality(df, top_n=15):
         "low_var_cols": low_var,
         "n_low_var": len(low_var),
 
-        # Deze worden later door pca_check() aangevuld
+        # Deze worden later door check aangevuld
         "removed_cols": 0,
         "remaining_missing": None,
     }
@@ -68,28 +72,33 @@ def report_data_quality(df, top_n=15):
     return dq
 
 # =============================================
-# PCA FEATURE SELECTIE (AUTOMATISCHE UITSUITING)
+# FEATURE SELECTIE (AUTOMATISCHE UITSUITING)
 # =============================================
 
 def select_features(df: pd.DataFrame):
     """
-    Selecteert numerieke variabelen en verwijdert:
+    Deze functie selecteert geschikte numerieke variabelen uit een DataFrame en 
+    verwijdert kolommen die niet bruikbaar zijn voor statistische analyse of modellering 
+    De functie sluit automatisch de volgende typen kolommen uit:
     - ID/sleutels
     - GM/WK/BU codes
     - constanten
     """
-    vprint("[PCA] Selecteer geschikte variabelen...")
+    vprint("Selecteer geschikte variabelen...")
 
+    # Selecteer alleen numerieke kolommen 
     df_num = df.select_dtypes(include="number").copy()
 
     to_drop = set()
     
-    # Verwijder dubbele kolommen (behoud eerste)
+    # Verwijder dubbele kolommen 
     if not df_num.columns.is_unique:        
-        vprint("[PCA] Waarschuwing: dubbele kolomnamen gevonden → dedupliceren")        
-        df_num = df_num.loc[:, ~df_num.columns.duplicated()]
+        vprint("Waarschuwing: dubbele kolomnamen gevonden → dedupliceren")        
+        df_num = df_num.loc[:, ~df_num.columns.duplicated()] # behoud eerste keer een kolomnaam, verwijder volgende duplicaten
+
 
     for col in df_num.columns:
+        # Kolommen die aan één van deze voorwaarden voldoen, worden toegevoegd aan to_drop.
         if col in EXCLUDE:
             # ID/sleutelkolommen
             to_drop.add(col)
@@ -101,10 +110,10 @@ def select_features(df: pd.DataFrame):
             to_drop.add(col)
 
     if to_drop:
-        vprint(f"[PCA] Drop {len(to_drop)} kolommen: {sorted(to_drop)}")
+        vprint(f"Drop {len(to_drop)} kolommen: {sorted(to_drop)}")
         df_num = df_num.drop(columns=sorted(to_drop))
 
-    vprint(f"[PCA] Overblijvende PCA-variabelen: {df_num.shape[1]}")
+    vprint(f"Overblijvende variabelen: {df_num.shape[1]}")
     return df_num
 
 
@@ -113,9 +122,11 @@ def select_features(df: pd.DataFrame):
 # =============================================
 
 def clean_numeric(df):
-    """Vervang inf → NaN en verwijder volledig-NaN kolommen."""
+    """
+    Vervang inf → NaN en verwijder volledig-NaN kolommen.
+    """
     df_num = df.select_dtypes(include="number").replace([np.inf, -np.inf], np.nan)
-    nan_cols = df_num.columns[df_num.isna().all()]
+    nan_cols = df_num.columns[df_num.isna().all()] # kolommen waar alle waarden NaN zijn
 
     vprint(f"[Clean] Drop volledig NaN: {list(nan_cols)}")
 
@@ -123,18 +134,21 @@ def clean_numeric(df):
 
 
 def impute_numeric(df_num, strategy="median"):
-    """Imputeer numerieke data via KNN of median."""
-    imputer = KNNImputer(n_neighbors=5) if strategy == "knn" else SimpleImputer(strategy=strategy)
+    """
+    Imputeer numerieke data via KNN of median.
+    """
+    imputer = KNNImputer(n_neighbors=5) if strategy == "knn" else SimpleImputer(strategy=strategy) # KNN is default, maar kan worden aangepast naar 'strategy' 
     arr = imputer.fit_transform(df_num)
 
-    df_imp = pd.DataFrame(arr, index=df_num.index, columns=df_num.columns)
+    df_imp = pd.DataFrame(arr, index=df_num.index, columns=df_num.columns) # DataFrame terugvormen met originele index en kolomnamen
 
-    vprint(f"[Impute] Missing na imputatie: {df_imp.isna().sum().sum()}")
+    vprint(f"[Impute] Missing na imputatie: {df_imp.isna().sum().sum()}") # Totaal aantal missing in de gehele dataframe (gesommeerd over alle kolommen)
 
     return df_imp
 
 
-def scale_zscore(df_imp: pd.DataFrame) -> pd.DataFrame:
+def scale_zscore(df_imp: pd.DataFrame
+                 ) -> pd.DataFrame:
     """
     Z-score scaling: (x - mean) / std
     """
@@ -149,11 +163,11 @@ def scale_zscore(df_imp: pd.DataFrame) -> pd.DataFrame:
 
 
 def scale_minmax(
-    df_imp: pd.DataFrame,
-    feature_range: tuple = (0, 1),
-) -> pd.DataFrame:
+                df_imp: pd.DataFrame,
+                feature_range: tuple = (0, 1),
+                ) -> pd.DataFrame:
     """
-    Min-max scaling naar opgegeven bereik (default 0–1)
+    Min-max scaling naar opgegeven bereik (default 0-1)
     """
     scaler = MinMaxScaler(feature_range=feature_range)
     arr = scaler.fit_transform(df_imp)
@@ -170,7 +184,12 @@ def scale_minmax(
 # =============================================
 def data_check(df_data, impute_strategy="knn"):
     """
-    End-to-end preprocessing + quality metrics.
+    Preprocessing pipeline die de volgende stappen uitvoert:
+    1. Data quality check (missing, variance)
+    2. Feature selectie (automatische uitsluiting van ID/sleutels, codes, constanten)
+    3. Clean (inf → NaN) + Impute (KNN of median)
+    4. Scaling (z-score en min-max)
+
 
     Returns:
     - df_clean: opgeschoonde numerieke data
@@ -186,30 +205,30 @@ def data_check(df_data, impute_strategy="knn"):
     # ======================================================
     # 2. Feature selectie
     # ======================================================
-    df_pca = select_features(df_data)
+    df_analyse = select_features(df_data)
 
-    original = df_data.select_dtypes(include="number").shape[1]
-    cleaned = df_pca.shape[1]
-    dq["removed_cols"] = original - cleaned
+    original = df_data.select_dtypes(include="number").shape[1] # Aantal oorspronkelijke numerieke kolommen
+    cleaned = df_analyse.shape[1]
+    dq["removed_cols"] = original - cleaned # Aantal verwijderde kolommen tijdens feature selectie
 
     # ======================================================
     # 3. Clean → Impute
     # ======================================================
-    df_clean = clean_numeric(df_pca)
-    df_imp = impute_numeric(df_clean, strategy=impute_strategy)
+    df_clean = clean_numeric(df_analyse) # Volledige NaN kolommen worden hier verwijderd, overige NaN blijven staan voor imputatie
+    df_imp = impute_numeric(df_clean, strategy=impute_strategy) # KNN of median imputatie (default KNN)
 
-    dq["remaining_missing"] = int(df_imp.isna().sum().sum())
+    dq["remaining_missing"] = int(df_imp.isna().sum().sum()) # Totaal aantal missing na imputatie (zou 0 moeten zijn bij KNN/median)
 
     # ======================================================
     # 4. Scaling (twee varianten)
     # ======================================================
-    df_scaled_z = scale_zscore(df_imp)
-    df_scaled_minmax = scale_minmax(df_imp)
+    df_scaled_z = scale_zscore(df_imp) # Z-score scaling (voor PCA / FA en gewogen gemiddelden) 
+    df_scaled_minmax = scale_minmax(df_imp) # Min-max scaling (voor entropie, omdat deze gevoelig is voor schaalverschillen)
 
     # ======================================================
     # 5. Metadata voor downstream analyses
     # ======================================================
-    dq["pca_features"] = list(df_scaled_z.columns)
-    dq["n_features"] = df_scaled_z.shape[1]
+    dq["analyse_features"] = list(df_scaled_z.columns) # Overzicht van de variabelen die uiteindelijk in de analyses worden gebruikt (na selectie, clean, impute)
+    dq["n_features"] = df_scaled_z.shape[1] # Aantal variabelen dat uiteindelijk in de analyses wordt gebruikt
 
     return df_clean, df_scaled_z, df_scaled_minmax, dq

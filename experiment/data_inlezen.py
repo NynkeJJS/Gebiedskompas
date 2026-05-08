@@ -26,7 +26,6 @@ __all__ = [
     "get_data_provincie",
     "koppel_geo_info",
     "sla_op",
-    "lees_opgeslagen_data",
     "read_data_csv",
     "read_metadata_to_tidy",
     "metadata_label_map",
@@ -46,7 +45,9 @@ __all__ = [
 # ------------------------------------------------------
 
 def get_all_pages(url: str, params: Dict[str, Any] | None = None) -> list[dict]:
-    """Haalt automatisch alle OData-pagina’s op totdat er geen vervolgpagina meer is."""
+    """
+    Haalt automatisch alle OData-pagina’s op totdat er geen vervolgpagina meer is.
+    """
     results: list[dict] = []
     while url:
         resp = requests.get(url, params=params) # api aanroepen
@@ -59,47 +60,21 @@ def get_all_pages(url: str, params: Dict[str, Any] | None = None) -> list[dict]:
 
 
 def get_metadata() -> pd.DataFrame:
-    """Haalt alle metadata op van de API en retourneert dit als DataFrame."""
+    """
+    Haalt alle metadata op van de API en retourneert dit als DataFrame.
+    """
     vprint("Metadata ophalen...")
     meta_data = get_all_pages(f"{BASE_URL}/DataProperties")
     df_meta = pd.DataFrame(meta_data)
     vprint(f"  {len(df_meta)} indicatoren gevonden")
     return df_meta
 
-def metadata_label_map(df_meta: pd.DataFrame) -> dict[str, str]:
-    """
-    Bouwt een mapping van indicatorcode -> 'Titel (eenheid)'
-    """
-    vprint("Metadata labels voorbereiden (met eenheid)...")
-
-    label_map = {}
-
-    for _, row in df_meta.iterrows():
-        key = row.get("Key")
-        title = row.get("Title")
-        unit = row.get("Unit") or row.get("Eenheid")
-
-        if not isinstance(key, str) or not isinstance(title, str):
-            continue
-
-        title = title.strip()
-
-        if isinstance(unit, str) and unit.strip():
-            label = f"{title} ({unit.strip()})"
-        else:
-            label = title
-
-        label_map[key] = label
-
-    # Sleutelveld eruit
-    label_map.pop("WijkenEnBuurten", None)
-
-    vprint(f"  {len(label_map)} labels met eenheid aangemaakt")
-    return label_map
 
 
 def get_provincie_gebieden() -> pd.DataFrame:
-    """Haalt alle wijken/buurten/gemeenten op en filtert ze zodat alleen de gebieden die binnen Friesland vallen overblijven."""
+    """
+    Haalt alle wijken/buurten/gemeenten op en filtert ze zodat alleen de gebieden die binnen Friesland vallen overblijven.
+    """
     vprint(f"Wijken en buurten ophalen voor {PROVINCIE}...")
     
     geo_data = get_all_pages(f"{BASE_URL}/WijkenEnBuurten")
@@ -119,7 +94,9 @@ def get_provincie_gebieden() -> pd.DataFrame:
 
 
 def get_data_provincie(provincie_codes: list[str]) -> pd.DataFrame:
-    """Haalt indicatorgegevens op voor een provincie en toont een progress bar."""
+    """
+    Haalt indicatorgegevens op voor een provincie en toont een progress bar.
+    """
     vprint(f"Data ophalen voor {PROVINCIE}...")
 
     all_data: list[dict] = []
@@ -148,7 +125,9 @@ def get_data_provincie(provincie_codes: list[str]) -> pd.DataFrame:
 
 
 def koppel_geo_info(df_data: pd.DataFrame, df_provincie: pd.DataFrame) -> pd.DataFrame:
-    """Voegt gebiedsnaam toe door te koppelen op de gebiedscode."""
+    """
+    Voegt gebiedsnaam toe door te koppelen op de gebiedscode.
+    """
     vprint("Geografische info koppelen...")
 
     df_geo_info = df_provincie[["Key", "Title"]].rename(
@@ -168,16 +147,6 @@ def sla_op(df_data: pd.DataFrame, df_meta: pd.DataFrame) -> None:
     df_meta.to_csv(KERNCIJFERS_META, index=False)
 
 
-def lees_opgeslagen_data(data_path, meta_path):
-    """leest data en metadata van schijf."""
-    vprint("Data vanaf schijf inlezen...")
-
-    df_data = pd.read_csv(data_path, low_memory=False)
-    df_meta = pd.read_csv(meta_path, low_memory=False) if os.path.exists(meta_path) else None
-
-    vprint(f"Klaar! Shape: {df_data.shape}")
-    return df_data, df_meta
-
 # ------------------------------------------------------
 # CSV + metadata helpers met encoding-fallback
 # ------------------------------------------------------
@@ -190,7 +159,7 @@ def read_data_csv(
     na_values: Iterable = ("-9995", -9995, "", "NA", "N/A"),
     low_memory: bool = False,
 ) -> pd.DataFrame:
-    """Leest een CSV‑bestand met automatische encoding‑controle en opgeschoonde kolomnamen."""
+    """Leest een CSV-bestand met automatische encoding-controle en opgeschoonde kolomnamen."""
 
     encodings = (encoding, "utf-8", "cp1252", "latin-1") 
     last_err = None
@@ -228,7 +197,9 @@ def read_metadata_to_tidy(
     indicator_key: str = "Attribuutnaam",
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Leest metadata en levert (meta_raw, meta_tidy).
+    Ongeacht het oorspronkelijke metadata‑formaat wordt de metadata omgezet naar een tidy 
+    structuur met column_name als index, zodat deze direct koppelbaar is aan de datakolommen.
+    
     - Rij-oriëntatie: 
     Als er een kolom `indicator_key` (=default: 'Attribuutnaam') bestaat:
         * meta_tidy = zelfde rijen, indicator_key hernoemd naar 'column_name'
@@ -273,13 +244,27 @@ def read_metadata_to_tidy(
 
     else:
         # Kolom-oriëntatie (oude breed-naar-tidy transpose)
-        # Eerste kolom geeft naam van indicator. Deze opschonen en daarna transponeren.
+        # Eerste kolom bevat de namen van de metadata-velden
         first_col_name = meta_raw.columns[0]
+
+        # Opschonen van veldnamen
         meta_raw[first_col_name] = meta_raw[first_col_name].astype(str).str.strip()
+
+        # Transponeren naar tidy structuur
         meta_tidy = (
-            meta_raw.set_index(first_col_name).T.reset_index().rename(columns={"index": "column_name"})
+            meta_raw
+            .set_index(first_col_name)
+            .T
+            .reset_index()
+            .rename(columns={"index": "column_name"})
         )
+
+        # Opschonen van kolomnamen
         meta_tidy["column_name"] = meta_tidy["column_name"].astype(str).str.strip()
+
+        # column_name ook hier als index zetten
+        meta_tidy = meta_tidy.set_index("column_name", drop=True)
+
         return meta_raw, meta_tidy
 
 
@@ -288,7 +273,13 @@ def read_metadata_to_tidy(
 # Hulpfuncties voor omgaan met AHN en BK suffixen
 # ------------------------------------------------------
 
-# regex patroon om AHN/BK-kolommen te herkennen en basisnaam + suffix te extraheren
+# 
+
+"""
+Regex patroon om AHN/BK-kolommen te herkennen en basisnaam + suffix te extraheren 
+Het patroon splitst een naam in een basisdeel en een optioneel suffix (AHN<nummer> of BK), 
+waarbij het AHN-suffix eventueel nog een extra subcode kan hebben.
+"""
 
 PATTERN_SUFFIX = re.compile(
     r"^(?P<base>.*?)(?:_(?P<suffix>AHN(?P<nr>\d+)(?:_[A-Za-z0-9]+)?|BK))?$",
@@ -300,6 +291,7 @@ def parse_suffix(col: str) -> dict[str, object]:
     Ontleedt een kolomnaam in basisnaam en suffix-informatie.
     """
     m = PATTERN_SUFFIX.match(col)
+    # Geen match → hele naam als basis, geen suffix
     if not m:
         return {"base": col, "suffix": None, "ahn_nr": None}
 
@@ -354,18 +346,15 @@ def maak_suffix_tabel(df_klimaat: pd.DataFrame) -> pd.DataFrame:
 def attach_and_apply_metadata(
     df: pd.DataFrame,
     meta_tidy: pd.DataFrame,
-    label_fields: Iterable[str] = ("Indicator", "Label", "Omschrijving"),
-    unit_fields: Iterable[str] = ("Eenheid", "Unit"),
     dtype_field: str = "dtype",
     dayfirst: bool = True,
 ) -> Dict[str, Dict[str, Any]]:
     """
     - Koppelt metadata aan df (in df.attrs['metadata']).
     - Past dtypes toe als 'dtype' in metadata aanwezig is.
-    - (Optioneel) hernoemt kolommen o.b.v. eerste gevonden veld in label_fields.
     - Retourneert dict: {kolomnaam: {meta_field: waarde, ...}}.
     """
-    # strip kolomnamen
+    # strip kolomnamen om de basisnaam te krijgen voor metadata-koppeling
     df_cols_stripped = {c: parse_suffix(c)["base"] for c in df.columns}
 
     col_meta: Dict[str, Dict[str, Any]] = {}
@@ -478,7 +467,12 @@ def read_and_join_with_metadata(
     # ---------------------------------------------------------
     max_ahn_per_base = defaultdict(int)
 
-    # Dcitionary maken van basisnaam → hoogste AHN-nummer
+    """ Dcitionary maken van basisnaam → hoogste AHN-nummer
+    Per basisvariabele wordt het maximum genomen van:
+    - het huidige bekende AHN-nummer
+    - het AHN-nummer van de huidige kolom    
+    """
+
     for row in ahn_cols:
         max_ahn_per_base[row["base"]] = max(
             max_ahn_per_base[row["base"]],
@@ -503,10 +497,6 @@ def read_and_join_with_metadata(
 
     return df, meta_tidy, col_meta
 
-import pandas as pd
-
-
-import pandas as pd
 
 
 def controleer_ahn_metadata(
@@ -561,7 +551,7 @@ def controleer_ahn_metadata(
         print("Geen AHN/BK-kolommen gevonden.")
         return df_check
 
-    print("\n--- Controle metadata voor AHN/BK‑variabelen ---")
+    print("\n--- Controle metadata voor AHN/BK-variabelen ---")
     print(df_check.to_string(index=False))
 
     return df_check
@@ -621,7 +611,7 @@ def maak_gelabelde_kopie_df_data(
     df_meta: pd.DataFrame,
 ) -> pd.DataFrame:
     """
-    Maakt een gelabelde kopie van df:
+    Maakt een gelabelde kopie van df waarbij kolommen worden hernoemd op basis van metadata.
     Titel + eenheid + jaar (indien aanwezig).
     """
     df_labeled = df.copy()
@@ -653,22 +643,26 @@ def maak_gelabelde_kopie_df_data(
         rename_map[col] = label
 
     df_labeled = df_labeled.rename(columns=rename_map)
+
     return df_labeled
 
 
 def maak_gelabelde_kopie_df_klimaat(
     df_klimaat: pd.DataFrame,
-    meta_tidy: pd.DataFrame,
+    df_klimaat_meta: pd.DataFrame,
     label_field: str,
     *,
     keep_suffix: bool = False,
 ) -> pd.DataFrame:
+    """
+    Maakt een gelabelde kopie van df_klimaat waarbij kolommen worden hernoemd op basis van metadata.
+    """
 
     # Maakt een kopie van df_klimaat om labels aan toe te voegen zonder de originele data te wijzigen.
     df_klimaat_labels = df_klimaat.copy()
 
     # Controleert of het opgegeven label_field in de metadata aanwezig is.  
-    if label_field not in meta_tidy.columns:
+    if label_field not in df_klimaat_meta.columns:
         vprint(
             f"[WAARSCHUWING] label_field '{label_field}' niet gevonden in metadata. "
             "Geen kolommen gelabeld."
@@ -684,10 +678,10 @@ def maak_gelabelde_kopie_df_klimaat(
         info = parse_suffix(col)
         base = info["base"]
 
-        if base not in meta_tidy.index:
+        if base not in df_klimaat_meta.index:
             continue
 
-        label = meta_tidy.at[base, label_field]
+        label = df_klimaat_meta.at[base, label_field]
 
         if not isinstance(label, str):
             continue
@@ -720,19 +714,12 @@ def join_cbs_with_klimaat(
     df_data: pd.DataFrame,
     df_klimaat: pd.DataFrame,
     *,
-    left_key: str,
-    right_key: str,
+    left_key: str,  #Kolomnaam in df_data 
+    right_key: str, #Kolomnaam in df_klimaat
     strict_unique: bool = False,   # True => error bij duplicaten, False => dedupe
 ) -> pd.DataFrame:
     """
-    Koppel df_data (links) aan df_klimaat (rechts) op opgegeven sleutels.
-
-    Parameters
-    ----------
-    left_key : str
-        Kolomnaam in df_data (bijv. 'Codering')
-    right_key : str
-        Kolomnaam in df_klimaat (bijv. 'buurtcode2024')
+    Koppel df_data (links) aan df_klimaat (rechts) op opgegeven sleutels.)
     """
 
     # Controle of beide sleutels aanwezig zijn in de respectievelijke DataFrames

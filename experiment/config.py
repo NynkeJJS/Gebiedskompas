@@ -56,6 +56,7 @@ FRIESE_GEMEENTEN = [
 
 RAW_DIR = "../data/raw"
 BEWERKT_DIR = "../data/bewerkt"
+OUTPUT_DIR    = "../data/output"
 
 os.makedirs(RAW_DIR, exist_ok=True)
 os.makedirs(BEWERKT_DIR, exist_ok=True)
@@ -64,18 +65,17 @@ os.makedirs(BEWERKT_DIR, exist_ok=True)
 KLIMAAT_DATA_CSV = os.path.join(RAW_DIR, "klimaateffectatlas_data.csv")
 KLIMAAT_META_CSV = os.path.join(RAW_DIR, "klimaateffectatlas_metadata.csv")
 
-# Tussentijdse (enriched) data
+# Tussentijdse bewerkte data
 KERNCIJFERS_DATA = os.path.join(BEWERKT_DIR, "kerncijfers_data.csv")
 KERNCIJFERS_META = os.path.join(BEWERKT_DIR, "kerncijfers_meta.csv")
 
 # Output structuur
-OUTPUT_DIR    = "../data/output"
 FIGURE_DIR    = os.path.join(OUTPUT_DIR, "figuren")
 RAPPORT_DIR   = os.path.join(OUTPUT_DIR, "rapport")
-_RENDER_TMP   = os.path.join(OUTPUT_DIR, "_render_tmp")
-
 PDF_PATH = os.path.join(RAPPORT_DIR, "rapport.pdf")
 
+# Tijdelijke map voor HTML rendering (wordt automatisch geleegd)
+_RENDER_TMP   = os.path.join(OUTPUT_DIR, "_render_tmp")
 
 # Mappen aanmaken
 os.makedirs(FIGURE_DIR, exist_ok=True)
@@ -83,14 +83,19 @@ os.makedirs(RAPPORT_DIR, exist_ok=True)
 os.makedirs(_RENDER_TMP, exist_ok=True)
 
 
+
 # -------------------------------
 # Chrome executable path
 # -------------------------------
 
-# Dit pad is correct voor macOS installatie van Chrome
+"""
+Hier wordt het absolute pad naar de Chrome-executable ingesteld. 
+Dit is nodig omdat Html2Image Chrome rechtstreeks aanroept en niet automatisch zoekt naar een browser in het systeem-PATH.
+"""
+
 CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
-# Ctrl: als Chrome niet bestaat → geef waarschuwing
+# Als Chrome niet bestaat → geef waarschuwing
 if not os.path.exists(CHROME_PATH):
     print("Waarschuwing: Chrome niet gevonden op verwachte locatie.")
     print("Controleer installatie of pas CHROME_PATH aan in config_experiment.py")
@@ -101,7 +106,9 @@ if not os.path.exists(CHROME_PATH):
 # -------------------------------
 
 
-
+"""
+Dit codeblok zorgt ervoor dat HTML-pagina's automatisch worden omgezet naar afbeeldingen, door Google Chrome onzichtbaar op de achtergrond te gebruiken.
+"""
 hti = Html2Image(
     browser_executable=CHROME_PATH,
     output_path=_RENDER_TMP,
@@ -139,7 +146,7 @@ EXCLUDE = {
 VARIANCE_THRESHOLD = 0.90 # Drempel voor cumulatieve variantie bij PCA
 
 # ======================================================
-# THEMA-CONFIGURATIE VOOR SAMENGESTELDE VARIABELEN
+# THEMA-CONFIGURATIE VOOR SAMENGESTELDE VARIABELEN TOP-DOWN BENADERING
 # ======================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

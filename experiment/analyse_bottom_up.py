@@ -20,11 +20,16 @@ from config import(
                                 VARIANCE_THRESHOLD
 ) 
 
-"""PCA is gebruikt om de globale structuur te verkennen; 
-Parallel Analysis om een theoretische bovengrens voor het aantal factoren vast te stellen; 
-factoranalyse om latente patronen inhoudelijk te modelleren. 
-Maximum-Likelihood factoranalyse is toegepast waar mogelijk, 
-met principal factoranalyse als robuust alternatief indien statistische aannames niet houdbaar bleken.
+"""
+- Principel Component Analysis (PCA) is gebruikt om de globale structuur van de data te verkennen.
+    - Aantal componenten is automatisch bepaald op basis van cumulatieve variantie (drempel 90%).
+- Factoranalyse om latente (onderliggende) factoren te modelleren. 
+    - Parallel Analysis om gebruikt om een theoretische bovengrens voor het aantal factoren vast te stellen.
+    - De Factoranalyse (FA) is eerst uitgevoerd met Maximum Likelihood (ML) optimalisatie, vanwege de sterke statistische eigenschappen, 
+        - Multivariate normaliteit en voldoende grote steekproef zijn aannames van ML, maar als deze niet voldaan zijn can ML instabiel worden (numerieke problemen, niet-convergeren).
+    - Wanneer de ML Factoranalyse niet stabiel bleek te zijn is er automatisch een Principal Factoranalyse uitgevoerd. 
+        - Principal Factoranalyse is robuuster en werkt vaak ook als ML faalt, maar heeft zwakkere statistische aannames.
+        - Geen normaliteits- of steekproefgroottevereisten, maar minder krachtige statistische eigenschappen.
 """
 
 # -----------------------------------------------------
@@ -33,25 +38,32 @@ met principal factoranalyse als robuust alternatief indien statistische aannames
 
 
 def save_figure(fig, filename, output_dir=FIGURE_DIR):
+    """
+    Exporteert een Plotly-figuur naar PNG
+    Gebruikt een tijdelijke HTML-render
+    Maakt een headless browser screenshot
+    Slaat het resultaat op in een vaste outputmap
+    Ruimt tijdelijke bestanden netjes op
+    """
     os.makedirs(output_dir, exist_ok=True)
 
-    # 1. HTML tijdelijk opslaan
+    # HTML tijdelijk opslaan
     html_path = os.path.join(_RENDER_TMP, filename.replace(".png", ".html"))
     fig.write_html(html_path, include_plotlyjs="cdn")
 
-    # 2. Screenshot maken (ALLEEN bestandsnaam!)
+    # Screenshot maken met HTML2Image (headless Chrome)
     hti.screenshot(
         html_file=html_path,
         save_as=filename,
         size=(1600, 1200)
     )
 
-    # 3. Verplaats van tijdelijke render-map naar definitieve output
+    # Verplaats van tijdelijke render-map naar definitieve output
     tmp_png = os.path.join(_RENDER_TMP, filename)
     final_png = os.path.join(output_dir, filename)
-    os.replace(tmp_png, final_png)
+    os.replace(tmp_png, final_png) 
 
-    # 4. Opruimen
+    # Opruimen
     if os.path.exists(html_path):
         os.remove(html_path)
 
@@ -63,23 +75,30 @@ def save_figure(fig, filename, output_dir=FIGURE_DIR):
 # Thema-boomstructuur
 # -----------------------------------------------------
 
-def build_loading_tree(loadings, threshold=0.4):
-    """Variabelen (features) toewijzen aan hun “belangrijkste” PCA‑component of factor, 
-    op basis van de sterkste loading, mits die loading groot genoeg is (threshold). """
-
+def build_loading_tree(loadings, threshold=0.4): 
+    """
+    Variabelen (features) toewijzen aan hun “belangrijkste” component of factor, 
+    op basis van de sterkste loading, mits die loading groot genoeg is (threshold). 
+    """
+    
+    # Absolute loadings
     absL = loadings.abs() 
+
     tree = {}
     for feature in loadings.index:
         # Component met hoogste absolute loading voor deze feature
         primary = absL.loc[feature].idxmax()
         # Alleen toewijzen als de loading boven de drempel ligt
         if absL.loc[feature, primary] >= threshold:
+            # Toevoegen aan boomstructuur: component → lijst van features
             tree.setdefault(primary, []).append(feature)
     return tree
 
 
 def normalize_loading_labels(tree, prefix):
-    """Component- of factorlabels normaliseren naar een vaste volgorde."""
+    """
+    Component- of factorlabels omzetten naar een vaste volgorde.
+    """
     new = {}
     for i, comp in enumerate(tree.keys(), 1):
         new[f"{prefix}{i}"] = tree[comp]
@@ -87,7 +106,9 @@ def normalize_loading_labels(tree, prefix):
 
 
 def print_loading_tree(tree):
-    """Boomstructuur van componenten/factoren en hun belangrijkste variabelen printen."""
+    """
+    Boomstructuur van componenten/factoren en hun belangrijkste variabelen printen.
+    """
     for comp, items in tree.items():
         print(f"{comp}: {len(items)} items")
         for it in items:
@@ -99,13 +120,16 @@ def print_loading_tree(tree):
 # -----------------------------------------------------
 
 def run_pca_threshold(df_scaled, variance_threshold=VARIANCE_THRESHOLD):
-    """ PCA uitvoeren en automatisch aantal componenten kiezen op basis van cumulatieve variantie. """
+    """ 
+    PCA uitvoeren en automatisch aantal componenten kiezen op basis van cumulatieve variantie. 
+    De functie retourneert het PCA-model, de loadings en de cumulatieve variantie.
+    """
 
     # Volledige PCA uitvoeren om cumulatieve variantie te berekenen
     pca = PCA().fit(df_scaled)
     # Cumulatieve variantie berekenen en bepalen hoeveel componenten nodig zijn voor de drempel
     cum_var = np.cumsum(pca.explained_variance_ratio_)
-    n = np.argmax(cum_var >= variance_threshold) + 1
+    n = np.argmax(cum_var >= variance_threshold) + 1 
 
     print(f"[PCA] {variance_threshold*100:.0f}% → {n} componenten")
 
@@ -114,22 +138,24 @@ def run_pca_threshold(df_scaled, variance_threshold=VARIANCE_THRESHOLD):
 
     # Loadings in DataFrame-vorm met duidelijke labels
     loadings = pd.DataFrame(
-        pca_final.components_.T,
-        index=df_scaled.columns,
-        columns=[f"PC{i+1}" for i in range(n)]
+        pca_final.components_.T, # Transponeren zodat variabelen als rijen en componenten als kolommen
+        index=df_scaled.columns, # Variabelen als index
+        columns=[f"PC{i+1}" for i in range(n)] 
     )
 
     return pca_final, loadings, cum_var
 
 
 def plot_pca_variance(cum_var, output_dir, variance_threshold=VARIANCE_THRESHOLD):
-    """ Visualiseert de cumulatieve verklaarde variantie van de PCA-componenten. """
-    fig = go.Figure()
+    """ 
+    Visualiseert de cumulatieve verklaarde variantie van de PCA-componenten. 
+    """
+    fig = go.Figure() 
 
     fig.add_trace(
         go.Scatter(
-            x=list(range(1, len(cum_var) + 1)),
-            y=cum_var,
+            x=list(range(1, len(cum_var) + 1)), # Componentnummers
+            y=cum_var, # Cumulatieve variantie
             mode="lines+markers"
         )
     )
@@ -143,7 +169,7 @@ def plot_pca_variance(cum_var, output_dir, variance_threshold=VARIANCE_THRESHOLD
 
     if variance_threshold is not None:
         fig.add_hline(
-            y=variance_threshold,
+            y=variance_threshold, # Horizontale lijn bij de drempel
             line_dash="dash",
             annotation_text=f"{variance_threshold:.0%}",
             annotation_position="bottom right"
@@ -154,11 +180,12 @@ def plot_pca_variance(cum_var, output_dir, variance_threshold=VARIANCE_THRESHOLD
 
 
 def plot_loadings_heatmap(loadings, output_dir):
-    """    Visualiseert de PCA-loadings als een heatmap, waarbij per variabele wordt    
-            getoond hoe sterk deze bijdraagt aan elke PCA-component.    """    
+    """    
+    Visualiseert de PCA-loadings als een heatmap, waarbij per variabele wordt getoond hoe sterk deze bijdraagt aan elke PCA-component.    
+    """    
     fig = px.imshow(
-        loadings,
-        color_continuous_scale="RdBu",
+        loadings, # DataFrame met variabelen als rijen en componenten als kolommen
+        color_continuous_scale="RdBu", 
         aspect="auto",
         title="PCA Loadings Heatmap"
     )
@@ -172,9 +199,9 @@ def plot_loadings_heatmap(loadings, output_dir):
 
 
 def parallel_analysis_fa(
-    df_scaled,
-    n_iter: int = 200,
-    percentile: float = 95,
+    df_scaled, # Gestandaardiseerde data voor FA
+    n_iter: int = 200, # Aantal random simulaties voor de ruis-eigenwaarden
+    percentile: float = 95, # Percentiel van random eigenwaarden als drempel
     random_state: int = 0,
 ):
     """
@@ -187,16 +214,6 @@ def parallel_analysis_fa(
     Parallel Analysis geeft een bovengrens voor het aantal factoren (wat statistisch boven ruis uitstijgt), 
     maar dat aantal is geen garantie dat een factoranalyse met zoveel factoren ook convergeert, 
     stabiel is of inhoudelijk interpreteerbaar.
-
-    Parameters
-    ----------
-    df_scaled : pd.DataFrame
-        Gestandaardiseerde data.
-    n_iter : int
-        Aantal random simulaties.
-    percentile : float
-        Percentiel van random eigenwaarden (meestal 95).
-        In 95% van de gevallen levert puur toeval een eigenwaarde tot zó groot op.
     """
     # Random generator met vaste seed voor reproduceerbaarheid
     rng = np.random.default_rng(random_state)
@@ -207,21 +224,21 @@ def parallel_analysis_fa(
     # Bereken de eigenwaarden van de correlatiematrix van de geschaalde data.
     # Deze eigenwaarden representeren de hoeveelheid variantie per PCA-component
     # en bevatten zowel het echte signaal als de ruis.
-    corr = np.corrcoef(df_scaled.T)
-    eig_data = np.linalg.eigvalsh(corr)[::-1]
+    corr = np.corrcoef(df_scaled.T) # Correlatiematrix van de data
+    eig_data = np.linalg.eigvalsh(corr)[::-1] # Eigenwaarden van de data, gesorteerd van hoog naar laag
 
     # Simuleer eigenwaarden van random data (alleen ruis)
-    # Deze worden gebruikt als referentie om te bepalen welke PCA-componenten
-    # significant zijn ten opzichte van toeval.
-    eig_random = np.zeros((n_iter, n_features))
+    # Deze worden gebruikt als referentie om te bepalen welke PCA-componenten significant zijn ten opzichte van toeval.
+    
+    eig_random = np.zeros((n_iter, n_features)) # Matrix om eigenwaarden van random data op te slaan
 
     for i in range(n_iter):
         # Genereer random normaal verdeelde data met dezelfde dimensies
-        rand = rng.standard_normal((n_samples, n_features))
-        rand_corr = np.corrcoef(rand.T)
+        rand = rng.standard_normal((n_samples, n_features)) 
+        rand_corr = np.corrcoef(rand.T) 
 
         # Bereken en sorteer de eigenwaarden van de correlatiematrix (aflopend)
-        eig_random[i] = np.linalg.eigvalsh(rand_corr)[::-1]
+        eig_random[i] = np.linalg.eigvalsh(rand_corr)[::-1] 
 
     # Bepaal per component het gekozen percentiel van de random eigenwaarden
     # (bijv. 95e percentiel als conservatieve ruisdrempel)
@@ -244,26 +261,28 @@ def try_fa(df_scaled, n_factors: int, method: str, rotation: str = "oblimin"):
 
     De functie vangt waarschuwingen tijdens het fitten (zoals niet-convergeren
     of invalid values) en controleert of de resulterende loadings geen NaN- of
-    oneindige waarden bevatten. Bij instabiliteit wordt een RuntimeError opgegooid.
+    oneindige waarden bevatten. 
 
-    Returns
-    -------
-    fa : FactorAnalyzer
-        Het gefitte FactorAnalyzer-object.
-    loadings : np.ndarray
-        De factorloadings van het model.
+    Methodes:
+        - "ml": Maximum Likelihood FA (sterke statistische eigenschappen, maar gevoelig voor instabiliteit)
+        - "principal": Principal Factor Analysis (robuster, maar zwakkere statistische aannames)
+
+    Rotatatie:
+        - "oblimin": oblique rotatie, waarbij factoren onderling gecorreleerd mogen zijn. Dit is de standaard aanname
+
+    Bij instabiliteit wordt een RuntimeError opgegooid.
     """
 
-    # Vang alle warnings op tijdens het fitten, zodat ook subtiele
-    # numerieke of convergentieproblemen niet gemist worden
-    with warnings.catch_warnings(record=True) as w:
+    # Vang alle warnings op tijdens het fitten in w, zodat ook subtiele numerieke of convergentieproblemen niet gemist worden
+    with warnings.catch_warnings(record=True) as w: 
+        # Zet alle warnings op "always" zodat we ze kunnen bekijken, in plaats van dat ze worden onderdrukt of samengevoegd
         warnings.simplefilter("always")
 
         # Initialiseer het FactorAnalyzer-model met de opgegeven
         # methode, rotatie en het aantal factoren
         fa = FactorAnalyzer(
             n_factors=n_factors,
-            rotation=rotation,
+            rotation=rotation, 
             method=method,
         )
 
@@ -303,7 +322,7 @@ def try_fa(df_scaled, n_factors: int, method: str, rotation: str = "oblimin"):
 def run_fa_auto_stable(
     df_scaled,
     *,
-    rotation: str = "oblimin",
+    rotation: str = "oblimin", # Standaard rotatie waarbij factoren onderling gecorreleerd mogen zijn
     max_factors: int | None = None,
     min_factors: int = 2,
 ):
@@ -315,15 +334,11 @@ def run_fa_auto_stable(
     - Start bij dit maximum en verlaag het aantal factoren stapsgewijs
     - Vereis strikte numerieke en convergentiestabiliteit
     - Probeer eerst Maximum Likelihood (ML), met fallback naar principal FA
-    - Gebruik één consistente (oblique) rotatie voor alle pogingen
+    - Gebruik één consistente rotatie (oblimin) voor alle pogingen
 
     Retourneert
     ----------
-    fa : FactorAnalyzer
-        Het gefitte FA-model.
-    loadings : pd.DataFrame
-        Factorloadings met variabelen als rijen en factoren als kolommen.
-    info : dict
+  
         Metadata over de gekozen oplossing (methode, n_factors, PA-bovengrens).
     """
 
@@ -345,17 +360,17 @@ def run_fa_auto_stable(
     # --------------------------------------------------
     # Probeer eerst Maximum Likelihood FA
     # --------------------------------------------------
-    # ML heeft sterke statistische eigenschappen, maar
-    # is gevoelig voor instabiliteit en niet-convergentie
+    # ML heeft sterke statistische eigenschappen, maar is gevoelig voor instabiliteit en niet-convergentie
     last_error = None
 
-    # Loop aflopend om de meest parsimonieuze
-    # stabiele oplossing te vinden
+    # Loop aflopend om de meest doelmatige stabiele oplossing te vinden
+    # We beginnen bij de maximale bovengrens en gaan omlaag tot een minimum (2 factoren)
+
     for k in range(start, min_factors - 1, -1):
         vprint(f"[FA] ML-FA proberen met {k} factoren…")
 
         try:
-            # Probeer FA met ML-extractie en vaste rotatie
+            # Probeer FA met ML-optimalisatie
             fa, loadings = try_fa(
                 df_scaled,
                 n_factors=k,
@@ -452,8 +467,11 @@ def plot_fa_heatmap(loadings_df, output_dir):
 # -----------------------------------------------------
 
 def sunburst_from_tree(tree, title, filename_png, output_dir=FIGURE_DIR):
-    """ Maakt een sunburst-visualisatie van een hiërarchische structuur    
-    (component → items) en slaat de figuur op als PNG. """
+    """ 
+    Maakt een sunburst-visualisatie van een hiërarchische structuur    
+    (component → items) en slaat de figuur op als PNG. 
+    """
+    # Zet de boomstructuur om in een DataFrame met kolommen: Component, Item
     rows = []
     for comp, items in tree.items():
         for it in items:
@@ -471,6 +489,8 @@ def sunburst_from_tree(tree, title, filename_png, output_dir=FIGURE_DIR):
 # -----------------------------------------------------
 
 
+
+
 def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
     """
     Professioneel PDF-rapport met:
@@ -485,13 +505,55 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
     width, height = A4
 
     # ---------------------------------------------------
+    # HELPER FUNCTIE: FIGUUR PLAATSEN
+    # ---------------------------------------------------
+    def add_image(path, title, chapter=False):
+        if not os.path.exists(path):
+            return
+
+        # Titel bovenaan pagina
+        if chapter:
+            c.setFont("Helvetica-Bold", 22)
+            c.drawString(50, height - 80, title)
+            margin_top = 140
+        else:
+            c.setFont("Helvetica-Bold", 16)
+            c.drawString(50, height - 80, title)
+            margin_top = 120
+
+        # Afbeelding inladen
+        img = ImageReader(path)
+        iw, ih = img.getSize()
+
+        # Pagina marges
+        margin_bottom = 60
+        margin_side = 60
+
+        avail_w = width - 2 * margin_side
+        avail_h = height - margin_top - margin_bottom
+
+        # Schaalfactor
+        scale = min(avail_w / iw, avail_h / ih)
+
+        new_w = iw * scale
+        new_h = ih * scale
+
+        # Gecentreerd plaatsen
+        x = (width - new_w) / 2
+        y = margin_bottom + (avail_h - new_h) / 2
+
+        c.drawImage(img, x, y, width=new_w, height=new_h)
+        c.showPage()
+
+
+    # ---------------------------------------------------
     # TITELBLAD
     # ---------------------------------------------------
     c.setFont("Helvetica-Bold", 30)
     c.drawString(50, height - 100, "Analyse Rapport Fryslân")
 
     c.setFont("Helvetica", 16)
-    c.drawString(50, height - 150, "Kerncijfers, Klimaatdata, PCA & FA")
+    c.drawString(50, height - 150, "Kerncijfers CBS, Klimaatdata, PCA & FA")
 
     c.setFont("Helvetica-Oblique", 12)
     c.drawString(50, height - 200,
@@ -504,7 +566,7 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
     # HOOFDSTUK 1 – Datakwaliteit
     # ---------------------------------------------------
     c.setFont("Helvetica-Bold", 22)
-    c.drawString(50, height - 80, "Hoofdstuk 1 – Datakwaliteit")
+    c.drawString(50, height - 80, "Hoofdstuk 1 - Datakwaliteit")
 
     c.setFont("Helvetica", 12)
     y = height - 130
@@ -536,7 +598,7 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
 
     # 2) Missing percentages
     c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, height - 80, "2. Missing-percentage (excl. volledig missing) – Top 15")
+    c.drawString(50, height - 80, "2. Missing-percentage (excl. volledig missing) - Top 15")
 
     y = height - 120
     c.setFont("Helvetica", 11)
@@ -610,52 +672,11 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
     c.showPage()
 
     # ---------------------------------------------------
-    # HELPER FUNCTIE: FIGUUR PLAATSEN
-    # ---------------------------------------------------
-    def add_image(path, title, chapter=False):
-        if not os.path.exists(path):
-            return
-
-        # Titel bovenaan pagina
-        if chapter:
-            c.setFont("Helvetica-Bold", 22)
-            c.drawString(50, height - 80, title)
-            margin_top = 140
-        else:
-            c.setFont("Helvetica-Bold", 16)
-            c.drawString(50, height - 80, title)
-            margin_top = 120
-
-        # Afbeelding inladen
-        img = ImageReader(path)
-        iw, ih = img.getSize()
-
-        # Pagina marges
-        margin_bottom = 60
-        margin_side = 60
-
-        avail_w = width - 2 * margin_side
-        avail_h = height - margin_top - margin_bottom
-
-        # Schaalfactor
-        scale = min(avail_w / iw, avail_h / ih)
-
-        new_w = iw * scale
-        new_h = ih * scale
-
-        # Gecentreerd plaatsen
-        x = (width - new_w) / 2
-        y = margin_bottom + (avail_h - new_h) / 2
-
-        c.drawImage(img, x, y, width=new_w, height=new_h)
-        c.showPage()
-
-    # ---------------------------------------------------
     # HOOFDSTUK 2 – PCA
     # ---------------------------------------------------
     add_image(
         os.path.join(figures_dir, "pca_cumulatieve_variantie.png"),
-        "Hoofdstuk 2 – PCA: Cumulatieve variantie",
+        "Hoofdstuk 2 - PCA: Cumulatieve variantie",
         chapter=True
     )
 
@@ -674,7 +695,7 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
     # ---------------------------------------------------
     add_image(
         os.path.join(figures_dir, "fa_loadings_heatmap.png"),
-        "Hoofdstuk 3 – FA Loadings",
+        "Hoofdstuk 3 - FA Loadings",
         chapter=True
     )
 
@@ -687,4 +708,4 @@ def generate_pdf_report(figures_dir, output_pdf_path, dq_summary):
     # EINDE RAPPORT
     # ---------------------------------------------------
     c.save()
-    print(f"📄 PDF-rapport opgeslagen: {output_pdf_path}")
+    print(f"PDF-rapport opgeslagen: {output_pdf_path}")
