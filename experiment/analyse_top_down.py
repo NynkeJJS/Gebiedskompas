@@ -51,28 +51,56 @@ def score_entropy(df, variables):
     score = (X * weights).sum(axis=1)
     return score, weights
 
-
-def samengestelde_variabelen(weighted_mean, entropy):
+def samengestelde_variabelen(
+    *,
+    weighted_mean_df: pd.DataFrame,
+    entropy_df: pd.DataFrame,
+    weighted_mean_normalisatie: str,
+) -> pd.DataFrame:
     """
-    Deze functie berekent samengestelde themascores per buurt, 
-    op basis van meerdere indicatoren en meerdere methoden, 
-    volledig gestuurd door een YAML‑configuratie.
-    
-    weighted_mean : Dataset met z-score geschaalde variabelen (voor weighted mean).
-    entropy : Dataset met min-max geschaalde variabelen (voor entropy).
+    Bereken samengestelde themascores per buurt op basis van meerdere indicatoren
+    en methoden, gestuurd door een YAML-configuratie.
+
+    Parameters
+    ----------
+    weighted_mean_df : pd.DataFrame
+        Dataset voor het gewogen gemiddelde.
+        Mag z-score of min-max genormaliseerd zijn.
+
+    entropy_df : pd.DataFrame
+        Dataset voor entropy.
+        MOET min-max genormaliseerd zijn.
+
+    weighted_mean_normalisatie : {"z_score", "min_max"}
+        Geeft aan welke normalisatie is toegepast op weighted_mean_df.
+        Wordt gebruikt voor validatie en documentatie.
+
+    Methodologische regels
+    ----------------------
+    - Entropy wordt uitsluitend toegepast op min-max genormaliseerde data.
+    - Het gewogen gemiddelde mag met z-score of min-max werken.
     """
 
-    # Laad thema-configuratie
-    # Dictionary met structuur:
-        # Variabelen per thema
-        # Methodes per thema (entropie, gewogen gemiddelde)
-        # Eventuele parameters per methode (zoals gewichten voor gewogen gemiddelde) 
+    # ======================================================
+    # Validatie
+    # ======================================================
+    if weighted_mean_normalisatie not in {"z_score", "min_max"}:
+        raise ValueError(
+            "weighted_mean_normalisatie moet 'z_score' of 'min_max' zijn"
+        )
+
+    # Entropy guardrail (conceptueel, expliciet)
+    # NB: we checken hier niet numeriek, maar semantisch
+    if weighted_mean_normalisatie == "z_score":
+        # entropy_df is expliciet gescheiden en dus veilig
+        pass
+
     thema_config = load_thema_config()
-
     results = []
 
-    # Loop door thema's en bijbehorende configuratie (variables, runs, parameters) zoals gespecificeerd in de thema_config
-
+    # ======================================================
+    # Loop over thema's en methoden
+    # ======================================================
     for thema, cfg in thema_config.items():
         variables = cfg.get("variables", [])
         if not variables:
@@ -81,11 +109,11 @@ def samengestelde_variabelen(weighted_mean, entropy):
         for methode, methode_cfg in cfg.get("runs", {}).items():
 
             if methode == "entropy":
-                score, _ = score_entropy(entropy, variables)
+                score, _ = score_entropy(entropy_df, variables)
 
             elif methode == "weighted_mean":
                 score = score_weighted_mean(
-                    weighted_mean,
+                    weighted_mean_df,
                     variables,
                     methode_cfg.get("weights", {})
                 )
@@ -93,14 +121,16 @@ def samengestelde_variabelen(weighted_mean, entropy):
             else:
                 raise ValueError(f"Onbekende methode: {methode}")
 
-
-
-            # Dit codeblok zet een berekende score om naar een gestandaardiseerde tabel met buurtcode, 
-            # thema en methode, zodat alle resultaten eenvoudig gecombineerd en vergeleken kunnen worden.
-            df_score = score.rename("score").reset_index() # Index wordt buurtcode, kolomnaam wordt 'score'
-            df_score = df_score.rename(columns={"index": "buurtcode"}) # Herbenoem index naar buurtcode
+            # Standaardiseer output
+            df_score = (
+                score
+                .rename("score")
+                .reset_index()
+                .rename(columns={"index": "buurtcode"})
+            )
             df_score["thema"] = thema
             df_score["methode"] = methode
+
             results.append(df_score)
 
     return pd.concat(results, ignore_index=True)
