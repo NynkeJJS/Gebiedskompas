@@ -135,65 +135,167 @@ def samengestelde_variabelen(
 
     return pd.concat(results, ignore_index=True)
 
-
-def aggregate_themascores_for_sunburst(
-    df_results: pd.DataFrame, # DataFrame met resultaten per buurt, thema en methode
-    agg: str = "mean",
+def tabel_indicator_scores(
+    *,
+    indicator_df_minmax: pd.DataFrame,
+    indicator_df_zscore: pd.DataFrame,
+    buurtcode: str,
 ) -> pd.DataFrame:
     """
-    Aggregeer samengestelde themascores over alle buurten
-    voor sunburst-visualisatie.
-    Aggregatiemethode kan 'mean' of 'median' zijn. 
-    Resultaat is DataFrame met gemiddelde/mediane score per thema en methode, klaar voor visualisatie.
+    Maak een tabel met originele indicator-scores (min-max én z-score)
+    per thema en indicator voor één buurt.
     """
 
-    if agg not in {"mean", "median"}:
-        raise ValueError("agg moet 'mean' of 'median' zijn")
+    thema_config = load_thema_config()
+    rows = []
 
-    df_agg = (
-        df_results
-        .groupby(["methode", "thema"], as_index=False)
-        ["score"]
-        .agg(agg)
-    )
+    for thema, cfg in thema_config.items():
+        variables = cfg.get("variables", [])
 
-    return df_agg
+        for var in variables:
+            rows.append(
+                {
+                    "buurtcode": buurtcode,
+                    "thema": thema,
+                    "indicator": var,
+                    "score_minmax": indicator_df_minmax.loc[buurtcode, var],
+                    "score_z": indicator_df_zscore.loc[buurtcode, var],
+                }
+            )
 
+    return pd.DataFrame(rows)
 
+def tabel_entropy_gewichten_alles(
+    *,
+    entropy_df: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Entropie-gewichten voor alle thema's en indicatoren.
+    """
+
+    thema_config = load_thema_config()
+    rows = []
+
+    for thema, cfg in thema_config.items():
+        variables = cfg.get("variables", [])
+        if not variables:
+            continue
+
+        _, weights = score_entropy(entropy_df, variables)
+
+        for indicator, gewicht in weights.items():
+            rows.append(
+                {
+                    "thema": thema,
+                    "indicator": indicator,
+                    "entropy_gewicht": gewicht,
+                }
+            )
+
+    return pd.DataFrame(rows)
 
 
 def sunburst_profiel_buurt(
-    df_results,
-    buurtcode,
-    methode,
-    thema_labels,
+    df_results: pd.DataFrame,
+    indicator_df: pd.DataFrame,   # genormaliseerde indicatoren
+    buurtcode: str,
+    methode: str,
+    thema_labels: dict,
 ):
     """
-    Sunburst-profiel voor één buurt.
-    - Alle thema-segmenten even groot
-    - Kleur = samengestelde themascore
+    Sunburst-profiel voor één buurt:
+    - Binnenring: thema (samengestelde score)
+    - Buitenring: indicatoren (indicator-score)
     """
-    df_buurt = df_results[
-        (df_results["buurtcode"] == buurtcode) &
+
+    thema_config = load_thema_config()
+
+    # =========================
+    # Binnenring: thema-scores
+    # =========================
+    df_thema = df_results[
+        (df_results["Buurtcode"] == buurtcode) &
         (df_results["methode"] == methode)
     ].copy()
 
-    df_buurt["thema_kort"] = df_buurt["thema"].map(thema_labels)
-    df_buurt["value"] = 1  # GELIJKE GROOTTE
+    df_thema["label"] = df_thema["thema"].map(thema_labels)
+    df_thema["parent"] = ""
+    df_thema["value"] = 0
+    df_thema["color"] = df_thema["score"]
+    df_thema["score_type"] = "thema"
+    df_thema["indicator_score"] = np.nan
 
+    # =========================
+    # Buitenring: indicatoren
+    # =========================
+    rows = []
+
+    for _, row in df_thema.iterrows():
+        thema = row["thema"]
+        thema_label = row["label"]
+        thema_score = row["score"]
+
+        variables = thema_config[thema].get("variables", [])
+        if not variables:
+            continue
+
+        n = len(variables)
+
+        for var in variables:
+            rows.append(
+                {
+                    "label": var,
+                    "parent": thema_label,
+                    "value": 1 / n,
+                    "color": indicator_df.loc[buurtcode, var],
+                    "score_type": "indicator",
+                    "indicator_score": indicator_df.loc[buurtcode, var],
+                    "thema_score": thema_score,
+                }
+            )
+
+    df_vars = pd.DataFrame(rows)
+
+    # =========================
+    # Combineer
+    # =========================
+    df_plot = pd.concat(
+        [
+            df_thema[
+                ["label", "parent", "value", "color", "score_type", "score"]
+            ].rename(columns={"score": "thema_score"}),
+            df_vars,
+        ],
+        ignore_index=True,
+    )
+
+    # =========================
+    # Plot
+    # =========================
     fig = px.sunburst(
-        df_buurt,
-        path=["thema_kort"],
-        values="value",
-        color="score",
-        color_continuous_scale="RdBu",
+    df_plot,
+    names="label",
+    parents="parent",
+    values="value",
+    color="color",
+    color_continuous_scale="RdBu",
+    color_continuous_midpoint=0,
+    branchvalues="remainder",
     )
 
+    # Binnenring (level 0): themanaam + score
     fig.update_traces(
-        hovertemplate=(
-            "<b>%{label}</b><br>"
-            "Score: %{color:.2f}<extra></extra>"
-        )
+        textinfo="label+text",
+        texttemplate="%{label}<br>%{color:.2f}",
+        insidetextorientation="radial",
+        selector=dict(level=0),
     )
 
+    # Buitenring (level 1): GEEN tekst
+    fig.update_traces(
+        textinfo="none",
+        selector=dict(level=1),
+    )
+
+        
     return fig

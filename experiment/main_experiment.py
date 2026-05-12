@@ -48,7 +48,8 @@ from analyse_bottom_up import (
 )
 from analyse_top_down import (
     samengestelde_variabelen,
-    aggregate_themascores_for_sunburst,
+    tabel_indicator_scores,
+    tabel_entropy_gewichten_alles,
     sunburst_profiel_buurt,
 )
 
@@ -237,8 +238,6 @@ def main_analyse_samengestelde_variabelen(
     df_minmax,
     df_zscore,
     normalisatie_weighted_mean_buurt: str = "z_score",
-    weighted_mean_norm_gemiddelde_label: str,
-    entropy_norm_gemiddelde_label: str,
     entropy_norm_buurt_label: str,
 ):
 
@@ -249,17 +248,9 @@ def main_analyse_samengestelde_variabelen(
     # 1. Resultaten berekenen
     # ======================================================
 
-    # Aggregatie → ALTIJD min-max
-    df_results_gemiddelde = samengestelde_variabelen(
-        weighted_mean_df=df_minmax,
-        entropy_df=df_minmax,
-        weighted_mean_normalisatie="min_max",
-    )
-
     # Buurtprofielen
     if normalisatie_weighted_mean_buurt == "z_score":
         weighted_mean_norm_buurt_label = "z-score normalisatie"
-        subtitle_weighted = ("Afwijking van deze buurt ten opzichte van het gemiddelde van alle buurten.")
         df_results_buurt = samengestelde_variabelen(
             weighted_mean_df=df_zscore,
             entropy_df=df_minmax,
@@ -268,7 +259,6 @@ def main_analyse_samengestelde_variabelen(
 
     elif normalisatie_weighted_mean_buurt == "min_max":
         weighted_mean_norm_buurt_label = "min-max normalisatie"
-        subtitle_weighted = ("Relatief niveau van thema's binnen deze buurt (0-1 schaal).")
         df_results_buurt = samengestelde_variabelen(
             weighted_mean_df=df_minmax,
             entropy_df=df_minmax,
@@ -278,33 +268,14 @@ def main_analyse_samengestelde_variabelen(
     else:
         raise ValueError("normalisatie_weighted_mean_buurt moet 'z_score' of 'min_max' zijn")
 
-    # Thema‑labels
-    for df in (df_results_gemiddelde, df_results_buurt):
-        df["thema_kort"] = df["thema"].map(THEMA_LABELS)
+    df_results_buurt["thema_kort"] = df_results_buurt["thema"].map(THEMA_LABELS)
 
-    # ======================================================
-    # 2. Aggregatie over buurten
-    # ======================================================
-
-    df_agg = (
-        df_results_gemiddelde
-        .groupby(["methode", "thema_kort"], as_index=False)["score"]
-        .mean()
+    df_entropy_weights = tabel_entropy_gewichten_alles(
+        entropy_df=df_minmax,   # entropy gebruikt altijd min-max
     )
-
     # ======================================================
-    # 3. Opslaan resultaten
+    # 2. Opslaan resultaten
     # ======================================================
-
-    df_agg.to_csv(
-        "../data/output/samengestelde_themascores_gemiddelde_agg.csv",
-        index=False,
-    )
-
-    df_results_gemiddelde.to_csv(
-        "../data/output/samengestelde_themascores_gemiddelde.csv",
-        index=False,
-    )
 
 
     df_results_buurt.to_csv(
@@ -314,129 +285,72 @@ def main_analyse_samengestelde_variabelen(
 
 
 
-    # ======================================================
-    # 4. Geaggregeerde sunbursts
-    # ======================================================
-
-    fig_entropy = px.sunburst(
-        df_agg[df_agg["methode"] == "entropy"],
-        path=["thema_kort"],
-        values="score",
-        color="score",
-        color_continuous_scale="RdBu",
+    df_entropy_weights.to_csv(
+        "../data/output/entropy_gewichten_per_indicator.csv",
+        index=False,
     )
 
-    fig_entropy.update_layout(
-    title="Samengestelde themascores - Entropy "
-            f"(gemiddeld over buurten, {entropy_norm_gemiddelde_label})",
-        )
-    
 
-    fig_entropy.add_annotation(
-        text="Gemiddelde bijdrage van thema's aan verschillen tussen buurten.",
-        x=0.0,
-        y=0.95,
-        xref="paper",
-        yref="paper",
-        xanchor="left",
-        showarrow=False,
-        font=dict(size=14, color="black"),
-    )
-
-    save_figure(fig_entropy, "themascores_sunburst_entropy.png")
-
-    fig_weighted = px.sunburst(
-        df_agg[df_agg["methode"] == "weighted_mean"],
-        path=["thema_kort"],
-        values="score",
-        color="score",
-        color_continuous_scale="RdBu",
-    )
-
-    fig_weighted.update_layout(
-    title="Samengestelde themascores - Gewogen gemiddelde "
-            f"(gemiddeld over buurten, {weighted_mean_norm_gemiddelde_label})",
-        )
-    
-
-    fig_weighted.add_annotation(
-        text="Gemiddeld niveau van thema's over alle buurten.",
-        x=0.0,
-        y=0.95,
-        xref="paper",
-        yref="paper",
-        xanchor="left",
-        showarrow=False,
-        font=dict(size=14, color="black"),
-    )
-    save_figure(fig_weighted, "themascores_sunburst_weighted_mean.png")
 
     # ======================================================
-    # 5. Buurtprofielen
+    # 3. Buurtprofielen (met indicator-ring)
     # ======================================================
 
     for buurt in BUURTEN_VOOR_PROFIEL:
 
-        df_buurt = df_results_buurt[
-            df_results_buurt["Buurtcode"] == buurt
-        ].copy()
-
-        if df_buurt.empty:
-            continue
-
-        df_buurt["value"] = 1
-
-        fig_entropy_buurt = px.sunburst(
-            df_buurt[df_buurt["methode"] == "entropy"],
-            path=["thema_kort"],
-            values="value",
-            color="score",
-            color_continuous_scale="RdBu",
+        # -----------------------------
+        # Entropy-profiel
+        # -----------------------------
+        fig_entropy_buurt = sunburst_profiel_buurt(
+            df_results=df_results_buurt,
+            indicator_df=df_minmax,          # entropy → altijd min-max
+            buurtcode=buurt,
+            methode="entropy",
+            thema_labels=THEMA_LABELS,
         )
 
         fig_entropy_buurt.update_layout(
-        title=f"Buurt {buurt} - entropy ({entropy_norm_buurt_label})"
+            title=f"Buurt {buurt} - entropy ({entropy_norm_buurt_label})"
         )
-        
-        
 
-        fig_entropy_buurt.add_annotation(
-            text="Onderscheidend vermogen van thema's binnen deze buurt.",
-            x=0.0,
-            y=0.95,
-            xref="paper",
-            yref="paper",
-            xanchor="left",
-            showarrow=False,
-            font=dict(size=14, color="black"),
-)
+
+
         save_figure(fig_entropy_buurt, f"buurt_{buurt}_sunburst_entropy.png")
 
-        fig_weighted_buurt = px.sunburst(
-            df_buurt[df_buurt["methode"] == "weighted_mean"],
-            path=["thema_kort"],
-            values="value",
-            color="score",
-            color_continuous_scale="RdBu",
+        # -----------------------------
+        # Weighted mean-profiel
+        # -----------------------------
+        indicator_df_weighted = (
+            df_zscore if normalisatie_weighted_mean_buurt == "z_score"
+            else df_minmax
+        )
+
+        fig_weighted_buurt = sunburst_profiel_buurt(
+            df_results=df_results_buurt,
+            indicator_df=indicator_df_weighted,
+            buurtcode=buurt,
+            methode="weighted_mean",
+            thema_labels=THEMA_LABELS,
         )
 
         fig_weighted_buurt.update_layout(
-        title=f"Buurt {buurt} - gewogen gemiddelde ({weighted_mean_norm_buurt_label})"
+            title=f"Buurt {buurt} - gewogen gemiddelde ({weighted_mean_norm_buurt_label})"
         )
 
-        fig_weighted_buurt.add_annotation(
-            text=subtitle_weighted,
-            x=0.0,
-            y=0.95,
-            xref="paper",
-            yref="paper",
-            xanchor="left",
-            showarrow=False,
-            font=dict(size=14, color="black"),
-        )
+
         save_figure(fig_weighted_buurt, f"buurt_{buurt}_sunburst_weighted_mean.png")
 
-    return df_results_gemiddelde, df_results_buurt, df_agg
+    df_indicatoren = tabel_indicator_scores(
+        indicator_df_minmax=df_minmax,
+        indicator_df_zscore=df_zscore,
+        buurtcode=buurt,
+    )
+
+    df_indicatoren.to_csv(
+        f"../data/output/buurt_{buurt}_indicator_scores.csv",
+        index=False,
+    )
+
 
 
 def main(run_experiment=True, run_samengesteld=True):
@@ -456,8 +370,6 @@ def main(run_experiment=True, run_samengesteld=True):
             df_minmax=data_out["df_scaled_minmax"],
             df_zscore=data_out["df_scaled_z"],
             normalisatie_weighted_mean_buurt="z_score",
-            weighted_mean_norm_gemiddelde_label="min-max normalisatie",
-            entropy_norm_gemiddelde_label="min-max normalisatie",
             entropy_norm_buurt_label="min-max normalisatie",
         )
 

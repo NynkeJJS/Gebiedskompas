@@ -1,0 +1,32 @@
+thema,indicator,entropy_gewicht
+Woningmarkt_Eigendom,Koopwoningen (%),0.015468975775515963
+Woningmarkt_Eigendom,Huurwoningen totaal (%),0.109849559808784
+Woningmarkt_Eigendom,In bezit woningcorporatie (%),0.27757033669738423
+Woningmarkt_Eigendom,In bezit overige verhuurders (%),0.14899730535165234
+Woningmarkt_Eigendom,Percentage eengezinswoning (%),0.010492402403146977
+Woningmarkt_Eigendom,Percentage meergezinswoning (%),0.36144346783267417
+Woningmarkt_Eigendom,Percentage vrijstaande woning (eengezins (%),0.0761779521308423
+Welvaart_Kwetsbaarheid,Gemiddelde WOZ-waarde,0.159358469555134
+Welvaart_Kwetsbaarheid,Gemiddelde WOZ-waarde van woningen (x 1 000 euro),0.14752001375197404
+Welvaart_Kwetsbaarheid,Personenauto's per huishouden (per huishouden),0.07980048871809528
+Welvaart_Kwetsbaarheid,Percentage moeite met rondkomen,0.28167014324068557
+Welvaart_Kwetsbaarheid,Percentage sociaal minimum huishoudens,0.3316508847341111
+Groen_Verharding,Percentage Groen,0.06462557281346618
+Groen_Verharding,Percentage Groen (bebouwde kom),0.03564991403641507
+Groen_Verharding,Percentage Verharding,0.13491623060731878
+Groen_Verharding,Percentage Verharding (bebouwde kom),0.028929831105727333
+Groen_Verharding,Percentage Landbedekking - Verhard,0.1356009853245791
+Groen_Verharding,Percentage Landbedekking - Gras,0.06552458373516866
+Groen_Verharding,Hoeveelheid m2 groen per inwoner,0.5347528823773249
+Water_En_Klimaatrisico,Percentage Water,0.11981217109761376
+Water_En_Klimaatrisico,Gemiddelde hoogste grondwaterstand (meter onder maaiveld),0.0531060633104091
+Water_En_Klimaatrisico,Grondwaterstand extreem nat jaar (meter onder maaiveld),0.0655040286494454
+Water_En_Klimaatrisico,Grondwaterstand extreem droog jaar (meter onder maaiveld),0.03458689490222614
+Water_En_Klimaatrisico,Risico paalrot Huidig,0.32437161972604694
+Water_En_Klimaatrisico,Risico paalrot 2050 Hoog,0.3173777629967986
+Water_En_Klimaatrisico,Maximale overstromingsdiepte 50 tot 200cm met een extreem kleine kans,0.08524145931746004
+Bereikbaarheid_Voorzieningen,Afstand tot huisartsenpraktijk (km),0.17040601611897183
+Bereikbaarheid_Voorzieningen,Afstand tot grote supermarkt (km),0.16989795697814383
+Bereikbaarheid_Voorzieningen,Afstand tot school (km),0.18347765026699756
+Bereikbaarheid_Voorzieningen,Afstand tot kinderdagverblijf (km),0.1964681615923828
+Bereikbaarheid_Voorzieningen,Scholen binnen 3 km (aantal),0.27975021504350395

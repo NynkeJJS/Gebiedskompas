@@ -1,0 +1,32 @@
+buurtcode,thema,indicator,score_minmax,score_z
+BU00740601,Woningmarkt_Eigendom,Koopwoningen (%),0.87,0.5749302860094465
+BU00740601,Woningmarkt_Eigendom,Huurwoningen totaal (%),0.13,-0.5701591753708524
+BU00740601,Woningmarkt_Eigendom,In bezit woningcorporatie (%),0.08,-0.3415393560322343
+BU00740601,Woningmarkt_Eigendom,In bezit overige verhuurders (%),0.05,-0.4730860438753352
+BU00740601,Woningmarkt_Eigendom,Percentage eengezinswoning (%),0.99,0.54626891538923
+BU00740601,Woningmarkt_Eigendom,Percentage meergezinswoning (%),0.01,-0.546431044697539
+BU00740601,Woningmarkt_Eigendom,Percentage vrijstaande woning (eengezins (%),0.79,0.766166964197881
+BU00740601,Welvaart_Kwetsbaarheid,Gemiddelde WOZ-waarde,0.5777777777777777,1.5924330493935979
+BU00740601,Welvaart_Kwetsbaarheid,Gemiddelde WOZ-waarde van woningen (x 1 000 euro),0.5542312276519665,1.562811778591559
+BU00740601,Welvaart_Kwetsbaarheid,Personenauto's per huishouden (per huishouden),0.5454545454545454,0.3170469771434217
+BU00740601,Welvaart_Kwetsbaarheid,Percentage moeite met rondkomen,0.12666666666666665,-0.8326199813269822
+BU00740601,Welvaart_Kwetsbaarheid,Percentage sociaal minimum huishoudens,0.06060606060606061,-0.9934240628591349
+BU00740601,Groen_Verharding,Percentage Groen,0.6967226703733073,3.245029555722795
+BU00740601,Groen_Verharding,Percentage Groen (bebouwde kom),0.31089798280000003,0.2625373367974666
+BU00740601,Groen_Verharding,Percentage Verharding,0.15719212103620617,-0.4144647210328956
+BU00740601,Groen_Verharding,Percentage Verharding (bebouwde kom),0.42121675179999996,0.61808986771606
+BU00740601,Groen_Verharding,Percentage Landbedekking - Verhard,0.15711697395679708,-0.41241966001417363
+BU00740601,Groen_Verharding,Percentage Landbedekking - Gras,0.11115479569759264,-0.3880651731698618
+BU00740601,Groen_Verharding,Hoeveelheid m2 groen per inwoner,0.004415160125037328,-0.11344072498318705
+BU00740601,Water_En_Klimaatrisico,Percentage Water,0.07806857531634863,-0.39499310839679963
+BU00740601,Water_En_Klimaatrisico,Gemiddelde hoogste grondwaterstand (meter onder maaiveld),0.20313109732478266,0.6910183471312535
+BU00740601,Water_En_Klimaatrisico,Grondwaterstand extreem nat jaar (meter onder maaiveld),0.11285210803998852,-0.024922852752223505
+BU00740601,Water_En_Klimaatrisico,Grondwaterstand extreem droog jaar (meter onder maaiveld),0.26644572715851145,0.6066763856597364
+BU00740601,Water_En_Klimaatrisico,Risico paalrot Huidig,0.023950879038862213,-0.41163212982082076
+BU00740601,Water_En_Klimaatrisico,Risico paalrot 2050 Hoog,0.025682890807836752,-0.4365970851353556
+BU00740601,Water_En_Klimaatrisico,Maximale overstromingsdiepte 50 tot 200cm met een extreem kleine kans,0.0017529566120736695,-1.6890975101950025
+BU00740601,Bereikbaarheid_Voorzieningen,Afstand tot huisartsenpraktijk (km),0.08791208791208793,-0.8386361720321822
+BU00740601,Bereikbaarheid_Voorzieningen,Afstand tot grote supermarkt (km),0.1333333333333333,-0.5985612444891789
+BU00740601,Bereikbaarheid_Voorzieningen,Afstand tot school (km),0.1095890410958904,-0.45632328186439525
+BU00740601,Bereikbaarheid_Voorzieningen,Afstand tot kinderdagverblijf (km),0.08695652173913045,-0.6405416985369772
+BU00740601,Bereikbaarheid_Voorzieningen,Scholen binnen 3 km (aantal),0.39795918367346933,1.161215616104909
