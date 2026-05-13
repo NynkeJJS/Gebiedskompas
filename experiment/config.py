@@ -181,6 +181,6 @@ THEMA_LABELS = {
 # BUURTEN VOOR PROFIEL
 # ======================================================
 BUURTEN_VOOR_PROFIEL = [    
-    "BU00740601",  # Oranjewoud (voorbeeld)    # voeg hier evt. meer buurten toe
+    "BU00740601",  
     ]
 

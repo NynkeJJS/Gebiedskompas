@@ -63,13 +63,14 @@ def samengestelde_variabelen(
 
     Parameters
     ----------
+    entropy_df : pd.DataFrame
+        Dataset voor entropy.
+        MOET min-max genormaliseerd zijn.
+    
     weighted_mean_df : pd.DataFrame
         Dataset voor het gewogen gemiddelde.
         Mag z-score of min-max genormaliseerd zijn.
 
-    entropy_df : pd.DataFrame
-        Dataset voor entropy.
-        MOET min-max genormaliseerd zijn.
 
     weighted_mean_normalisatie : {"z_score", "min_max"}
         Geeft aan welke normalisatie is toegepast op weighted_mean_df.
@@ -88,13 +89,7 @@ def samengestelde_variabelen(
         raise ValueError(
             "weighted_mean_normalisatie moet 'z_score' of 'min_max' zijn"
         )
-
-    # Entropy guardrail (conceptueel, expliciet)
-    # NB: we checken hier niet numeriek, maar semantisch
-    if weighted_mean_normalisatie == "z_score":
-        # entropy_df is expliciet gescheiden en dus veilig
-        pass
-
+    
     thema_config = load_thema_config()
     results = []
 
@@ -142,7 +137,7 @@ def tabel_indicator_scores(
     buurtcode: str,
 ) -> pd.DataFrame:
     """
-    Maak een tabel met originele indicator-scores (min-max én z-score)
+    Maak een tabel met genormaliseerde scores (min-max en z-score)
     per thema en indicator voor één buurt.
     """
 
@@ -205,7 +200,7 @@ def sunburst_profiel_buurt(
     """
     Sunburst-profiel voor één buurt:
     - Binnenring: thema (samengestelde score)
-    - Buitenring: indicatoren (indicator-score)
+    - Buitenring: indicatoren (ge genormaliseerde indicator-score)
     """
 
     thema_config = load_thema_config()
@@ -218,11 +213,11 @@ def sunburst_profiel_buurt(
         (df_results["methode"] == methode)
     ].copy()
 
-    df_thema["label"] = df_thema["thema"].map(thema_labels)
+    df_thema["label"] = df_thema["thema"].map(THEMA_LABELS).fillna(df_thema["thema"])
     df_thema["parent"] = ""
-    df_thema["value"] = 0
+    df_thema["value"] = 0 # Binnenring heeft geen waarde, alleen kleur
     df_thema["color"] = df_thema["score"]
-    df_thema["score_type"] = "thema"
+    df_thema["score_type"] = "thema" 
     df_thema["indicator_score"] = np.nan
 
     # =========================
@@ -246,7 +241,7 @@ def sunburst_profiel_buurt(
                 {
                     "label": var,
                     "parent": thema_label,
-                    "value": 1 / n,
+                    "value": 1 / n, # Gelijke verdeling van grootte over indicatoren
                     "color": indicator_df.loc[buurtcode, var],
                     "score_type": "indicator",
                     "indicator_score": indicator_df.loc[buurtcode, var],
@@ -257,7 +252,7 @@ def sunburst_profiel_buurt(
     df_vars = pd.DataFrame(rows)
 
     # =========================
-    # Combineer
+    # Combineer thema- en indicatordata voor plotting
     # =========================
     df_plot = pd.concat(
         [
@@ -282,20 +277,10 @@ def sunburst_profiel_buurt(
     color_continuous_midpoint=0,
     branchvalues="remainder",
     )
-
-    # Binnenring (level 0): themanaam + score
+    
     fig.update_traces(
-        textinfo="label+text",
-        texttemplate="%{label}<br>%{color:.2f}",
-        insidetextorientation="radial",
-        selector=dict(level=0),
+    textinfo="label",
     )
 
-    # Buitenring (level 1): GEEN tekst
-    fig.update_traces(
-        textinfo="none",
-        selector=dict(level=1),
-    )
 
-        
     return fig

@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from pyparsing import warnings
+import warnings
 from sklearn.decomposition import PCA
 from factor_analyzer import FactorAnalyzer
 import plotly.express as px

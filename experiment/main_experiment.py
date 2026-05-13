@@ -79,7 +79,9 @@ def main_data():
     # print(f"Kerncijfers shape: {df_data.shape}")
     # vprint(df_data.head())
 
-    df_data, df_meta = pd.read_csv(KERNCIJFERS_DATA), pd.read_csv(KERNCIJFERS_META)
+    # Inlezen van eerder opgeslagen CSV's, omdat de CBS server niet bereikbaar is 13-5-2026
+    df_data, df_meta = pd.read_csv(KERNCIJFERS_DATA), pd.read_csv(KERNCIJFERS_META) 
+    
 
     # ======================================================
     # 2. Klimaatdata + metadata
@@ -251,22 +253,22 @@ def main_analyse_samengestelde_variabelen(
     # Buurtprofielen
     if normalisatie_weighted_mean_buurt == "z_score":
         weighted_mean_norm_buurt_label = "z-score normalisatie"
-        df_results_buurt = samengestelde_variabelen(
-            weighted_mean_df=df_zscore,
-            entropy_df=df_minmax,
-            weighted_mean_normalisatie="z_score",
-        )
+        weighted_mean_df = df_zscore
+        indicator_df_weighted = df_zscore
 
     elif normalisatie_weighted_mean_buurt == "min_max":
         weighted_mean_norm_buurt_label = "min-max normalisatie"
-        df_results_buurt = samengestelde_variabelen(
-            weighted_mean_df=df_minmax,
-            entropy_df=df_minmax,
-            weighted_mean_normalisatie="min_max",
-        )
+        weighted_mean_df = df_minmax
+        indicator_df_weighted = df_minmax
 
     else:
         raise ValueError("normalisatie_weighted_mean_buurt moet 'z_score' of 'min_max' zijn")
+
+    df_results_buurt = samengestelde_variabelen(
+    weighted_mean_df=weighted_mean_df,
+    entropy_df=df_minmax,
+    weighted_mean_normalisatie=normalisatie_weighted_mean_buurt,
+    )
 
     df_results_buurt["thema_kort"] = df_results_buurt["thema"].map(THEMA_LABELS)
 
@@ -282,7 +284,6 @@ def main_analyse_samengestelde_variabelen(
         "../data/output/samengestelde_themascores_buurt.csv",
         index=False,
     )
-
 
 
     df_entropy_weights.to_csv(
@@ -320,11 +321,6 @@ def main_analyse_samengestelde_variabelen(
         # -----------------------------
         # Weighted mean-profiel
         # -----------------------------
-        indicator_df_weighted = (
-            df_zscore if normalisatie_weighted_mean_buurt == "z_score"
-            else df_minmax
-        )
-
         fig_weighted_buurt = sunburst_profiel_buurt(
             df_results=df_results_buurt,
             indicator_df=indicator_df_weighted,
@@ -340,16 +336,20 @@ def main_analyse_samengestelde_variabelen(
 
         save_figure(fig_weighted_buurt, f"buurt_{buurt}_sunburst_weighted_mean.png")
 
-    df_indicatoren = tabel_indicator_scores(
-        indicator_df_minmax=df_minmax,
-        indicator_df_zscore=df_zscore,
-        buurtcode=buurt,
-    )
+        # =========================
+        # Indicatorentabel
+        # =========================
 
-    df_indicatoren.to_csv(
-        f"../data/output/buurt_{buurt}_indicator_scores.csv",
-        index=False,
-    )
+        df_indicatoren = tabel_indicator_scores(
+            indicator_df_minmax=df_minmax,
+            indicator_df_zscore=df_zscore,
+            buurtcode=buurt,
+        )
+
+        df_indicatoren.to_csv(
+            f"../data/output/buurt_{buurt}_indicator_scores.csv",
+            index=False,
+        )
 
 
 
@@ -372,10 +372,6 @@ def main(run_experiment=True, run_samengesteld=True):
             normalisatie_weighted_mean_buurt="z_score",
             entropy_norm_buurt_label="min-max normalisatie",
         )
-
-
-
-
 
 
 if __name__ == "__main__":
