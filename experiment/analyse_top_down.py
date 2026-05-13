@@ -281,6 +281,6 @@ def sunburst_profiel_buurt(
     fig.update_traces(
     textinfo="label",
     )
-
+    # scores in sunburst tonen geeft bij deze opzet problemen.
 
     return fig
